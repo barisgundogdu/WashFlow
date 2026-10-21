@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="../WashFlow.Application/WashFlow.Application.csproj" />
+    <ProjectReference Include="../WashFlow.Infrastructure/WashFlow.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>
