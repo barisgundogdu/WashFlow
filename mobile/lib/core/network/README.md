@@ -1,5 +1,7 @@
 # Future API integration boundary
 
+Authentication contracts already live in `features/auth/domain/auth_service.dart`; inject a future adapter via `WashFlowApp(authService: ...)`. These contracts do not specify endpoints or serialization.
+
 Place shared transport configuration and HTTP infrastructure here when API contracts are approved. No network client, endpoint, credential storage, or backend call is implemented yet.
 
 Feature-specific repository contracts belong in each feature's domain layer; ASP.NET Core adapters and DTO mapping belong in its data layer. Inject implementations at the app composition root. Select an HTTP package only when integration begins.

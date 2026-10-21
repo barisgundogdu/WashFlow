@@ -1,3 +1,5 @@
+import 'auth_service.dart';
+
 /// UI boundary only. Implement transport after backend contracts are approved.
 enum AuthFormKind { login, customerRegistration, businessRegistration }
 
@@ -33,4 +35,58 @@ class UnavailableAuthSubmission implements AuthSubmission {
   Future<void> submit(AuthFormInput input) async {
     throw const AuthServiceUnavailable();
   }
+}
+
+/// Bridges existing form behavior to the typed service without creating a session.
+class ServiceAuthSubmission implements AuthSubmission {
+  const ServiceAuthSubmission(this.service);
+  final AuthService service;
+
+  @override
+  Future<void> submit(AuthFormInput input) async {
+    switch (input.kind) {
+      case AuthFormKind.login:
+        _check(
+          await service.login(
+            LoginRequest(email: input.email, password: input.password),
+          ),
+        );
+      case AuthFormKind.customerRegistration:
+        _check(
+          await service.registerCustomer(
+            CustomerRegistrationRequest(
+              fullName: input.fullName!,
+              email: input.email,
+              password: input.password,
+            ),
+          ),
+        );
+      case AuthFormKind.businessRegistration:
+        _check(
+          await service.registerBusiness(
+            BusinessRegistrationRequest(
+              businessName: input.businessName!,
+              ownerFullName: input.fullName!,
+              email: input.email,
+              password: input.password,
+            ),
+          ),
+        );
+    }
+  }
+
+  void _check<T>(AuthResult<T> result) {
+    if (result case AuthFailure<T>(:final error)) {
+      if (error.code == AuthErrorCode.unavailable) {
+        throw const AuthServiceUnavailable();
+      }
+      throw AuthSubmissionFailure(error);
+    }
+    // Acknowledgement is not consumed as login success by the UI.
+  }
+}
+
+class AuthSubmissionFailure implements Exception {
+  const AuthSubmissionFailure(this.error);
+  final AuthError error;
 }

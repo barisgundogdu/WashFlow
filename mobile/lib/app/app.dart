@@ -2,9 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'routing/app_router.dart';
+import '../features/auth/domain/auth_service.dart';
+import '../features/auth/domain/auth_submission.dart';
 
 class WashFlowApp extends StatelessWidget {
-  const WashFlowApp({super.key});
+  const WashFlowApp({
+    super.key,
+    this.authService = const UnavailableAuthService(),
+  });
+
+  final AuthService authService;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +57,10 @@ class WashFlowApp extends StatelessWidget {
           style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
         ),
       ),
-      onGenerateRoute: AppRouter.onGenerateRoute,
+      onGenerateRoute: (settings) => AppRouter.onGenerateRoute(
+        settings,
+        submission: ServiceAuthSubmission(authService),
+      ),
     );
   }
 }

@@ -12,17 +12,25 @@ abstract final class AppRouter {
   static const customerRegister = '/register/customer';
   static const businessRegister = '/register/business';
 
-  static Route<void> onGenerateRoute(RouteSettings settings) {
+  static Route<void> onGenerateRoute(
+    RouteSettings settings, {
+    AuthSubmission submission = const UnavailableAuthSubmission(),
+  }) {
     return MaterialPageRoute<void>(
       settings: settings,
       builder: (context) => switch (settings.name) {
         welcome => const WelcomeScreen(),
-        login => const AuthFormScreen(kind: AuthFormKind.login),
+        login => AuthFormScreen(
+          kind: AuthFormKind.login,
+          submission: submission,
+        ),
         register => const RegistrationChoiceScreen(),
-        customerRegister => const AuthFormScreen(
+        customerRegister => AuthFormScreen(
+          submission: submission,
           kind: AuthFormKind.customerRegistration,
         ),
-        businessRegister => const AuthFormScreen(
+        businessRegister => AuthFormScreen(
+          submission: submission,
           kind: AuthFormKind.businessRegistration,
         ),
         _ => const Scaffold(

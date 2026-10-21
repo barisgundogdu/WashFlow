@@ -25,13 +25,13 @@ For Android, select an Android emulator/device with `flutter run -d <device-id>`
 - `lib/features/owner/`, `employee/`, `customer/`: documented homes for future role features; folders do not imply permissions or implemented behavior.
 - `lib/core/network/`: documented boundary for future ASP.NET Core transport integration.
 
-Use feature-local presentation, domain, and data layers when behavior is introduced. Shared features can sit alongside role folders to avoid duplicating login or shared components. Dependencies flow from presentation toward feature contracts; future data adapters implement those contracts and are wired at the app root. No HTTP package, state-management framework, or additional routing package is needed for this single-screen foundation. Flutter SDK localization supplies Turkish framework messages; screen strings are currently Turkish literals.
+Use feature-local presentation, domain, and data layers when behavior is introduced. Shared features can sit alongside role folders to avoid duplicating login or shared components. Dependencies flow from presentation toward feature contracts; future data adapters implement those contracts and are wired at the app root. No HTTP package, state-management framework, or additional routing package is needed for the current UI. Flutter SDK localization supplies Turkish framework messages; screen strings are currently Turkish literals.
 
 No real authentication, API calls, persistence, or business features are implemented. Backend authorization and tenant/customer ownership checks remain mandatory in later work. Unresolved SRS policies remain undecided.
 
 ## Authentication UI (Issue #9)
 
-Shared forms live in `lib/features/auth/presentation/`; `domain/auth_submission.dart` is an injectable UI submission boundary, not a finalized backend API contract. Its default implementation always reports service unavailability. There is no success/session result and credentials are neither persisted nor logged. Autofill context is cancelled when the form is disposed so preview credentials are not offered for saving.
+Shared forms live in `lib/features/auth/presentation/`; `domain/auth_submission.dart` bridges the existing UI submission boundary to the transport-independent `AuthService` contract. The app defaults to `UnavailableAuthService`, which always returns a typed unavailable failure. There is no success/session result and credentials are neither persisted nor logged. Autofill context is cancelled when the form is disposed so preview credentials are not offered for saving.
 
 Customer registration collects full name, email, password, and confirmation. Business registration adds business name and labels the name field for the owner. Validation checks required fields, basic email syntax, and matching passwords; no password complexity policy, employee onboarding process, or business approval policy is invented. Related requirements: FR-01, FR-20, NFR-05. Server security and registration policies remain pending.
 
@@ -40,3 +40,13 @@ Customer registration collects full name, email, password, and confirmation. Bus
 Forms use scrollable constrained layouts, safe areas, keyboard actions, autofill hints, password visibility, and pending/error states. Pending states can be tested using an injected completer; no artificial delay or fake account is used in the running app. Password recovery is an explicitly unavailable placeholder.
 
 Verification: `flutter analyze` passed; `flutter test` passed all 9 tests (navigation, validators, password visibility, unavailable submissions, pending/error handling, compact keyboard layout, authorized-option selection, Turkish welcome, unknown route). `flutter build ios --simulator` passed; `flutter run --no-resident` successfully launched on the iPhone 18 Pro simulator. Android native build and full device usability evaluation have not been performed.
+
+## Future authentication service contract (Issue #9)
+
+`lib/features/auth/domain/auth_service.dart` defines separate login, customer registration, and business registration methods with required typed request fields, typed operation results, and `AuthSuccess<T>` / `AuthFailure<T>` outcomes. `AuthError` uses semantic error codes and immutable typed field errors, keeping transport details and raw server messages outside the UI. These are client-domain contracts, not a committed JSON or endpoint schema.
+
+Inject a future ASP.NET Core adapter with `WashFlowApp(authService: implementation)`. The app passes it through routing to `ServiceAuthSubmission`; the existing form validation, loading, and Turkish unavailable/generic-error messages are preserved. Even a returned acknowledgement never creates a local session or navigates to authenticated content in this UI-only milestone. Future result consumption and safe localized error mapping belong to the backend integration milestone.
+
+Login results carry only an account identifier, which grants no authorization. Registration results are acknowledgements with an optional reference identifier; they imply neither active accounts nor approval. Business approval policy and employee onboarding remain unresolved. No HTTP, JSON serialization, JWT handling, persistence, or real authentication is implemented.
+
+`test/auth_service_test.dart` verifies all unavailable default operations, request mapping, exact password preservation, typed failure propagation, immutable errors, and the app-to-routed-form injection path. Existing UI tests continue to cover navigation and validation.
