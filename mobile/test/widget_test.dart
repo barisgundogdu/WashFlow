@@ -17,7 +17,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('WashFlow’a hoş geldiniz'), findsOneWidget);
-    expect(find.text('Uygulamamız hazırlanıyor.'), findsOneWidget);
+    expect(
+      find.text('Aracınız ve işletmeniz için tek bir uygulama.'),
+      findsOneWidget,
+    );
     expect(
       Localizations.localeOf(tester.element(find.byType(Scaffold))),
       const Locale('tr'),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/routing/app_router.dart';
+
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
@@ -15,6 +17,7 @@ class WelcomeScreen extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: 480),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Icon(
                     Icons.local_car_wash_outlined,
@@ -22,7 +25,11 @@ class WelcomeScreen extends StatelessWidget {
                     color: theme.colorScheme.primary,
                   ),
                   const SizedBox(height: 24),
-                  Text('WashFlow', style: theme.textTheme.headlineLarge),
+                  Text(
+                    'WashFlow',
+                    style: theme.textTheme.headlineLarge,
+                    textAlign: TextAlign.center,
+                  ),
                   const SizedBox(height: 12),
                   Text(
                     'WashFlow’a hoş geldiniz',
@@ -31,8 +38,23 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    'Uygulamamız hazırlanıyor.',
+                    'Aracınız ve işletmeniz için tek bir uygulama.',
                     textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 40),
+                  FilledButton(
+                    onPressed: () =>
+                        Navigator.pushNamed(context, AppRouter.login),
+                    child: const Text('Giriş yap'),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(0, 56),
+                    ),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, AppRouter.register),
+                    child: const Text('Kayıt ol'),
                   ),
                 ],
               ),
