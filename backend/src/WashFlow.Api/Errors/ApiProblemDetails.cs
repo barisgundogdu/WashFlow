@@ -27,7 +27,7 @@ public static class ApiProblemDetails
         // Do not expose exception messages, request paths, query strings or framework details.
         problem.Detail = null;
         problem.Instance = null;
-        problem.Extensions["code"] = status switch
+        if (!problem.Extensions.ContainsKey("code")) problem.Extensions["code"] = status switch
         {
             400 => "validation", 401 => "unauthenticated", 403 => "forbidden",
             404 => "notFound", 405 => "methodNotAllowed", 409 => "conflict",

@@ -8,11 +8,12 @@ public sealed class ApiExceptionHandler(IProblemDetailsService problemDetails) :
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
-        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        var status = exception is BadHttpRequestException { StatusCode: 400 } ? 400 : 500;
+        httpContext.Response.StatusCode = status;
         return await problemDetails.TryWriteAsync(new ProblemDetailsContext
         {
             HttpContext = httpContext,
-            ProblemDetails = new ProblemDetails { Status = StatusCodes.Status500InternalServerError }
+            ProblemDetails = new ProblemDetails { Status = status }
         });
     }
 }

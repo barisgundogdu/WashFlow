@@ -4,10 +4,22 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using WashFlow.Api.Errors;
 using WashFlow.Application;
 using WashFlow.Infrastructure;
+using WashFlow.Infrastructure.Authentication;
+using WashFlow.Api.Features.Authentication;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddCoreAuthentication(builder.Configuration);
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("authentication", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown", _ => new FixedWindowRateLimiterOptions
+        { PermitLimit = 60, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+});
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = ApiProblemDetails.Customize);
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 
@@ -15,6 +27,11 @@ var app = builder.Build();
 // Keep safe problem responses in Development too; never enable the developer exception page.
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+app.UseRouting();
+app.UseRateLimiter();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapAuthEndpoints();
 app.MapHealthChecks("/health", new HealthCheckOptions
 {
     Predicate = _ => false,

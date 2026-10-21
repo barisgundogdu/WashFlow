@@ -6,7 +6,7 @@ public sealed class User : IEntity
 {
     private User() { }
 
-    /// <param name="passwordHash">An encoded adaptive password hash, produced by the future password service.</param>
+    /// <param name="passwordHash">An encoded adaptive password hash, produced by the password service.</param>
     public User(string fullName, string email, string passwordHash)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(fullName);
@@ -15,6 +15,13 @@ public sealed class User : IEntity
         FullName = fullName.Trim();
         Email = email.Trim();
         NormalizedEmail = NormalizeEmail(email);
+        PasswordHash = passwordHash;
+    }
+
+    // Re-encoding the same verified password does not change the credential security stamp.
+    public void UpgradePasswordHash(string passwordHash)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(passwordHash);
         PasswordHash = passwordHash;
     }
 

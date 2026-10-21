@@ -11,6 +11,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Production");
+        builder.UseSetting("Jwt:Issuer", "washflow-test");
+        builder.UseSetting("Jwt:Audience", "washflow-test-client");
+        builder.UseSetting("Jwt:SigningKey", Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32)));
         // Host settings are available before the minimal API registers infrastructure.
         builder.UseSetting("ConnectionStrings:WashFlow",
             "Host=127.0.0.1;Port=1;Database=unavailable;Username=test;Password=test;Timeout=1;Pooling=false");

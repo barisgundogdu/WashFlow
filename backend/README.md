@@ -1,9 +1,10 @@
 # WashFlow backend — Issue #2
 
-The backend includes the approved foundation and Phase 3 identity/tenant persistence
-models and initial migration. It remains a modular monolith with API, Application,
-Domain and Infrastructure projects. Login, registration, JWTs, email delivery, runtime
-tenant authorization and Flutter integration are not implemented. Issue #2 is not complete.
+The backend includes the foundation, Phase 3 identity/tenant persistence models and
+Phase 4A core authentication APIs. It remains a modular monolith with API, Application,
+Domain and Infrastructure projects. Email verification flows/delivery, password reset,
+employee onboarding, tenant-context authorization and Flutter integration remain future work.
+Issue #2 is not complete. See [core authentication setup and endpoints](docs/core-authentication.md).
 The phase numbering here refers to the backend plan, not the broader SRS milestones.
 
 ## Prerequisites
@@ -37,7 +38,9 @@ dotnet run --project src/WashFlow.Api --no-build
 Environment variables override appsettings.json. ASP.NET Core also accepts command-line
 configuration and its standard Development user-secrets provider. Do not commit credentials
 or pass secrets on command lines. No `.env` loader is installed. Missing/blank
-`ConnectionStrings__WashFlow` fails startup with a configuration error. A configured but
+`ConnectionStrings__WashFlow` fails startup with a configuration error. JWT configuration is
+also mandatory: set `Jwt__Issuer`, `Jwt__Audience` and `Jwt__SigningKey` as documented in the
+[authentication setup](docs/core-authentication.md). A configured but
 unreachable database allows liveness while readiness fails. No connection is opened during
 DI registration; no database is created, migrated or seeded automatically.
 
@@ -57,7 +60,8 @@ curl -i http://localhost:5080/health/ready
 - `/health`: process liveness, 200 with `{ "status": "healthy" }`; never queries PostgreSQL.
 - `/health/ready`: verifies PostgreSQL connectivity through EF Core; 200 when reachable,
   otherwise 503 with safe Problem Details. It does not verify schema/migrations yet.
-- Other paths: 404 Problem Details. No registration/login or business endpoints exist.
+- Core authentication: see [Phase 4A endpoints](docs/core-authentication.md).
+- Other paths: 404 Problem Details. No business-operation endpoints exist.
 
 ## Project boundaries and dependency injection
 
@@ -67,11 +71,12 @@ Api -> Infrastructure -> Application
 ```
 
 `Program.cs` is the composition root and calls `AddApplication` / `AddInfrastructure`.
-Application has an intentionally empty registration entry point until use cases exist.
+Application registers AuthService and owns validation/use cases and infrastructure interfaces.
 Domain holds platform identities, independent customer profiles, businesses, memberships,
 role grants and security credential records without EF dependencies. Infrastructure registers
 a scoped `WashFlowDbContext` using Npgsql and a tagged database readiness check. DbContext
-loads EF configurations from its own assembly. Application and API behavior remain unchanged.
+loads EF configurations from its own assembly. Infrastructure implements password hashing,
+token issuance, session-aware bearer validation and transactional persistence.
 The schema preserves tenant relationships; it does not itself authorize tenant access.
 No tenant data endpoints exist. Future handlers must check membership/roles and scope every
 read/write; DbSets are not a public or authorization-filtered repository.
@@ -84,8 +89,8 @@ semantic `code` and `traceId`. Titles are Turkish. Exception details, stack trac
 paths and query strings are not returned, including in Development. The developer exception
 page is deliberately disabled. Framework logs are server-side; configure restricted log
 access/retention and redaction before adding credential-bearing requests. No request-body
-logging or sensitive EF logging is enabled. Field validation contracts will be added with
-actual request DTOs, rather than speculative domain exceptions.
+logging or sensitive EF logging is enabled. Authentication DTOs now return Turkish field
+validation errors, with generic responses for sensitive account/credential failures.
 
 ## Tests
 
@@ -348,3 +353,57 @@ No new onboarding/approval policies were introduced. Verification/reset/invitati
 windows, retention/erasure rules and subsequent authentication/authorization workflows remain
 for their respective implementation phases. The existing approved 15-minute JWT lifetime
 is not implemented or tested in this persistence phase.
+
+## Phase 4A — core authentication
+
+Implemented endpoints and security behavior are documented in
+[docs/core-authentication.md](docs/core-authentication.md). Existing Phase 3 design and test
+sections above describe their original milestone; Phase 4A now implements the password,
+registration, JWT, refresh and logout behavior they previously marked as future work.
+No schema change or new migration is required. The existing initial migration must already be
+applied to the target database. No database reset or live migration was performed in this phase.
+
+Phase 4A verification (21 October 2026): build passed with zero warnings/errors; 24 unit
+and 11 HTTP integration tests passed. Twenty PostgreSQL tests explicitly skipped because
+`WASHFLOW_TEST_POSTGRES` is unset (six new authentication tests plus fourteen existing cases).
+These results do not claim successful live database registration/rotation/concurrency testing.
+The existing local database was not changed. Offline EF model comparison reported no pending
+model changes. `git diff --check` and new-file whitespace checks passed. No commit or push.
+
+Tests were run with the documented serial/no-build-server options and a temporary CLI/package
+cache. Test execution required localhost socket access outside the sandbox. Remaining local
+verification: run the PostgreSQL category from your own configured Terminal. Newly registered
+accounts remain blocked from login until the separately planned verification flow is implemented.
+
+Modified Phase 4A files (repository-relative):
+
+```text
+backend/README.md
+backend/src/WashFlow.Api/Errors/ApiExceptionHandler.cs
+backend/src/WashFlow.Api/Errors/ApiProblemDetails.cs
+backend/src/WashFlow.Api/Program.cs
+backend/src/WashFlow.Application/DependencyInjection.cs
+backend/src/WashFlow.Domain/Identity/User.cs
+backend/src/WashFlow.Infrastructure/WashFlow.Infrastructure.csproj
+backend/tests/WashFlow.IntegrationTests/ApiFactory.cs
+```
+
+Created Phase 4A files (repository-relative):
+
+```text
+backend/docs/core-authentication.md
+backend/src/WashFlow.Api/Features/Authentication/AuthEndpoints.cs
+backend/src/WashFlow.Application/Authentication/AuthContracts.cs
+backend/src/WashFlow.Application/Authentication/AuthService.cs
+backend/src/WashFlow.Application/Authentication/AuthValidation.cs
+backend/src/WashFlow.Infrastructure/Authentication/AccessTokenIssuer.cs
+backend/src/WashFlow.Infrastructure/Authentication/DependencyInjection.cs
+backend/src/WashFlow.Infrastructure/Authentication/EfAuthStore.cs
+backend/src/WashFlow.Infrastructure/Authentication/JwtSettings.cs
+backend/src/WashFlow.Infrastructure/Authentication/PasswordService.cs
+backend/src/WashFlow.Infrastructure/Authentication/RefreshTokenGenerator.cs
+backend/tests/WashFlow.IntegrationTests/AuthHttpTests.cs
+backend/tests/WashFlow.IntegrationTests/BearerAuthenticationTests.cs
+backend/tests/WashFlow.IntegrationTests/CoreAuthenticationPostgresTests.cs
+backend/tests/WashFlow.UnitTests/CoreAuthenticationTests.cs
+```
