@@ -1,0 +1,15 @@
+using WashFlow.Domain.Common;
+
+namespace WashFlow.Domain.Identity;
+
+public sealed class DeviceSession : IEntity
+{
+    public Guid Id { get; init; } = Guid.CreateVersion7();
+    public required Guid UserId { get; init; }
+    public required Guid SecurityStamp { get; init; }
+    public required string DeviceName { get; init; }
+    public required DateTimeOffset ExpiresAt { get; init; }
+    public DateTimeOffset? RevokedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}

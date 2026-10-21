@@ -1,9 +1,10 @@
-# WashFlow backend foundation — Issue #2
+# WashFlow backend — Issue #2
 
-This is Phase 2 of the approved backend plan: a modular monolith with API,
-Application, Domain and Infrastructure projects. It is not the full SRS Phase 2
-milestone. Authentication, domain entities, tenant authorization, email, Flutter
-integration and migrations are not implemented. Issue #2 is not complete.
+The backend includes the approved foundation and Phase 3 identity/tenant persistence
+models and initial migration. It remains a modular monolith with API, Application,
+Domain and Infrastructure projects. Login, registration, JWTs, email delivery, runtime
+tenant authorization and Flutter integration are not implemented. Issue #2 is not complete.
+The phase numbering here refers to the backend plan, not the broader SRS milestones.
 
 ## Prerequisites
 
@@ -67,10 +68,13 @@ Api -> Infrastructure -> Application
 
 `Program.cs` is the composition root and calls `AddApplication` / `AddInfrastructure`.
 Application has an intentionally empty registration entry point until use cases exist.
-Domain is intentionally empty. Infrastructure registers a scoped `WashFlowDbContext`
-using Npgsql and a tagged database readiness check. DbContext discovers future EF
-configurations from its own assembly; there are no entities or migrations in this phase.
-Do not introduce tenant-owned persistence without the approved authorization/isolation rules.
+Domain holds platform identities, independent customer profiles, businesses, memberships,
+role grants and security credential records without EF dependencies. Infrastructure registers
+a scoped `WashFlowDbContext` using Npgsql and a tagged database readiness check. DbContext
+loads EF configurations from its own assembly. Application and API behavior remain unchanged.
+The schema preserves tenant relationships; it does not itself authorize tenant access.
+No tenant data endpoints exist. Future handlers must check membership/roles and scope every
+read/write; DbSets are not a public or authorization-filtered repository.
 
 ## Error contract
 
@@ -103,14 +107,21 @@ export WASHFLOW_TEST_POSTGRES='Host=localhost;Port=5432;Database=washflow_test;U
 dotnet test WashFlow.sln --no-build --filter Category=PostgreSQL
 ```
 
-Use a dedicated test database. The current database test runs a read-only `SELECT 1`;
-it does not create tables, run migrations or modify records. If the variable is set but
-PostgreSQL is unavailable, the test fails. Do not report skipped tests as database verification.
+Use a dedicated test database. The connectivity test runs a read-only `SELECT 1`.
+Phase 3 persistence tests create a uniquely named `washflow_test_<guid>` schema, migrate
+that schema and remove only that schema on fixture disposal. The test database login needs
+CONNECT and CREATE on the dedicated database; it does not need database-creation permission.
+No `EnsureCreated`, database deletion or shared application-schema migration is performed.
+Most tests roll back their rows; the concurrency test commits data only inside the disposable
+schema. If the variable is set but PostgreSQL is unavailable, tests fail. Do not report skipped
+tests as database verification. A terminated test process may leave a prefixed test schema for
+manual cleanup; never point this test suite at a production database.
 
 ## Approved decisions for later phases (21 October 2026)
 
 These explicit decisions supplement the draft [SRS v0.2](../docs/requirements/WashFlow_SRS_v0.2.md)
-and supersede its conflicting open questions. They are not implemented here:
+and supersede its conflicting open questions. Persistence support is now present where
+noted below; the authentication/onboarding/session flows are not implemented:
 
 - Business onboarding is self-service; no platform approval. Customer and owner access
   requires account email verification. Initially collect business name, owner full name,
@@ -152,7 +163,7 @@ The test runner required permission to open its local communication socket outsi
 this session's sandbox. The ordinary parallel build stalled in the sandbox; serial
 compilation without build servers succeeded.
 
-## Files created in this phase
+## Files created in Phase 2 (historical inventory)
 
 All paths below are relative to `backend/`. The repository root `README.md` was
 also updated with a backend setup link. Generated `bin/` and `obj/` files are ignored.
@@ -182,3 +193,158 @@ tests/WashFlow.IntegrationTests/WashFlow.IntegrationTests.csproj
 tests/WashFlow.UnitTests/InfrastructureTests.cs
 tests/WashFlow.UnitTests/WashFlow.UnitTests.csproj
 ```
+
+## Phase 3 persistence design
+
+| Model | Ownership / constraints |
+|---|---|
+| User | Platform identity; unique normalized email, encoded password hash, security stamp, nullable email-verification timestamp |
+| CustomerProfile | Optional one-to-one User association; no BusinessId and no membership requirement |
+| Business | One physical branch / tenant; no approval state or Platform Admin role |
+| BusinessMembership | User–Business association, unique per pair, with revocation timestamp |
+| BusinessMembershipRole | Composite membership/role key; only Owner=1 and Employee=2; both rows may coexist |
+| EmailVerificationToken | User, intended normalized email and security-stamp snapshot; hashed token, expiry, consumption/revocation |
+| PasswordResetToken | User and security-stamp snapshot; hashed token, expiry, consumption/revocation |
+| EmployeeInvitation | Business, same-business issuing membership, intended normalized email, hashed token, expiry and explicit accepting User |
+| DeviceSession | User, security-stamp snapshot, display-only device name, absolute expiry and current-session revocation |
+| RefreshToken | Hashed credential, owning session, consumption/revocation and same-session successor reference |
+
+IDs use application-generated UUIDv7, except security stamps which are independent random UUIDs.
+All timestamps map to PostgreSQL `timestamp with time zone`; callers must supply UTC offsets.
+DbContext sets initial UpdatedAt to CreatedAt, stamps updates and protects CreatedAt from EF
+updates. PostgreSQL `xmin` provides optimistic concurrency on mutable entity rows, including
+single-use tokens, memberships and sessions. Role grant uniqueness is enforced by its primary key.
+All relationships use RESTRICT deletion; account/business erasure requires a separately reviewed
+retention/deletion workflow. Empty IDs, blank required strings, invalid token digests, invalid
+lifecycles and unsupported role values are rejected by database checks.
+
+Email normalization uses trimmed invariant uppercase, independent of Turkish UI culture. User
+construction sets it; future email-change methods must preserve normalization and verification
+invalidation. PasswordHash holds an encoded adaptive password-hasher result (including salt/work
+factor metadata); this phase does not generate or verify password hashes, and the database cannot
+prove that an arbitrary string is a valid password hash. The future identity service must use the
+approved ASP.NET Core password hasher and must never pass a password into PasswordHash.
+
+`TokenHash` accepts exactly a SHA-256 hex digest, normalizes it to lowercase and redacts ToString.
+There are no plaintext token columns. Future services must generate high-entropy random tokens,
+hash them before persistence, and use separate credentials per purpose. SHA-256 here applies to
+random security tokens, not passwords. Verification/reset expiry durations and invitation expiry
+are deliberately not assigned defaults; only a valid expiry after creation is required.
+
+The database limits each session to 720 hours (30 absolute days) from creation. Refresh records
+inherit that session's expiry; rotating a token must never extend the session. There is one
+unconsumed/unrevoked token per session, and a successor cannot belong to another session or have
+multiple predecessors. Later rotation must run in a transaction: consume the old record with its
+xmin concurrency check, save, insert the replacement, then link the old record to the replacement
+and commit. On concurrency/uniqueness failure the entire transaction must roll back. Reuse/replay
+handling, credential checks, expiry checks and session revocation on protected requests remain
+future service behavior. The schema alone does not implement login/logout or prevent credential use.
+
+Invitations never create accounts or memberships automatically. The composite issuer FK prevents
+cross-tenant references; a later handler must additionally check the issuer's active Owner role.
+The accepting account and timestamp must both be present or both absent. Authentication, email
+matching, explicit acceptance, account setup and transactional membership creation remain later
+work. Customer profiles are not linked to tenant-local walk-in records by email/name/plate.
+
+## Generate, review and apply migrations
+
+From `backend/`:
+
+```sh
+dotnet tool restore
+dotnet restore WashFlow.sln
+dotnet build WashFlow.sln
+dotnet ef migrations has-pending-model-changes --project src/WashFlow.Infrastructure --startup-project src/WashFlow.Infrastructure --no-build
+dotnet ef migrations script --idempotent --project src/WashFlow.Infrastructure --startup-project src/WashFlow.Infrastructure --no-build --output /tmp/washflow-identity.sql
+```
+
+The pinned local EF CLI and EF Design package are development-time migration dependencies.
+`WashFlowDbContextFactory` allows these offline commands without a connection string and reads
+only `ConnectionStrings__WashFlow` for database commands. It does not read Terminal environments
+from other processes, user-secrets or `.env` files. API runtime configuration remains unchanged.
+
+After review, from your own Terminal with the connection already set:
+
+```sh
+# Required environment variable: ConnectionStrings__WashFlow
+# Must point to the intended local database with schema-creation privileges.
+dotnet ef database update --project src/WashFlow.Infrastructure --startup-project src/WashFlow.Infrastructure --no-build
+```
+
+The initial migration is `20261021123220_InitialIdentityAndTenancy`. Review its Up method or the
+idempotent SQL before applying. API startup still never migrates automatically. This phase's
+migration was generated and reviewed offline; applying it to your local PostgreSQL database is
+intentionally left to you. No connection to your PostgreSQL instance was attempted by the implementation work.
+
+The added tests cover culture-independent normalization, hash format/redaction, role scope,
+concurrency/relationship metadata, offline migration/model consistency, and (when explicitly
+configured) migration application/idempotence, unique emails/memberships/profiles, tenant issuer
+integrity, restricted deletion, token expiry/session lifetime, refresh rotation and concurrency.
+The remaining Issue #2 acceptance criteria require later authentication/authorization flows.
+
+## Phase 3 verification and changed files — 21 October 2026
+
+- `dotnet build`: succeeded, zero warnings/errors.
+- `dotnet test`: 12 unit tests and 5 HTTP integration tests passed; no failures.
+- 14 PostgreSQL tests (13 persistence/migration cases plus the existing connectivity case)
+  explicitly skipped because `WASHFLOW_TEST_POSTGRES` is unset in this session.
+- Offline migration/model consistency and idempotent SQL generation passed. The SQL contains
+  ten tables, RESTRICT relationships, the refresh-token partial unique index and session cap.
+- The local PostgreSQL 17 Docker instance was reported as previously verified by the user.
+  This phase does not claim that its new migration/database tests passed against that instance.
+  Per the user's instruction, neither the live migration nor credential-dependent tests were run.
+- `git diff --check` and whitespace checks on new source files passed. No commits or pushes.
+
+Build/test commands used the same serial/no-build-server options documented in the initial
+verification. Only EF Core Design and the pinned local EF CLI were added; Domain still has
+no external package dependencies. No API, Application or Flutter behavior was added.
+
+Modified files (repository-relative):
+
+```text
+backend/README.md
+backend/src/WashFlow.Infrastructure/Persistence/WashFlowDbContext.cs
+backend/src/WashFlow.Infrastructure/WashFlow.Infrastructure.csproj
+backend/tests/WashFlow.UnitTests/InfrastructureTests.cs
+```
+
+Created files (repository-relative):
+
+```text
+backend/.config/dotnet-tools.json
+backend/src/WashFlow.Domain/Businesses/Business.cs
+backend/src/WashFlow.Domain/Businesses/BusinessMembership.cs
+backend/src/WashFlow.Domain/Businesses/BusinessMembershipRole.cs
+backend/src/WashFlow.Domain/Businesses/EmployeeInvitation.cs
+backend/src/WashFlow.Domain/Businesses/MembershipRole.cs
+backend/src/WashFlow.Domain/Common/IEntity.cs
+backend/src/WashFlow.Domain/Customers/CustomerProfile.cs
+backend/src/WashFlow.Domain/Identity/DeviceSession.cs
+backend/src/WashFlow.Domain/Identity/EmailVerificationToken.cs
+backend/src/WashFlow.Domain/Identity/PasswordResetToken.cs
+backend/src/WashFlow.Domain/Identity/RefreshToken.cs
+backend/src/WashFlow.Domain/Identity/TokenHash.cs
+backend/src/WashFlow.Domain/Identity/User.cs
+backend/src/WashFlow.Infrastructure/Persistence/Configurations/BusinessConfiguration.cs
+backend/src/WashFlow.Infrastructure/Persistence/Configurations/IdentityConfiguration.cs
+backend/src/WashFlow.Infrastructure/Persistence/Configurations/MappingRules.cs
+backend/src/WashFlow.Infrastructure/Persistence/Migrations/20261021123220_InitialIdentityAndTenancy.Designer.cs
+backend/src/WashFlow.Infrastructure/Persistence/Migrations/20261021123220_InitialIdentityAndTenancy.cs
+backend/src/WashFlow.Infrastructure/Persistence/Migrations/WashFlowDbContextModelSnapshot.cs
+backend/src/WashFlow.Infrastructure/Persistence/WashFlowDbContextFactory.cs
+backend/tests/WashFlow.IntegrationTests/PersistenceModelTests.cs
+backend/tests/WashFlow.IntegrationTests/PostgresModelFixture.cs
+backend/tests/WashFlow.UnitTests/IdentityModelTests.cs
+```
+
+Remaining verification: after reviewing and applying the migration from your Terminal, set
+`WASHFLOW_TEST_POSTGRES` to a dedicated test database and run:
+
+```sh
+dotnet test WashFlow.sln --no-build --filter Category=PostgreSQL
+```
+
+No new onboarding/approval policies were introduced. Verification/reset/invitation expiry
+windows, retention/erasure rules and subsequent authentication/authorization workflows remain
+for their respective implementation phases. The existing approved 15-minute JWT lifetime
+is not implemented or tested in this persistence phase.
