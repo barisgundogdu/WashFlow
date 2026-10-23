@@ -149,3 +149,9 @@ New files:
 - `mobile/test/invitation_redemption_widget_test.dart`
 - `mobile/test/invitation_redemption_api_flow_test.dart`
 - `mobile/test/support/redemption_fakes.dart`
+
+## Phase 5 follow-up
+
+The mock-only limitation above describes Phase 4's original validation. Current real HTTP,
+PostgreSQL and iOS simulator evidence, with remaining device/email limitations, is recorded in
+[Phase 5 readiness](../../docs/validation/employee-invitations-phase5.md).

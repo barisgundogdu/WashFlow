@@ -405,3 +405,11 @@ See [recipient invitation flow, contracts, security and backend gaps](docs/emplo
 for the full behavior. Existing owner/customer authentication, session rotation and Owner invitation
 management remain covered by the regression suite. This phase adds no backend/schema/database changes
 or production email delivery, and does not implement operational role features.
+
+## Phase 5 — Invitation integration and readiness
+
+The opt-in `integration_test/invitation_live_test.dart` harness runs the actual Flutter UI,
+HTTP adapters and iOS secure storage against an isolated Kestrel/PostgreSQL backend. SDK
+`integration_test` is a development dependency only. Ordinary `flutter test` remains mock-based.
+See [Phase 5 evidence and manual checklist](../docs/validation/employee-invitations-phase5.md)
+for precise test categories, environment setup, results and release limitations.

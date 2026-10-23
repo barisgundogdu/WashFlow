@@ -1,7 +1,11 @@
 # Employee invitations — Issue #2
 
 Backend implementation for SRS FR-01/02/03/27 and NFR-02/03/04/07/14.
-Flutter invitation screens are not implemented. This increment does not complete all Issue #2 criteria.
+Flutter owner management and recipient redemption are implemented in Phases 3–4. This does not complete all Issue #2 criteria.
+
+For current real PostgreSQL/HTTP and simulator evidence, see the
+[Phase 5 readiness report](../../docs/validation/employee-invitations-phase5.md).
+The implementation-session results at the end of this document are historical, not the current validation totals.
 
 ## API
 
@@ -77,7 +81,7 @@ Tests cover token security, mailbox separation, HTTP authentication/validation, 
 new-account verification/login/acceptance, single-use concurrency, replacement/revocation races,
 expiry, removed inviter grants and historical Owner membership rejection.
 
-Implementation verification (23 October 2026): build completed with zero warnings/errors;
+Historical backend implementation-session verification (23 October 2026): build completed with zero warnings/errors;
 48 unit tests and 37 HTTP integration tests passed. All 41 PostgreSQL tests, including eight new
 invitation cases, were explicitly skipped because `WASHFLOW_TEST_POSTGRES` was unset.
 Offline migration SQL generation and model consistency checks passed; SQL was not applied.
