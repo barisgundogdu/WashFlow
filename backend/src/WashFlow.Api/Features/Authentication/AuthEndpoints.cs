@@ -15,6 +15,13 @@ public static class AuthEndpoints
             context.HttpContext.Response.Headers.Pragma = "no-cache";
             return await next(context);
         });
+        group.MapGet("/contexts", async (ClaimsPrincipal user,
+            WashFlow.Application.Authorization.UserContextService service, CancellationToken ct) =>
+        {
+            if (!Guid.TryParse(user.FindFirstValue("sub"), out var userId) || userId == Guid.Empty)
+                return Results.Unauthorized();
+            return Results.Ok(await service.GetAsync(userId, ct));
+        }).RequireAuthorization();
         group.MapPost("/customers/register", (RegistrationRequest? request, AuthService service, CancellationToken ct) =>
             Register(request ?? new(), false, service, ct)).AllowAnonymous();
         group.MapPost("/businesses/register", (RegistrationRequest? request, AuthService service, CancellationToken ct) =>

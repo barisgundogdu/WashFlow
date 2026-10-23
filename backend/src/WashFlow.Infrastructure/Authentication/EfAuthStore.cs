@@ -8,7 +8,7 @@ using WashFlow.Infrastructure.Persistence;
 
 namespace WashFlow.Infrastructure.Authentication;
 
-public sealed class EfAuthStore(WashFlowDbContext db) : IAuthStore
+public sealed class EfAuthStore(WashFlowDbContext db, TimeProvider clock) : IAuthStore
 {
     public async Task<bool> RegisterAsync(User user, string? businessName, EmailVerificationToken verification, CancellationToken ct)
     {
@@ -57,6 +57,10 @@ public sealed class EfAuthStore(WashFlowDbContext db) : IAuthStore
         if (sessionId is null) return null;
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
         var session = await LockSession(sessionId.Value, ct);
+        // A competing rotation may create a successor while this request waits.
+        // Request-start time could predate that successor and violate revocation constraints.
+        // Expiry must also be evaluated after the lock, not before waiting for it.
+        now = clock.GetUtcNow();
         if (session is null) return null;
         var token = await db.RefreshTokens.SingleAsync(x => x.TokenHash == oldHash, ct);
         if (token.ConsumedAt is not null || token.RevokedAt is not null)
@@ -81,6 +85,7 @@ public sealed class EfAuthStore(WashFlowDbContext db) : IAuthStore
     {
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
         var session = await LockSession(sessionId, ct);
+        now = clock.GetUtcNow(); // Logout can also wait behind a rotation creating a successor.
         if (session is not null && session.UserId == userId) await Revoke(session, now, ct);
         await transaction.CommitAsync(ct);
     }

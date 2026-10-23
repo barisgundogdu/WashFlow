@@ -20,6 +20,8 @@ public static class DependencyInjection
 
         services.AddDbContext<WashFlowDbContext>(options =>
             options.UseNpgsql(connectionString));
+        services.AddScoped<WashFlow.Application.Authorization.ICurrentUserContextStore, Authorization.EfUserContextStore>();
+        services.AddScoped<WashFlow.Application.Authorization.IBusinessAuthorizationStore, Authorization.EfBusinessAuthorizationStore>();
         services.AddHealthChecks()
             .AddCheck<PostgresHealthCheck>("postgresql", tags: ["ready"]);
         return services;

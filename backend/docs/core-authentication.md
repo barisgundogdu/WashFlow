@@ -281,3 +281,80 @@ Tests in `DevelopmentEmailHttpTests` cover IPv4/IPv6 loopback, single-use/latest
 semantics, recipient isolation, concurrent reads, absent non-Development routes,
 non-loopback/null peers, proxy header spoofing, malformed input and no-cache headers.
 These HTTP tests use TestServer connection features, not a live SMTP server or database.
+
+## Tenant context discovery — Issue #2, first authorization increment
+
+`GET /api/v1/auth/contexts` requires the existing Bearer JWT and active device
+session. Identity comes exclusively from validated `sub`; request parameters,
+headers and stored client selections cannot choose a different user or grant roles.
+The response is marked `Cache-Control: no-store` and `Pragma: no-cache`.
+
+```json
+{
+  "customerContext": { "customerProfileId": "01900000-0000-7000-8000-000000000001" },
+  "businessContexts": [
+    {
+      "businessId": "01900000-0000-7000-8000-000000000002",
+      "businessName": "Örnek Oto Yıkama",
+      "membershipId": "01900000-0000-7000-8000-000000000003",
+      "roles": ["Owner", "Employee"]
+    }
+  ]
+}
+```
+
+`customerContext` is null without a personal profile. Business contexts include only
+this user's non-revoked memberships with supported Owner/Employee grants; grantless
+memberships are omitted. Multiple grants share one business entry. Business entries
+are ordered by business ID and roles by their defined enum value. Role strings are
+stable API identifiers; Flutter should provide Turkish display labels. Empty
+contexts return 200, not 403. Missing/invalid/expired credentials and revoked sessions
+return 401. No account email, invitation, credential, other-user profile or history
+is returned. Customer contexts require no business membership.
+
+The Application UserContextService uses ICurrentUserContextStore; Infrastructure
+projects only the required fields using EF Core. BusinessAuthorizationService uses
+IBusinessAuthorizationStore to check the exact user/business/role combination against
+current database state. Empty identities and unsupported roles fail closed. Queries
+are untracked and decisions are not cached, including within the same request scope.
+No JWT claims, session format, database schema or Flutter behavior changes are needed.
+
+### Mandatory rules for subsequent resource endpoints
+
+- Require JWT/session authentication, derive user ID from `sub`, and obtain business
+  ID from an explicit route such as `/api/v1/businesses/{businessId}/customers`.
+- Call BusinessAuthorizationService.HasRoleAsync for the required grant. Return generic
+  Turkish Problem Details with 403 on failure; do not disclose membership state.
+- Query each resource by both its resource ID and authorized business ID. Return 404
+  for records absent within that scope. Scope updates/deletes the same way, validate
+  all referenced records, and set tenant IDs from the authorized route when creating.
+- Customer endpoints scope profile/vehicle/booking access to the authenticated user's
+  ownership path. An Owner/Employee grant never implies access to platform customer
+  information or another business's history.
+- Employee work operations also need assignment checks. Financial/management operations
+  require Owner. No automatic Owner-to-Employee role inheritance is implemented.
+- Perform authorization inside future write transactions with appropriate membership
+  and grant locking/rechecks to prevent concurrent revocation from racing mutations.
+  A successful early boolean check alone does not provide that guarantee.
+
+### Security boundaries and limitations
+
+Context discovery is a snapshot, not a permission token. Its two database queries do
+not provide an atomic cross-query snapshot. Membership/grant changes committed before
+a subsequent authorization query are observed; changes after that query can race an
+in-flight operation. Future writes must define transactional enforcement as above.
+No tenant resource endpoint or global EF filter is introduced by this increment;
+DbSets remain unscoped. The boolean authorization service does not enforce resource
+ownership, assignments, transactions or HTTP responses on a caller's behalf.
+
+Flutter may keep a selected context locally, but each future API operation must check
+current grants. Selecting Employee does not remove an existing Owner grant. There is
+no context-switch endpoint, new token, role restriction on a session, employee
+invitation flow, or Flutter navigation change in this increment. Issue #2 remains open.
+
+Tests cover JWT rejection and identity derivation through HTTP, minimal disclosure,
+current membership/grant checks, cross-business role isolation, and revocation/removal.
+Real database tests are explicitly skipped without WASHFLOW_TEST_POSTGRES; they must
+run against the dedicated test database before claiming PostgreSQL verification.
+Resource isolation and concurrent write/revocation tests remain required when resource
+endpoints are added. This supports FR-02/03/27 and NFR-02/03/14 without completing them.

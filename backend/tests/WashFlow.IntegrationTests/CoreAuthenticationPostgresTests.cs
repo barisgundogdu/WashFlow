@@ -10,6 +10,7 @@ using WashFlow.Application.Authentication;
 using WashFlow.Domain.Businesses;
 using WashFlow.Domain.Identity;
 using WashFlow.Infrastructure.Persistence;
+using WashFlow.Infrastructure.Authentication;
 
 namespace WashFlow.IntegrationTests;
 
@@ -125,11 +126,76 @@ public sealed class CoreAuthenticationPostgresTests(PostgresModelFixture fixture
         {
             Assert.Single(responses, x => x.StatusCode == HttpStatusCode.OK);
             Assert.Single(responses, x => x.StatusCode == HttpStatusCode.Unauthorized);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login.AccessToken);
+            var winner = (await responses.Single(x => x.StatusCode == HttpStatusCode.OK)
+                .Content.ReadFromJsonAsync<TokenResponse>())!;
+            using var rejection = System.Text.Json.JsonDocument.Parse(await responses
+                .Single(x => x.StatusCode == HttpStatusCode.Unauthorized).Content.ReadAsStringAsync());
+            Assert.Equal("invalidCredentials", rejection.RootElement.GetProperty("code").GetString());
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", winner.AccessToken);
             using var logout = await client.PostAsync("/api/v1/auth/logout", null);
             Assert.Equal(HttpStatusCode.Unauthorized, logout.StatusCode);
+            using var successorRefresh = await client.PostAsJsonAsync("/api/v1/auth/refresh", new { refreshToken = winner.RefreshToken });
+            Assert.Equal(HttpStatusCode.Unauthorized, successorRefresh.StatusCode);
+            await using var db = new WashFlowDbContext(fixture.Options);
+            var session = await db.DeviceSessions.SingleAsync(x => x.UserId == user.Id);
+            Assert.NotNull(session.RevokedAt);
+            var tokens = await db.RefreshTokens.Where(x => x.DeviceSessionId == session.Id).ToListAsync();
+            Assert.Equal(2, tokens.Count);
+            Assert.All(tokens, token => Assert.True(token.RevokedAt >= token.CreatedAt));
         }
         finally { foreach (var response in responses) response.Dispose(); }
+    }
+
+    [PostgresFact]
+    public async Task ReplayAndLogoutUsePostLockTimeWhenSuccessorWasCreatedAfterRequestStarted()
+    {
+        using var root = new ApiFactory(); using var api = CreateApi(root); using var client = api.CreateClient();
+        var user = await Seed(api, true);
+        var generator = new RefreshTokenGenerator();
+        // Emulate the losing request starting first but obtaining the lock after a newer rotation.
+        // No sleep or probabilistic thread ordering is required to reproduce its stale timestamp.
+        foreach (var logout in new[] { false, true })
+        {
+            var login = await Login(client, user.Email);
+            var staleRequestTime = DateTimeOffset.UtcNow.AddMinutes(-1);
+            var clock = new FixedClock(DateTimeOffset.UtcNow);
+            await using var db = new WashFlowDbContext(fixture.Options);
+            var store = new EfAuthStore(db, clock);
+            var rotated = await store.RotateAsync(generator.Hash(login.RefreshToken), generator.Hash(generator.Generate()),
+                clock.GetUtcNow(), default);
+            Assert.NotNull(rotated);
+            // Fresh context reflects the actual competing-request lifetime; no tracked state is shared.
+            await using var replayDb = new WashFlowDbContext(fixture.Options);
+            var replayStore = new EfAuthStore(replayDb, clock);
+            if (logout) await replayStore.LogoutAsync(user.Id, rotated.Id, staleRequestTime, default);
+            else Assert.Null(await replayStore.RotateAsync(generator.Hash(login.RefreshToken), generator.Hash(generator.Generate()),
+                staleRequestTime, default));
+            Assert.False(await replayStore.IsSessionActiveAsync(user.Id, rotated.Id, clock.GetUtcNow(), default));
+            var tokens = await replayDb.RefreshTokens.AsNoTracking().Where(x => x.DeviceSessionId == rotated.Id).ToListAsync();
+            Assert.Equal(2, tokens.Count);
+            Assert.Single(tokens, token => token.ConsumedAt != null);
+            Assert.All(tokens, token => Assert.True(token.RevokedAt >= token.CreatedAt));
+        }
+    }
+
+    [PostgresFact]
+    public async Task RotationRejectsSessionExpiredWhileWaitingForLock()
+    {
+        using var root = new ApiFactory(); using var api = CreateApi(root); using var client = api.CreateClient();
+        var user = await Seed(api, true); var login = await Login(client, user.Email);
+        var generator = new RefreshTokenGenerator();
+        await using var db = new WashFlowDbContext(fixture.Options);
+        var store = new EfAuthStore(db, new FixedClock(login.SessionExpiresAt.AddSeconds(1)));
+        Assert.Null(await store.RotateAsync(generator.Hash(login.RefreshToken), generator.Hash(generator.Generate()),
+            DateTimeOffset.UtcNow, default));
+        var sessionId = await db.DeviceSessions.Where(x => x.UserId == user.Id).Select(x => x.Id).SingleAsync();
+        var token = await db.RefreshTokens.AsNoTracking().SingleAsync(x => x.DeviceSessionId == sessionId);
+        Assert.Null(token.ConsumedAt); Assert.Null(token.ReplacedByTokenId);
+    }
+
+    private sealed class FixedClock(DateTimeOffset now) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => now;
     }
 
     [PostgresFact]
