@@ -1,9 +1,17 @@
+import 'package:flutter/foundation.dart';
+
 import 'auth_service.dart';
 
 /// Provides a current credential through serialized session handling.
 /// Callers never read persisted credentials or rotate tokens themselves.
 abstract interface class AccessTokenProvider {
   Future<AuthResult<String>> accessToken();
+}
+
+/// In-memory identity boundary, changed on login, restoration and logout.
+/// Refresh rotation keeps the same identity; no roles or credentials are exposed.
+abstract interface class SessionIdentity implements Listenable {
+  int get sessionRevision;
 }
 
 abstract interface class SessionService {

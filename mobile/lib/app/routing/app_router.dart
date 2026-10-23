@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../features/auth/domain/auth_submission.dart';
+import '../../features/auth/domain/context_service.dart';
 import '../../features/auth/domain/session_service.dart';
 import '../../features/auth/presentation/session_screen.dart';
 import '../../features/auth/presentation/verification_screen.dart';
@@ -20,6 +21,7 @@ abstract final class AppRouter {
   static Route<void> onGenerateRoute(
     RouteSettings settings, {
     SessionService? sessionService,
+    ContextService? contextService,
     AuthSubmission submission = const UnavailableAuthSubmission(),
   }) {
     return MaterialPageRoute<void>(
@@ -31,7 +33,10 @@ abstract final class AppRouter {
               ? settings.arguments as String
               : '',
         ),
-        session => SessionScreen(service: sessionService),
+        session => SessionScreen(
+          service: sessionService,
+          contextService: contextService,
+        ),
         welcome => const WelcomeScreen(),
         login => AuthFormScreen(
           kind: AuthFormKind.login,

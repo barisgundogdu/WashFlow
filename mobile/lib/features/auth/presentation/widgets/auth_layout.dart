@@ -6,17 +6,22 @@ class AuthLayout extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.child,
+    this.allowBack = true,
   });
 
   final String title;
   final String subtitle;
   final Widget child;
+  final bool allowBack;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('WashFlow')),
+      appBar: AppBar(
+        title: const Text('WashFlow'),
+        automaticallyImplyLeading: allowBack,
+      ),
       body: SafeArea(
         top: false,
         child: Center(

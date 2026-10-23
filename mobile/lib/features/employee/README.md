@@ -1,3 +1,6 @@
-# Employee features (planned)
+# Employee features
 
-Future assigned-work screens live here, with presentation, domain, and data layers added as needed. Server authorization must restrict updates to assigned work and prevent management or financial access. No employee functionality is implemented.
+`EmployeeHomeScreen` is a clearly labeled temporary destination reached only through fresh
+server-authorized context selection. Assigned-work operations remain unimplemented.
+Future APIs must restrict updates to assigned work and prevent management or financial access.
+Owner and Employee grants in one membership produce separate selectable experiences.

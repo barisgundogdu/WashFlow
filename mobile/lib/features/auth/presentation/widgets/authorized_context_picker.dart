@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Future API-provided authorized options, never a public role selector.
+/// Server-provided authorized options, never a public role selector.
 class AuthorizedContextOption {
   const AuthorizedContextOption({required this.id, required this.label});
   final String id;

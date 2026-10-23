@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 
 import '../../../core/network/api_client.dart';
 import '../domain/auth_service.dart';
@@ -38,8 +39,12 @@ class _Tokens {
 
 /// No credential logging, JWT role inference, automatic POST retries or redirects.
 /// All session mutations are serialized: a rotated token is never reused.
-class ApiAuthService
-    implements AuthService, SessionService, AccessTokenProvider {
+class ApiAuthService extends ChangeNotifier
+    implements
+        AuthService,
+        SessionService,
+        AccessTokenProvider,
+        SessionIdentity {
   ApiAuthService({
     required this.baseUrl,
     required this.store,
@@ -61,6 +66,14 @@ class ApiAuthService
   final DateTime Function() _now;
   _Tokens? _tokens;
   Future<void> _tail = Future.value();
+  int _sessionRevision = 0;
+  @override
+  int get sessionRevision => _sessionRevision;
+
+  void _changeIdentity() {
+    _sessionRevision++;
+    notifyListeners();
+  }
 
   Future<AuthResult<T>> _safe<T>(Future<T> Function() action) async {
     try {
@@ -137,6 +150,7 @@ class ApiAuthService
   @override
   Future<AuthResult<LoginResult>> login(LoginRequest request) =>
       _serial(() async {
+        _changeIdentity();
         await _clear();
         final tokens = _Tokens(
           await _post('login', {
@@ -187,6 +201,7 @@ class ApiAuthService
 
   @override
   Future<AuthResult<bool>> restoreSession() => _serial(() async {
+    _changeIdentity();
     String? raw;
     try {
       raw = await store.read();
@@ -232,6 +247,7 @@ class ApiAuthService
 
   @override
   Future<AuthResult<void>> logout() => _serial(() async {
+    _changeIdentity();
     try {
       if (_tokens != null) {
         if (!_tokens!.accessExpiry.isAfter(_now())) await _rotate();

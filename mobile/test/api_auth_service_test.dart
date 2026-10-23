@@ -6,7 +6,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:washflow/app/app.dart';
+import 'package:washflow/app/routing/app_router.dart';
 import 'package:washflow/features/auth/data/api_auth_service.dart';
+import 'package:washflow/features/auth/data/api_context_service.dart';
 import 'package:washflow/features/auth/data/token_store.dart';
 import 'package:washflow/features/auth/domain/auth_service.dart';
 import 'package:washflow/features/auth/domain/session_service.dart';
@@ -320,9 +322,19 @@ void main() {
       store,
       (r) async => r.url.path.endsWith('logout')
           ? http.Response('', 204)
+          : r.url.path.endsWith('contexts')
+          ? http.Response('{"customerContext":null,"businessContexts":[]}', 200)
           : tokenResponse(),
     );
-    await tester.pumpWidget(WashFlowApp(authService: service));
+    await tester.pumpWidget(
+      WashFlowApp(
+        authService: service,
+        contextService: ApiContextService(
+          apiClient: service.apiClient,
+          session: service,
+        ),
+      ),
+    );
     await tester.tap(find.text('Giriş yap'));
     await tester.pumpAndSettle();
     await tester.enterText(
@@ -432,4 +444,57 @@ void main() {
       );
     });
   }
+  testWidgets('restored session rotates before loading authorized home', (
+    tester,
+  ) async {
+    final store = MemoryStore()..value = jsonEncode(tokens());
+    final paths = <String>[];
+    final service = api(store, (request) async {
+      paths.add(request.url.path);
+      if (request.url.path.endsWith('/refresh')) {
+        return tokenResponse('restored');
+      }
+      expect(request.url.path, '/api/v1/auth/contexts');
+      expect(request.headers['Authorization'], 'Bearer access-restored');
+      return http.Response(
+        '{"customerContext":{"customerProfileId":"11111111-1111-1111-1111-111111111111"},"businessContexts":[]}',
+        200,
+      );
+    });
+    addTearDown(() => tester.pumpWidget(const SizedBox.shrink()));
+    expect((await service.restoreSession() as AuthSuccess<bool>).value, isTrue);
+    await tester.pumpWidget(
+      WashFlowApp(
+        authService: service,
+        contextService: ApiContextService(
+          apiClient: service.apiClient,
+          session: service,
+        ),
+        initialRoute: AppRouter.session,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(paths, ['/api/v1/auth/refresh', '/api/v1/auth/contexts']);
+    expect(find.text('Müşteri alanı'), findsOneWidget);
+    expect(find.text('İşletme sahibi alanı'), findsNothing);
+  });
+
+  test(
+    'identity revision changes on account boundaries, not token rotation',
+    () async {
+      final service = api(
+        MemoryStore(),
+        (request) async => request.url.path.endsWith('/logout')
+            ? http.Response('', 204)
+            : tokenResponse('fixture', request.url.path.endsWith('/login')),
+      );
+      final original = service.sessionRevision;
+      await service.login(login);
+      expect(service.sessionRevision, original + 1);
+      await service.accessToken();
+      expect(service.sessionRevision, original + 1);
+      await service.logout();
+      expect(service.sessionRevision, original + 2);
+    },
+  );
 }

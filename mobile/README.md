@@ -3,9 +3,9 @@
 One Turkish Flutter Android/iOS application. Phase 4C connects the existing authentication
 design to the Phase 4A/4B backend under Issue #2, which remains open. Issue #9 supplied the
 completed UI foundation. Requirements: FR-01, FR-20, NFR-01/02/04/05/07.
-Typed context discovery (FR-27) now has a data/service boundary; context navigation, employee
-onboarding UI, business operations and dashboards remain subsequent work. A session does not
-grant tenant access.
+Context discovery and role-aware navigation (FR-27) now use backend grants. Role destinations
+are clearly labeled temporary shells; employee invitation UI, business operations and dashboards
+remain subsequent work. A session alone does not grant tenant access.
 
 ## Dependencies and verification
 
@@ -92,8 +92,8 @@ operations without forcing old UI/test adapters to implement unrelated methods.
   unavailable and malformed responses map to safe Turkish messages; arbitrary server text,
   database errors and validation strings are not rendered.
 
-The authenticated screen only confirms a session and offers logout. It introduces no dashboards,
-role choice or business data. Password recovery remains explicitly unavailable.
+The authenticated screen now loads server-authorized contexts before opening a temporary role
+shell; see Phase 2 below. Password recovery remains explicitly unavailable.
 
 ## Email verification
 
@@ -200,3 +200,79 @@ Phase 1 verification (23 October 2026): `flutter analyze` passed with no issues;
 passed all 46 tests, including 14 new transport/context tests and the existing authentication
 regressions. `git diff --check` passed. No backend, database, migration, navigation or invitation UI
 changes were made; no commit or push was created. Context loading is available for Phase 2 wiring.
+
+
+## Flutter integration Phase 2 — Authenticated contexts and navigation
+
+Requirements: Issue #2, SRS FR-02/03/27 and NFR-02/03/05/14. `main.dart` injects the Phase 1
+`ApiContextService` alongside the existing authentication/session adapter. Normal login and restored
+sessions both enter `/session`, which fetches `/api/v1/auth/contexts` before rendering role content.
+The same secure-store format and serialized refresh-token safeguards remain in place.
+
+`SessionController` maps each server customer profile to Customer and each supported business
+grant to Owner/Employee experiences. Both grants in the same membership remain separate options.
+A single option opens automatically. Multiple options use `AuthorizedContextPicker` with business
+names and Turkish role labels. Unknown roles cannot become destinations. Zero supported grants
+show a signed-in empty state with refresh/logout, without an invitation action.
+
+All roles currently show explicitly temporary home screens. No customer, owner, employee operation,
+invitation management, registration, or acceptance was added in Phase 2. Selection grants no API
+privileges: each future business operation must still validate membership/role/ownership on the server.
+
+Refresh hides and clears old role content while fetching. Switching first refreshes the picker;
+selection revalidates again before opening the requested experience. Removed selections cannot be
+restored from stale picker callbacks. Role content lives inside a navigator keyed to its current
+request generation and experience: switching or refreshing disposes its routes and local state.
+Role-specific named routes are not registered; route arguments cannot select a business or role.
+The authenticated root blocks back navigation to an earlier account state.
+
+App inactivity clears the protected subtree and invalidates pending responses. Resume fetches fresh
+contexts; if there are multiple grants, selection may be requested again. The existing 30-second
+session check remains and uses the original refresh boundary. Network/service errors show retry/logout
+without retaining role content. Context 401 exits to login; context 403 shows a safe error without
+an automatic retry loop. The controller's generation-bound authorization-failure hook refreshes
+contexts after future business 403 responses and ignores errors originating from a former context.
+There are no business API calls to attach this hook to in the temporary role screens.
+
+A monotonic, in-memory `SessionIdentity` revision signals login, restoration and logout boundaries.
+Token rotation does not change identity. Controllers discard late results on identity changes,
+suspension, superseding reads, switching, logout or disposal. Replacing app authentication/context
+services rebuilds the root navigator. Test/alternate session adapters should implement this identity
+signal or be replaced with their app dependencies whenever accounts change. No grants or selection
+are persisted, and invitation credentials are not collected.
+
+Logout clears context state immediately, including while reads are pending. Confirmed logout and
+network failures return to login; uncertain server revocation is reported. Secure-storage deletion
+failures leave role content cleared and expose retryable logout cleanup. The controller cannot use
+a late old-account response to restore a role or overwrite a new account's state.
+
+Limitations: these are navigation shells, not implemented operational dashboards. Grants are
+revalidated on entry, refresh, resume, switch and relevant authorization failures; there is no push
+subscription for immediate grant changes while the app stays idle in the foreground. Backend ACLs
+remain necessary on every request. Mobile tests use HTTP/storage doubles, not a live API, database,
+email provider or physical device. No backend or database changes are part of this phase.
+
+Phase 2 verification (23 October 2026): `flutter analyze` passed with no issues;
+`flutter test` passed all 76 tests (30 additional controller/widget/session-boundary cases over
+Phase 1, plus existing authentication/verification/storage regressions). `git diff --check` passed.
+Coverage includes zero/one/multiple contexts, combined roles, restored-session entry, unknown roles,
+selection revalidation, forged routes, revoked grants, foreground resume, tenant navigator disposal,
+late success/failure, logout/account changes, dependency replacement, storage cleanup failures,
+offline logout, periodic session invalidation and compact/large-text rendering.
+No live backend/device test, backend change, migration, database modification, commit or push occurred.
+
+Phase 2 changed/new files relative to `mobile/`:
+
+- Composition/routing: `lib/main.dart`, `lib/app/app.dart`, `lib/app/routing/app_router.dart`.
+- Authentication identity: `lib/features/auth/data/api_auth_service.dart`,
+  `lib/features/auth/domain/session_service.dart`.
+- Shell and reusable UI: `lib/features/auth/presentation/session_controller.dart`,
+  `session_screen.dart`, `widgets/auth_layout.dart`, `widgets/authorized_context_picker.dart`.
+- Temporary role destinations: `lib/features/customer/presentation/customer_home_screen.dart`,
+  `lib/features/owner/presentation/owner_home_screen.dart`,
+  `lib/features/employee/presentation/employee_home_screen.dart`.
+- Tests: `test/api_auth_service_test.dart`, `test/session_controller_test.dart`,
+  `test/session_navigation_test.dart`, `test/support/session_fakes.dart`.
+- Documentation: this README, `lib/core/network/README.md`, and customer/owner/employee READMEs.
+
+Suggested commit: `feat(mobile): add authorized context selection and secure navigation (#2)`.

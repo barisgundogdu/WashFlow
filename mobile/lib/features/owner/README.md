@@ -1,3 +1,7 @@
-# Owner features (planned)
+# Owner features
 
-Future tenant-local business operations live here. Add presentation, domain, and data folders only as features need them. Start with the secure owner customer/vehicle flow described in SRS milestone A. No owner functionality is implemented.
+`OwnerHomeScreen` is a clearly labeled temporary destination reached only through fresh
+server-authorized context selection. It implements no business operations or invitations.
+Tenant-local customer/vehicle operations remain planned under SRS milestone A.
+The authenticated shell owns the business context and clears the entire nested navigator
+on refresh or context switch. Future business requests must independently enforce backend ACLs.

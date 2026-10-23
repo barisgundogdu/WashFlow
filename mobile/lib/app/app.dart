@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'routing/app_router.dart';
+import '../features/auth/domain/context_service.dart';
 import '../features/auth/domain/session_service.dart';
 import '../features/auth/domain/auth_service.dart';
 import '../features/auth/domain/auth_submission.dart';
@@ -11,16 +12,20 @@ class WashFlowApp extends StatelessWidget {
     super.key,
     this.initialRoute = AppRouter.welcome,
     this.startupMessage,
+    this.contextService,
     this.authService = const UnavailableAuthService(),
   });
 
   final AuthService authService;
+  final ContextService? contextService;
   final String initialRoute;
   final String? startupMessage;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      // Replacing an account/service boundary destroys the old route stack.
+      key: ValueKey((authService, contextService)),
       title: 'WashFlow',
       initialRoute: initialRoute,
       builder: (context, child) => Column(
@@ -81,6 +86,7 @@ class WashFlowApp extends StatelessWidget {
       onGenerateRoute: (settings) => AppRouter.onGenerateRoute(
         settings,
         submission: ServiceAuthSubmission(authService),
+        contextService: contextService,
         sessionService: authService is SessionService
             ? authService as SessionService
             : null,

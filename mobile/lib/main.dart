@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'app/app.dart';
 import 'app/routing/app_router.dart';
 import 'features/auth/data/api_auth_service.dart';
+import 'features/auth/data/api_context_service.dart';
 import 'features/auth/data/token_store.dart';
 import 'features/auth/domain/auth_service.dart';
 import 'features/auth/domain/session_service.dart';
@@ -28,6 +29,10 @@ Future<void> main() async {
     runApp(
       WashFlowApp(
         authService: service,
+        contextService: ApiContextService(
+          apiClient: service.apiClient,
+          session: service,
+        ),
         initialRoute: result is AuthSuccess<bool> && result.value
             ? AppRouter.session
             : AppRouter.welcome,

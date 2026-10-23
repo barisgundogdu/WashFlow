@@ -19,10 +19,13 @@ final contexts = ApiContextService(apiClient: auth.apiClient, session: auth);
 final result = await contexts.getContexts();
 ```
 
-This is a composition example, not currently wired into application navigation. Pair transport
+Phase 2 wires this composition in `main.dart` and injects it into the authenticated shell. Pair transport
 and session from the same configured API; never use an untrusted/user-provided transport origin.
 `ApiContextService` GETs `/api/v1/auth/contexts` with the returned bearer credential. It has no cache,
 JWT decoding, role headers, user overrides, or local grant fallback. 401 yields `unauthenticated`;
 403 yields `forbidden`. A context failure does not clear a possibly newer session or replay requests.
-Future session/navigation coordination must handle these outcomes and discard stale responses
-following logout, account changes or tenant switches. Context snapshots never replace backend ACLs.
+The authenticated `SessionController` handles these outcomes and discards stale responses
+following logout, account changes or tenant switches. Future business adapters must report
+authorization failures with the originating controller generation; 403 revalidates contexts and
+401 exits the authenticated shell. Never attach an old request failure to a new controller.
+Context snapshots never replace backend ACLs.
