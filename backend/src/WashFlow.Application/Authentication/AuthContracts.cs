@@ -47,7 +47,7 @@ public interface IRefreshTokenGenerator
 }
 public interface IAuthStore
 {
-    Task RegisterAsync(User user, string? businessName, CancellationToken ct);
+    Task<bool> RegisterAsync(User user, string? businessName, EmailVerificationToken verification, CancellationToken ct);
     Task<User?> FindUserAsync(string normalizedEmail, CancellationToken ct);
     Task<DeviceSession?> StartSessionAsync(User user, string? upgradedHash, string deviceName, TokenHash hash, DateTimeOffset now, CancellationToken ct);
     Task<DeviceSession?> RotateAsync(TokenHash oldHash, TokenHash newHash, DateTimeOffset now, CancellationToken ct);

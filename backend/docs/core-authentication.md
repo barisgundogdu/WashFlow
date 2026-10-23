@@ -1,9 +1,9 @@
-# Phase 4A — Core authentication API (Issue #2)
+# Core authentication and email verification — Issue #2
 
 The API now supports new-customer registration, new-owner/business registration,
-verified-account login, refresh rotation and current-session logout. Email delivery,
-verification-link consumption, password reset, employee invitation acceptance, authorized
-context selection, business operations and Flutter integration remain separate phases.
+verified-account login, refresh rotation, current-session logout and Phase 4B email verification.
+Password reset, employee invitation acceptance, authorized context selection, business operations
+and Flutter integration remain separate phases.
 Issue #2 is not complete. Requirements supported here: FR-01, FR-20, NFR-01/02/04/07.
 Tenant-context authorization and FR-27 remain subsequent work.
 
@@ -25,9 +25,9 @@ dotnet build WashFlow.sln
 dotnet run --project src/WashFlow.Api
 ```
 
-No new migration is required: Phase 4A reuses the Phase 3 schema. Apply the existing initial
-migration only if the target database has not received it; use the migration instructions in
-[the backend README](../README.md). API startup never creates, resets or migrates databases.
+Phase 4B adds the `EmailVerificationIssuanceIndexes` migration. Review and apply it before
+running the updated API, using the migration instructions below. It adds no plaintext credential
+columns. API startup never creates, resets or migrates databases.
 Use HTTPS in deployment and platform-secure token storage when Flutter integration is added.
 Development HTTP settings are described in the README. Keep EF sensitive-data logging and
 Npgsql detailed database errors disabled for authentication requests.
@@ -43,10 +43,13 @@ All endpoints are POST under `/api/v1/auth`. JSON uses camelCase.
 | `/login` | email, password, optional deviceName | 200 with token pair |
 | `/refresh` | refreshToken | 200 with replacement token pair |
 | `/logout` | No body; Authorization: Bearer access token | 204 |
+| `/email/verify` | token | 200 with Turkish acknowledgement; invalid/expired/used token: 400 |
+| `/email/resend` | email | Generic 202 acknowledgement; malformed email: 400; IP limit: 429 |
 
 Registration always creates unverified accounts. A new customer gets a CustomerProfile without
 business membership. A new owner gets a new Business (one physical branch), membership and Owner
-grant in one SaveChanges transaction. The unique normalized-email constraint protects concurrent
+grant and hashed verification token in one SaveChanges transaction. Customer registration also
+persists its hashed verification token in that same transaction. The unique normalized-email constraint protects concurrent
 registration. Duplicate emails receive the same 202 acknowledgement and do not create a business,
 change passwords, add Customer profiles or attach memberships to an existing account. Authenticated
 onboarding of additional businesses for existing users is a later use case; this anonymous endpoint
@@ -111,9 +114,11 @@ untrusted forwarding headers are not used to assign identity or bypass the limit
 
 ## Verification boundary
 
-New registrations cannot log in until verified. No production verification shortcut or email-token
-consumption endpoint is added here. Automated tests arrange verified users directly in disposable
-schemas; do not bypass verification in the running application to demonstrate login.
+New registrations cannot log in until verified. The `/email/verify` endpoint is now the supported
+verification path; it requires the secret emailed token and never creates a session or grants
+additional roles. Existing Phase 4A tests may arrange verified users directly in disposable schemas;
+new Phase 4B tests exercise registration, delivery capture and verification. There is no verification
+bypass or public development mailbox endpoint.
 
 ```sh
 dotnet test WashFlow.sln
@@ -127,3 +132,97 @@ customer independence, duplicate/concurrent registration, generic login failures
 rotation/replay/concurrency and current-device logout. Without the test environment variable these
 cases explicitly skip. Passing offline/middleware tests is not a claim of successful database
 integration testing.
+
+## Phase 4B — Email verification
+
+Registration generates a separate 256-bit random base64url credential. PostgreSQL stores only its
+purpose-separated SHA-256 digest, intended normalized email, user security stamp, creation/expiry
+and consumption/revocation timestamps. The raw credential exists only transiently in process memory
+and the email delivery path. It is never returned by registration/resend or written to application
+logs, files or an outbox table. Refresh tokens cannot be reused as verification tokens.
+
+`POST /api/v1/auth/email/verify` accepts `{ "token": "<emailed credential>" }` in the JSON body.
+It is a POST so the credential need not appear in URL/access logs. The endpoint locks the User row,
+reads the clock again after obtaining the lock, and checks expiry, consumption, revocation, current
+email and security stamp. It updates EmailVerifiedAt and consumes the credential transactionally;
+only one concurrent verifier can succeed. Invalid, expired, revoked, stale-email/stamp and used
+credentials all return safe Turkish 400 Problem Details with `code: invalidVerificationToken`.
+Success returns a Turkish message instructing the user to log in. Existing login/session checks
+continue to require verified email; verification does not automatically authenticate the caller.
+
+`POST /api/v1/auth/email/resend` accepts `{ "email": "user@example.com" }`. For syntactically valid
+addresses it always returns 202 with `Adres uygunsa doğrulama e-postası gönderilecektir.` whether
+the account is unknown, verified, throttled, or eligible. The separate IP limiter permits five
+resend requests per minute with no queue; its 429 response does not depend on account existence.
+Under the same User row lock, a database-backed per-account cooldown suppresses frequent sends
+across API instances. Eligible resend revokes all older pending credentials before saving a new
+one. Duplicate registration never resends a token; callers must use this endpoint.
+
+A partial unique index allows at most one unconsumed/unrevoked verification credential per User.
+Expired credentials are also revoked during replacement. The additional UserId/CreatedAt index
+supports cooldown lookup. The migration retains the newest legacy pending record and revokes any
+older pending records before creating the unique index; it does not delete history. Rolling the
+migration back restores indexes but does not reactivate revoked credentials.
+
+### Email configuration examples
+
+Development defaults to the bounded in-memory sender. No real email is sent, and the mailbox is
+available only through dependency injection (e.g. integration tests or an IDE debugger). No console
+logger, public inbox, verification bypass, disk pickup directory or raw-token HTTP endpoint exists.
+For manual delivery testing, configure a real STARTTLS SMTP service even in Development.
+
+Production requires explicit SMTP configuration; `Memory` is rejected outside Development:
+
+```sh
+export Email__Provider=Smtp
+export Email__Smtp__Host=smtp.example.com
+export Email__Smtp__Port=587
+export Email__Smtp__From=noreply@example.com
+# Supply Email__Smtp__Username and Email__Smtp__Password through your secret provider.
+# Both may be omitted for a trusted SMTP relay; default OS credentials are never used.
+export Verification__LifetimeMinutes=60
+export Verification__ResendCooldownSeconds=60
+```
+
+The host/from examples are placeholders. Username/password are never hardcoded, printed, or echoed
+in configuration errors. SMTP always requires STARTTLS with normal certificate validation; implicit
+TLS port 465 is not supported by this adapter. The email is Turkish plain text containing the
+credential and its UTC expiry. It does not invent a Flutter/deep-link target: clients submit the
+emailed credential to the POST endpoint. Replace `IEmailSender` with another production provider
+through infrastructure DI if a non-SMTP provider is needed later; no API key is shipped.
+
+Security defaults are a 60-minute token lifetime and 60-second cooldown. Allowed configurable
+ranges are 1–1440 minutes and 1–3600 seconds respectively. Invalid configuration fails startup.
+Registration/login JWT and database configuration from Phase 4A remain mandatory.
+
+Delivery is queued **after the database commit** and happens in a hosted worker, avoiding SMTP
+latency differences in anonymous responses. The process-local bounded channel holds up to 100
+messages; it does not persist raw credentials. Delivery attempts have 10-second timeouts with up
+to three attempts, and expired queued messages are discarded. Failure logs contain only generic
+messages without provider exceptions, recipients or tokens. The development mailbox retains at
+most 100 messages in process memory.
+
+**Delivery limitation:** this is not a durable outbox. A crash between commit and enqueue, a full
+queue, process restart, or exhausted retries can lose delivery. The account remains unverified,
+the acknowledgement remains generic, and the user can resend after the cooldown. Do not claim
+exactly-once delivery. A durable encrypted delivery architecture would require a separate design;
+it is not silently implemented by storing plaintext verification credentials.
+
+### Apply the migration after review
+
+From your own configured Terminal, with `ConnectionStrings__WashFlow` pointing to the intended
+local database:
+
+```sh
+cd backend
+dotnet tool restore
+dotnet build WashFlow.sln
+dotnet ef migrations script --idempotent --project src/WashFlow.Infrastructure --startup-project src/WashFlow.Infrastructure --no-build --output /tmp/washflow-verification.sql
+# Review the SQL, then:
+dotnet ef database update --project src/WashFlow.Infrastructure --startup-project src/WashFlow.Infrastructure --no-build
+```
+
+Migration: `20261021135215_EmailVerificationIssuanceIndexes`. The implementation did not apply it
+or modify the existing PostgreSQL instance. Tests use dedicated temporary schemas only when
+`WASHFLOW_TEST_POSTGRES` is explicitly configured. SMTP delivery was not exercised against an
+external server in Codex; the test sender never transmits actual emails.

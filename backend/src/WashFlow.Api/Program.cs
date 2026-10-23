@@ -4,6 +4,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using WashFlow.Api.Errors;
 using WashFlow.Application;
 using WashFlow.Infrastructure;
+using WashFlow.Infrastructure.Email;
 using WashFlow.Infrastructure.Authentication;
 using WashFlow.Api.Features.Authentication;
 using System.Threading.RateLimiting;
@@ -13,8 +14,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddCoreAuthentication(builder.Configuration);
+builder.Services.AddEmailVerification(builder.Configuration, builder.Environment);
 builder.Services.AddRateLimiter(options =>
 {
+    options.AddPolicy("verification-resend", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown", _ => new FixedWindowRateLimiterOptions
+        { PermitLimit = 5, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.AddPolicy("authentication", context => RateLimitPartition.GetFixedWindowLimiter(
         context.Connection.RemoteIpAddress?.ToString() ?? "unknown", _ => new FixedWindowRateLimiterOptions

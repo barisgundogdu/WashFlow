@@ -19,7 +19,7 @@ public sealed class PersistenceModelTests(PostgresModelFixture fixture) : IClass
     {
         await using var context = NewContext();
         await context.Database.MigrateAsync();
-        Assert.Single(await context.Database.GetAppliedMigrationsAsync());
+        Assert.Equal(2, (await context.Database.GetAppliedMigrationsAsync()).Count());
         Assert.Empty(await context.Database.GetPendingMigrationsAsync());
         Assert.False(context.Database.HasPendingModelChanges());
         // Queries prove all ten tables actually exist after migration.

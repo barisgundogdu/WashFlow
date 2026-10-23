@@ -67,10 +67,10 @@ public sealed class IdentityModelTests
     }
 
     [Fact]
-    public void InitialMigrationMatchesCurrentModelWithoutAConnection()
+    public void MigrationsMatchCurrentModelWithoutAConnection()
     {
         using var context = new WashFlowDbContextFactory().CreateDbContext([]);
-        Assert.Single(context.Database.GetMigrations());
+        Assert.Equal(2, context.Database.GetMigrations().Count());
         Assert.False(context.Database.HasPendingModelChanges());
         var sql = context.Database.GenerateCreateScript();
         Assert.Contains("CK_DeviceSessions_MaxLifetime", sql);

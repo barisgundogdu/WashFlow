@@ -10,10 +10,11 @@ namespace WashFlow.Infrastructure.Authentication;
 
 public sealed class EfAuthStore(WashFlowDbContext db) : IAuthStore
 {
-    public async Task RegisterAsync(User user, string? businessName, CancellationToken ct)
+    public async Task<bool> RegisterAsync(User user, string? businessName, EmailVerificationToken verification, CancellationToken ct)
     {
-        if (await db.Users.AnyAsync(x => x.NormalizedEmail == user.NormalizedEmail, ct)) return;
+        if (await db.Users.AnyAsync(x => x.NormalizedEmail == user.NormalizedEmail, ct)) return false;
         db.Users.Add(user);
+        db.EmailVerificationTokens.Add(verification);
         if (businessName is null) db.CustomerProfiles.Add(new() { UserId = user.Id });
         else
         {
@@ -26,7 +27,8 @@ public sealed class EfAuthStore(WashFlowDbContext db) : IAuthStore
         try { await db.SaveChangesAsync(ct); }
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException
             { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "IX_Users_NormalizedEmail" })
-        { db.ChangeTracker.Clear(); }
+        { db.ChangeTracker.Clear(); return false; }
+        return true;
     }
 
     public Task<User?> FindUserAsync(string normalizedEmail, CancellationToken ct) =>

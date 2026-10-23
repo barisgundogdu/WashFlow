@@ -151,7 +151,7 @@ public sealed class CoreAuthenticationTests
     }
 
     private static AuthService Service(StubStore store) => new(store, Passwords, new RefreshTokenGenerator(),
-        new AccessTokenIssuer(Settings(), TimeProvider.System), TimeProvider.System);
+        new AccessTokenIssuer(Settings(), TimeProvider.System), TimeProvider.System, EmailVerificationTests.CreateService());
 
     private sealed class StubStore : IAuthStore
     {
@@ -159,8 +159,8 @@ public sealed class CoreAuthenticationTests
         public User? Registered;
         public string? BusinessName;
         public int SessionsStarted;
-        public Task RegisterAsync(User user, string? businessName, CancellationToken ct)
-        { Registered = user; BusinessName = businessName; return Task.CompletedTask; }
+        public Task<bool> RegisterAsync(User user, string? businessName, EmailVerificationToken verification, CancellationToken ct)
+        { Registered = user; BusinessName = businessName; return Task.FromResult(true); }
         public Task<User?> FindUserAsync(string email, CancellationToken ct) => Task.FromResult(Found);
         public Task<DeviceSession?> StartSessionAsync(User user, string? hash, string deviceName, TokenHash tokenHash, DateTimeOffset now, CancellationToken ct)
         { SessionsStarted++; return Task.FromResult<DeviceSession?>(null); }

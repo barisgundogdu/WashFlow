@@ -27,6 +27,8 @@ public sealed class EmailVerificationTokenConfiguration : IEntityTypeConfigurati
     public void Configure(EntityTypeBuilder<EmailVerificationToken> builder)
     {
         builder.ConfigureEntity("EmailVerificationTokens");
+        builder.HasIndex(x => x.UserId).IsUnique().HasFilter("\"ConsumedAt\" IS NULL AND \"RevokedAt\" IS NULL");
+        builder.HasIndex(x => new { x.UserId, x.CreatedAt });
         builder.ConfigureHash("EmailVerificationTokens");
         builder.ConfigureExpiring("EmailVerificationTokens");
         builder.NonBlank("EmailVerificationTokens", nameof(EmailVerificationToken.NormalizedEmail), 320);

@@ -62,7 +62,7 @@ public sealed class BearerAuthenticationTests
         public Task<bool> IsSessionActiveAsync(Guid userId, Guid sessionId, DateTimeOffset now, CancellationToken ct) => Task.FromResult(Logouts == 0);
         public Task LogoutAsync(Guid userId, Guid sessionId, DateTimeOffset now, CancellationToken ct)
         { UserId = userId; SessionId = sessionId; Logouts++; return Task.CompletedTask; }
-        public Task RegisterAsync(User user, string? name, CancellationToken ct) => throw new NotSupportedException();
+        public Task<bool> RegisterAsync(User user, string? name, EmailVerificationToken verification, CancellationToken ct) => throw new NotSupportedException();
         public Task<User?> FindUserAsync(string email, CancellationToken ct) => throw new NotSupportedException();
         public Task<DeviceSession?> StartSessionAsync(User user, string? hash, string name, TokenHash tokenHash, DateTimeOffset now, CancellationToken ct) => throw new NotSupportedException();
         public Task<DeviceSession?> RotateAsync(TokenHash oldHash, TokenHash newHash, DateTimeOffset now, CancellationToken ct) => throw new NotSupportedException();

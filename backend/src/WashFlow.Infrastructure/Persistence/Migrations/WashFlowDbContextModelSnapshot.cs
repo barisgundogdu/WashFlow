@@ -331,7 +331,11 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                     b.HasIndex("TokenHash")
                         .IsUnique();
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("\"ConsumedAt\" IS NULL AND \"RevokedAt\" IS NULL");
+
+                    b.HasIndex("UserId", "CreatedAt");
 
                     b.ToTable("EmailVerificationTokens", null, t =>
                         {

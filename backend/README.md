@@ -1,9 +1,9 @@
 # WashFlow backend — Issue #2
 
 The backend includes the foundation, Phase 3 identity/tenant persistence models and
-Phase 4A core authentication APIs. It remains a modular monolith with API, Application,
-Domain and Infrastructure projects. Email verification flows/delivery, password reset,
-employee onboarding, tenant-context authorization and Flutter integration remain future work.
+Phase 4A core authentication APIs and Phase 4B email verification. It remains a modular monolith with API, Application,
+Domain and Infrastructure projects. Password reset, employee onboarding, tenant-context
+authorization and Flutter integration remain future work.
 Issue #2 is not complete. See [core authentication setup and endpoints](docs/core-authentication.md).
 The phase numbering here refers to the backend plan, not the broader SRS milestones.
 
@@ -406,4 +406,75 @@ backend/tests/WashFlow.IntegrationTests/AuthHttpTests.cs
 backend/tests/WashFlow.IntegrationTests/BearerAuthenticationTests.cs
 backend/tests/WashFlow.IntegrationTests/CoreAuthenticationPostgresTests.cs
 backend/tests/WashFlow.UnitTests/CoreAuthenticationTests.cs
+```
+
+## Phase 4B — Email verification
+
+[Authentication documentation](docs/core-authentication.md) now includes email verification/resend
+endpoints, delivery providers, security settings, recovery limitations and migration commands.
+New registrations persist hashed verification credentials atomically with the account. Verification
+is single-use and serialized with resend by a PostgreSQL User-row lock; no tenant grants are added.
+
+Apply `20261021135215_EmailVerificationIssuanceIndexes` after review. It enforces one pending token
+per account and indexes cooldown lookup, retaining only the newest legacy pending credential.
+Production requires `Email__Provider=Smtp`, `Email__Smtp__Host` and `Email__Smtp__From`, plus optional
+SMTP username/password supplied through a secret provider. Development defaults to memory delivery.
+Token lifetime/cooldown are configurable using `Verification__LifetimeMinutes` and
+`Verification__ResendCooldownSeconds`. No new package dependency was introduced.
+
+Phase 4B verification (21 October 2026):
+
+- Build passed with zero warnings/errors.
+- 36 unit tests and 14 HTTP integration tests passed; zero failures.
+- 28 PostgreSQL tests explicitly skipped because `WASHFLOW_TEST_POSTGRES` is unset in Codex
+  (20 existing cases and 8 new email-verification cases).
+- New cases cover token binding/purpose separation, Turkish responses, resend IP throttling,
+  account privacy, provider-error redaction, registration/login after verification, reuse,
+  concurrent consumption/resend, expired/revoked/stale credentials and legacy migration cleanup.
+- Offline idempotent migration SQL generation/review and model consistency passed.
+- No live database migration or external SMTP send was performed. Production SMTP delivery
+  and credential-dependent database behavior still require local verification.
+- `git diff --check` and backend whitespace checks passed. No commits/pushes; Issue #2 unchanged.
+
+Run the PostgreSQL category from your configured Terminal after migration review using the
+existing dedicated-schema test setup. Tests create/remove only their uniquely named test schemas,
+including an extra isolated schema for initial-to-latest migration-upgrade verification.
+
+Modified Phase 4B files (repository-relative):
+
+```text
+backend/README.md
+backend/docs/core-authentication.md
+backend/src/WashFlow.Api/Features/Authentication/AuthEndpoints.cs
+backend/src/WashFlow.Api/Program.cs
+backend/src/WashFlow.Application/Authentication/AuthContracts.cs
+backend/src/WashFlow.Application/Authentication/AuthService.cs
+backend/src/WashFlow.Application/Authentication/AuthValidation.cs
+backend/src/WashFlow.Application/DependencyInjection.cs
+backend/src/WashFlow.Infrastructure/Authentication/EfAuthStore.cs
+backend/src/WashFlow.Infrastructure/Persistence/Configurations/IdentityConfiguration.cs
+backend/src/WashFlow.Infrastructure/Persistence/Migrations/WashFlowDbContextModelSnapshot.cs
+backend/tests/WashFlow.IntegrationTests/ApiFactory.cs
+backend/tests/WashFlow.IntegrationTests/BearerAuthenticationTests.cs
+backend/tests/WashFlow.IntegrationTests/PersistenceModelTests.cs
+backend/tests/WashFlow.UnitTests/CoreAuthenticationTests.cs
+backend/tests/WashFlow.UnitTests/IdentityModelTests.cs
+```
+
+Created Phase 4B files (repository-relative):
+
+```text
+backend/src/WashFlow.Application/Authentication/EmailVerificationContracts.cs
+backend/src/WashFlow.Application/Authentication/EmailVerificationService.cs
+backend/src/WashFlow.Infrastructure/Authentication/EfEmailVerificationStore.cs
+backend/src/WashFlow.Infrastructure/Authentication/VerificationTokenGenerator.cs
+backend/src/WashFlow.Infrastructure/Email/DependencyInjection.cs
+backend/src/WashFlow.Infrastructure/Email/DevelopmentEmailSender.cs
+backend/src/WashFlow.Infrastructure/Email/SmtpEmailSender.cs
+backend/src/WashFlow.Infrastructure/Email/VerificationEmailDispatcher.cs
+backend/src/WashFlow.Infrastructure/Persistence/Migrations/20261021135215_EmailVerificationIssuanceIndexes.Designer.cs
+backend/src/WashFlow.Infrastructure/Persistence/Migrations/20261021135215_EmailVerificationIssuanceIndexes.cs
+backend/tests/WashFlow.IntegrationTests/EmailVerificationHttpTests.cs
+backend/tests/WashFlow.IntegrationTests/EmailVerificationPostgresTests.cs
+backend/tests/WashFlow.UnitTests/EmailVerificationTests.cs
 ```

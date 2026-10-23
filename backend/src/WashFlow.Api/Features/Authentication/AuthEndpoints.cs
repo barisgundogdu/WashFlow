@@ -23,6 +23,16 @@ public static class AuthEndpoints
             Tokens(await service.LoginAsync(request ?? new(), ct))).AllowAnonymous();
         group.MapPost("/refresh", async (RefreshRequest? request, AuthService service, CancellationToken ct) =>
             Tokens(await service.RefreshAsync(request ?? new(), ct))).AllowAnonymous();
+        group.MapPost("/email/verify", async (VerifyEmailRequest? request, EmailVerificationService service, CancellationToken ct) =>
+            await service.VerifyAsync(request ?? new(), ct)
+                ? Results.Ok(new VerificationAcknowledgement("E-posta adresiniz doğrulandı. Giriş yapabilirsiniz."))
+                : Results.Problem(statusCode: 400, extensions: new Dictionary<string, object?> { ["code"] = "invalidVerificationToken" }))
+            .AllowAnonymous();
+        group.MapPost("/email/resend", async (ResendVerificationRequest? request, EmailVerificationService service, CancellationToken ct) =>
+        {
+            var result = await service.ResendAsync(request ?? new(), ct);
+            return result.Errors is not null ? Validation(result.Errors) : Results.Json(result.Value, statusCode: 202);
+        }).AllowAnonymous().RequireRateLimiting("verification-resend");
         group.MapPost("/logout", async (ClaimsPrincipal user, AuthService service, CancellationToken ct) =>
         {
             await service.LogoutAsync(Guid.Parse(user.FindFirstValue("sub")!), Guid.Parse(user.FindFirstValue("sid")!), ct);
