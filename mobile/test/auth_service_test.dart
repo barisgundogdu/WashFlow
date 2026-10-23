@@ -143,9 +143,7 @@ void main() {
       expect(service.loginRequest!.email, 'ayse@example.com');
       expect(service.loginRequest!.password, ' p ');
       expect(
-        find.text(
-          'Giriş hizmeti henüz kullanıma açık değil. Şu anda giriş yapılamıyor.',
-        ),
+        find.text('İşlem tamamlanamadı. Lütfen tekrar deneyin.'),
         findsOneWidget,
       );
       expect(find.byType(AuthFormScreen), findsOneWidget);

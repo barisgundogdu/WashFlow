@@ -85,9 +85,7 @@ void main() {
       );
       await tapVisible(tester, find.byKey(const ValueKey('submit')));
       expect(
-        find.text(
-          'Giriş hizmeti henüz kullanıma açık değil. Şu anda giriş yapılamıyor.',
-        ),
+        find.text('İşlem tamamlanamadı. Lütfen tekrar deneyin.'),
         findsOneWidget,
       );
       expect(find.byType(AuthFormScreen), findsOneWidget);
@@ -133,9 +131,7 @@ void main() {
         );
         await tapVisible(tester, find.byKey(const ValueKey('submit')));
         expect(
-          find.text(
-            'Kayıt hizmeti henüz kullanıma açık değil. Hesabınız oluşturulmadı.',
-          ),
+          find.text('İşlem tamamlanamadı. Lütfen tekrar deneyin.'),
           findsOneWidget,
         );
         expect(find.byType(AuthFormScreen), findsOneWidget);

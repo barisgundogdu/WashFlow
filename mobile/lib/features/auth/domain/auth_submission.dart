@@ -1,6 +1,6 @@
 import 'auth_service.dart';
 
-/// UI boundary only. Implement transport after backend contracts are approved.
+/// Form intent; server responses determine success.
 enum AuthFormKind { login, customerRegistration, businessRegistration }
 
 class AuthFormInput {
@@ -19,7 +19,7 @@ class AuthFormInput {
   final String? businessName;
 }
 
-/// Deliberately has no successful authentication or session result.
+/// Completes only on successful server acknowledgement.
 abstract interface class AuthSubmission {
   Future<void> submit(AuthFormInput input);
 }
@@ -37,7 +37,7 @@ class UnavailableAuthSubmission implements AuthSubmission {
   }
 }
 
-/// Bridges existing form behavior to the typed service without creating a session.
+/// Bridges the form to the typed service; the data adapter owns the session.
 class ServiceAuthSubmission implements AuthSubmission {
   const ServiceAuthSubmission(this.service);
   final AuthService service;
@@ -82,7 +82,6 @@ class ServiceAuthSubmission implements AuthSubmission {
       }
       throw AuthSubmissionFailure(error);
     }
-    // Acknowledgement is not consumed as login success by the UI.
   }
 }
 

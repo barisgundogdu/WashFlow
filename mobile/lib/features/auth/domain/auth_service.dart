@@ -29,11 +29,10 @@ class BusinessRegistrationRequest {
   final String password;
 }
 
-/// Identity returned by a future authenticated backend; no token handling here.
+/// A session was established by the backend; contains no inferred identity.
 /// This identifier alone grants no permission or tenant membership.
 class LoginResult {
-  const LoginResult({required this.accountId});
-  final String accountId;
+  const LoginResult();
 }
 
 /// Acknowledgement only: does not imply activation or an authenticated session.
@@ -54,6 +53,11 @@ enum AuthErrorCode {
   validation,
   conflict,
   unexpected,
+  network,
+  timeout,
+  rateLimited,
+  invalidVerificationToken,
+  storage,
 }
 
 enum AuthInputField { email, password, fullName, businessName }
@@ -84,9 +88,7 @@ final class AuthFailure<T> extends AuthResult<T> {
   final AuthError error;
 }
 
-/// Implement in a future data adapter and inject at WashFlowApp.
-/// No endpoint paths, JSON schema, onboarding policy, or employee creation API
-/// is implied by these client contracts. The server remains authoritative.
+/// Transport-independent authentication boundary. The server is authoritative.
 abstract interface class AuthService {
   Future<AuthResult<LoginResult>> login(LoginRequest request);
   Future<AuthResult<CustomerRegistrationResult>> registerCustomer(
@@ -97,7 +99,7 @@ abstract interface class AuthService {
   );
 }
 
-/// Production preview default: never performs authentication or creates records.
+/// Preview/test fallback. main.dart injects the real API adapter.
 class UnavailableAuthService implements AuthService {
   const UnavailableAuthService();
 

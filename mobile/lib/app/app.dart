@@ -2,21 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'routing/app_router.dart';
+import '../features/auth/domain/session_service.dart';
 import '../features/auth/domain/auth_service.dart';
 import '../features/auth/domain/auth_submission.dart';
 
 class WashFlowApp extends StatelessWidget {
   const WashFlowApp({
     super.key,
+    this.initialRoute = AppRouter.welcome,
+    this.startupMessage,
     this.authService = const UnavailableAuthService(),
   });
 
   final AuthService authService;
+  final String initialRoute;
+  final String? startupMessage;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'WashFlow',
+      initialRoute: initialRoute,
+      builder: (context, child) => Column(
+        children: [
+          if (startupMessage != null)
+            SafeArea(
+              bottom: false,
+              child: Material(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Text(startupMessage!),
+                ),
+              ),
+            ),
+          Expanded(child: child!),
+        ],
+      ),
       debugShowCheckedModeBanner: false,
       locale: const Locale('tr'),
       supportedLocales: const [Locale('tr')],
@@ -60,6 +81,9 @@ class WashFlowApp extends StatelessWidget {
       onGenerateRoute: (settings) => AppRouter.onGenerateRoute(
         settings,
         submission: ServiceAuthSubmission(authService),
+        sessionService: authService is SessionService
+            ? authService as SessionService
+            : null,
       ),
     );
   }

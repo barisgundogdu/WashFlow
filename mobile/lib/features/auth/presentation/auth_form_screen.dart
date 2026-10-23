@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/routing/app_router.dart';
 import '../domain/auth_submission.dart';
+import '../domain/session_service.dart';
 import 'widgets/auth_layout.dart';
 
 class AuthFormScreen extends StatefulWidget {
@@ -72,21 +73,22 @@ class _AuthFormScreenState extends State<AuthFormScreen> {
           businessName: _owner ? _business.text.trim() : null,
         ),
       );
-      // This UI-only boundary never establishes a session, even if it returns.
       if (mounted) {
-        setState(
-          () => _error =
-              'İşlem şu anda tamamlanamıyor. Lütfen daha sonra tekrar deneyin.',
+        _password.clear();
+        _confirmation.clear();
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          _login ? AppRouter.session : AppRouter.verify,
+          (route) => false,
+          arguments: _login ? null : _email.text.trim(),
         );
       }
     } on AuthServiceUnavailable {
       if (mounted) {
-        setState(
-          () => _error = _login
-              ? 'Giriş hizmeti henüz kullanıma açık değil. Şu anda giriş yapılamıyor.'
-              : 'Kayıt hizmeti henüz kullanıma açık değil. Hesabınız oluşturulmadı.',
-        );
+        setState(() => _error = 'İşlem tamamlanamadı. Lütfen tekrar deneyin.');
       }
+    } on AuthSubmissionFailure catch (failure) {
+      if (mounted) setState(() => _error = authErrorMessage(failure.error));
     } catch (_) {
       if (mounted) {
         setState(() => _error = 'İşlem tamamlanamadı. Lütfen tekrar deneyin.');
@@ -291,6 +293,17 @@ class _AuthFormScreenState extends State<AuthFormScreen> {
                       )
                     : Text(_login ? 'Giriş yap' : 'Kayıt ol'),
               ),
+              if (_login)
+                TextButton(
+                  onPressed: _busy
+                      ? null
+                      : () => Navigator.pushNamed(
+                          context,
+                          AppRouter.verify,
+                          arguments: _email.text.trim(),
+                        ),
+                  child: const Text('E-posta doğrula / yeniden gönder'),
+                ),
               const SizedBox(height: 12),
               TextButton(
                 onPressed: _busy
@@ -307,7 +320,7 @@ class _AuthFormScreenState extends State<AuthFormScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Bu sürümde giriş ve kayıt hizmetleri henüz kullanıma açık değildir.',
+                'Giriş için e-posta doğrulaması gereklidir.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall,
               ),

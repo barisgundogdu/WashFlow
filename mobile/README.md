@@ -1,52 +1,161 @@
-# WashFlow mobile
+# WashFlow mobile — Phase 4C
 
-Flutter foundation for one Turkish Android/iOS application, with iOS as the initial development target. This is the foundation portion of [Issue #9](https://github.com/barisgundogdu/WashFlow/issues/9), using [SRS v0.2](../docs/requirements/WashFlow_SRS_v0.2.md) sections 3.1 and 10 and NFR-05. Authentication UI is implemented; real authentication is pending. Issue #9 is not marked complete: no commit is created automatically.
+One Turkish Flutter Android/iOS application. Phase 4C connects the existing authentication
+design to the Phase 4A/4B backend under Issue #2, which remains open. Issue #9 supplied the
+completed UI foundation. Requirements: FR-01, FR-20, NFR-01/02/04/05/07.
+Role/context authorization (FR-27), employee onboarding, business operations and dashboards
+remain subsequent work. A session does not grant tenant access.
 
-## Run and verify
+## Dependencies and verification
 
-Developed with Flutter 3.47.7 / Dart 3.13.5. From `mobile/`:
+Flutter 3.47.7 / Dart 3.13.5. Added direct dependencies:
+- `http ^1.6.0`: JSON transport, injected client for deterministic tests.
+- `flutter_secure_storage ^11.2.0`: iOS Keychain and Android encrypted storage backed by
+  platform keys. No plain SharedPreferences credentials, logging interceptors or JWT role decoder.
 
+From `mobile/`:
 ```sh
 flutter pub get
-flutter devices
-flutter run -d <ios-simulator-id>
 flutter analyze
 flutter test
-flutter build ios --simulator
 ```
 
-For Android, select an Android emulator/device with `flutter run -d <device-id>`. Only Android and iOS platform projects are generated. Generated `com.example` identifiers are development placeholders; confirm organization identifiers and signing before distribution.
+Tests use HTTP and storage doubles; secure-storage adapter tests mock the platform channel.
+These do not prove live API/SMTP delivery or physical-device Keychain/Keystore behavior.
 
-## Structure and decisions
+## API configuration and local devices
 
-- `lib/main.dart`: starts the app; `lib/app/app.dart`: composition root, theme, and Turkish SDK localization.
-- `lib/app/routing/`: Flutter Navigator route factory; `/` displays welcome; `/login`, `/register`, `/register/customer`, and `/register/business` provide authentication UI. Unknown routes display a Turkish fallback.
-- `lib/features/welcome/presentation/`: responsive branded entry screen with login and registration actions.
-- `lib/features/owner/`, `employee/`, `customer/`: documented homes for future role features; folders do not imply permissions or implemented behavior.
-- `lib/core/network/`: documented boundary for future ASP.NET Core transport integration.
+Set an origin (optionally with a deployment prefix) without `/api/v1/auth`, query, fragment
+or embedded credentials. No secret is needed in Flutter configuration.
 
-Use feature-local presentation, domain, and data layers when behavior is introduced. Shared features can sit alongside role folders to avoid duplicating login or shared components. Dependencies flow from presentation toward feature contracts; future data adapters implement those contracts and are wired at the app root. No HTTP package, state-management framework, or additional routing package is needed for the current UI. Flutter SDK localization supplies Turkish framework messages; screen strings are currently Turkish literals.
+```sh
+# iOS simulator, API running on the same Mac:
+flutter run --dart-define=API_BASE_URL=http://localhost:5080
+# Android emulator:
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:5080
+# Deployment:
+flutter run --release --dart-define=API_BASE_URL=https://api.example.com
+```
 
-No real authentication, API calls, persistence, or business features are implemented. Backend authorization and tenant/customer ownership checks remain mandatory in later work. Unresolved SRS policies remain undecided.
+Select the intended device with `-d <device-id>`. Missing/invalid configuration displays a safe
+Turkish configuration message. HTTP is accepted only in debug Dart builds. Android debug
+manifest permits local cleartext traffic; release uses platform HTTPS rules. iOS ATS permits
+local networking, without arbitrary-load exceptions or TLS certificate bypasses. Prefer a trusted
+HTTPS development endpoint if the simulator/OS blocks local HTTP.
 
-## Authentication UI (Issue #9)
+Backend setup, PostgreSQL migrations, JWT configuration and SMTP:
+[core authentication](../backend/docs/core-authentication.md). Use the real migration/setup
+instructions; the mobile app never creates databases or verifies users directly.
+The backend currently permits localhost/127.0.0.1 hosts by default. For the Android emulator,
+include `10.0.2.2` in your local `AllowedHosts` configuration. For physical devices bind the API
+to an appropriate LAN interface and explicitly allow its hostname; use trusted HTTPS and
+normal certificate validation. Do not globally disable host filtering or certificate checks.
 
-Shared forms live in `lib/features/auth/presentation/`; `domain/auth_submission.dart` bridges the existing UI submission boundary to the transport-independent `AuthService` contract. The app defaults to `UnavailableAuthService`, which always returns a typed unavailable failure. There is no success/session result and credentials are neither persisted nor logged. Autofill context is cancelled when the form is disposed so preview credentials are not offered for saving.
+Android requires API 23+ (Flutter's current default satisfies this). INTERNET permission is
+declared; automatic application backup is disabled to avoid restoring credentials without
+their platform encryption keys. iOS Runner configurations use `Runner.entitlements` for
+Keychain access. Configure your own bundle/application IDs, signing and provisioning before
+distribution. Device storage must be available/unlocked; storage failures never count as login
+success. iOS Keychain can survive uninstall; logout clears the app's session key. Reinstallation
+alone must not be relied upon as server logout.
 
-Customer registration collects full name, email, password, and confirmation. Business registration adds business name and labels the name field for the owner. Validation checks required fields, basic email syntax, and matching passwords; no password complexity policy, employee onboarding process, or business approval policy is invented. Related requirements: FR-01, FR-20, NFR-05. Server security and registration policies remain pending.
+## Authentication and session lifecycle
 
-`AuthorizedContextPicker` accepts only supplied options and emits a selected identifier. It is tested with fixtures and intentionally has no public route or sample memberships. Future server-authorized context integration relates to FR-27 and must validate selection on the server.
+`main.dart` composes `ApiAuthService`, `SecureTokenStore` and the existing `WashFlowApp` injection.
+The feature retains domain, data and presentation boundaries. `AuthService` supplies typed
+registration/login outcomes; the additional `SessionService` supplies verification and lifecycle
+operations without forcing old UI/test adapters to implement unrelated methods.
 
-Forms use scrollable constrained layouts, safe areas, keyboard actions, autofill hints, password visibility, and pending/error states. Pending states can be tested using an injected completer; no artificial delay or fake account is used in the running app. Password recovery is an explicitly unavailable placeholder.
+- Registration sends endpoint-specific name fields and exact passwords; HTTP 202 is only a
+  generic acknowledgement. It neither stores tokens nor authenticates or asserts account creation.
+- Login sends email/password. Only a successful backend Bearer token-pair response persisted
+  in secure storage establishes the session. No user ID/role is inferred.
+- Both credentials and their UTC deadlines occupy one secure JSON value. Passwords and
+  verification credentials are never persisted. Tokens are never put into URLs or logs.
+- Restart reads secure storage and rotates via the server even if the stored access token
+  appears unexpired. This validates current server session status before restoring the UI.
+- Access expiry uses a 30-second margin. The session screen checks every 30 seconds and on
+  foreground resume. Future protected API adapters must use `accessToken()` before each request;
+  endpoints must independently validate server authorization. No protected business API exists yet.
+- Session mutations are serialized. Concurrent consumers reuse the first rotated result.
+  Refresh retains the server's absolute session deadline.
+- Before sending a refresh, the predecessor is cleared from memory/storage. Invalid/revoked,
+  expired, failed or uncertain refresh leaves the user signed out. This intentionally requires
+  login after an offline restart/rotation failure rather than replaying a potentially consumed
+  token. Crashes during rotation can also require login.
+- Logout refreshes an expired access token when possible, POSTs with its Bearer header and
+  no body, and clears local credentials in a finally block. An offline/server failure displays
+  that server revocation was not confirmed. Server sessions can remain active until expiry;
+  there is no all-device logout. A storage deletion failure remains visible and can be retried.
+- HTTP redirects and automatic POST retries are disabled. Network, timeout, 400, 401, 429,
+  unavailable and malformed responses map to safe Turkish messages; arbitrary server text,
+  database errors and validation strings are not rendered.
 
-Verification: `flutter analyze` passed; `flutter test` passed all 9 tests (navigation, validators, password visibility, unavailable submissions, pending/error handling, compact keyboard layout, authorized-option selection, Turkish welcome, unknown route). `flutter build ios --simulator` passed; `flutter run --no-resident` successfully launched on the iPhone 18 Pro simulator. Android native build and full device usability evaluation have not been performed.
+The authenticated screen only confirms a session and offers logout. It introduces no dashboards,
+role choice or business data. Password recovery remains explicitly unavailable.
 
-## Future authentication service contract (Issue #9)
+## Email verification
 
-`lib/features/auth/domain/auth_service.dart` defines separate login, customer registration, and business registration methods with required typed request fields, typed operation results, and `AuthSuccess<T>` / `AuthFailure<T>` outcomes. `AuthError` uses semantic error codes and immutable typed field errors, keeping transport details and raw server messages outside the UI. These are client-domain contracts, not a committed JSON or endpoint schema.
+The backend sends a Turkish plain-text email containing a base64url credential and UTC expiry.
+The verification screen accepts that credential and POSTs `{"token":"…"}` to `/email/verify`.
+It does not invent a short code, GET link or app-link scheme. Verification never logs the user
+in; the screen directs them back to login. Resend uses `/email/resend` and always displays the
+generic eligibility acknowledgement. Used/expired tokens require a new email.
 
-Inject a future ASP.NET Core adapter with `WashFlowApp(authService: implementation)`. The app passes it through routing to `ServiceAuthSubmission`; the existing form validation, loading, and Turkish unavailable/generic-error messages are preserved. Even a returned acknowledgement never creates a local session or navigates to authenticated content in this UI-only milestone. Future result consumption and safe localized error mapping belong to the backend integration milestone.
+Development defaults to a bounded in-memory mailbox accessible only through backend DI or an
+IDE debugger, not an HTTP inbox or application log. For manual end-to-end testing configure
+the backend's STARTTLS SMTP sender. Registration/resend responses never contain the credential.
+Deep links are not required for this manual-token flow; automatic link handling would require
+a future agreed backend/mobile contract. Email delivery is queued in process and is not durable.
 
-Login results carry only an account identifier, which grants no authorization. Registration results are acknowledgements with an optional reference identifier; they imply neither active accounts nor approval. Business approval policy and employee onboarding remain unresolved. No HTTP, JSON serialization, JWT handling, persistence, or real authentication is implemented.
+## Manual end-to-end checks
 
-`test/auth_service_test.dart` verifies all unavailable default operations, request mapping, exact password preservation, typed failure propagation, immutable errors, and the app-to-routed-form injection path. Existing UI tests continue to cover navigation and validation.
+1. Configure PostgreSQL/migrations, JWT and a real test SMTP provider using backend instructions.
+   Start the API and confirm readiness. Launch mobile with the appropriate base URL above.
+2. Register a new customer. Confirm generic acknowledgement and verification screen, no session.
+   Attempt login before verification: expect a generic credential/verification failure.
+3. Copy the credential from the delivered test email into the verification field. Verify,
+   return to login and sign in. Confirm the session screen; no dashboard is expected.
+4. Repeat with a new owner email and business name. Verify backend persistence with authorized
+   development tools if needed; the client does not assert or select a tenant membership.
+5. Resend an eligible unverified account after cooldown; confirm generic acknowledgement.
+   Confirm the older token fails, the replacement succeeds and used tokens fail on repeat.
+   Unknown/verified email resend and duplicate registration must not disclose account existence.
+6. Restart the app: session restoration rotates credentials. Wait beyond access expiry while
+   foregrounded or resume afterward; confirm rotation succeeds. Logout and restart: no session.
+7. Revoke the test session on the server using an authorized test procedure; restart/refresh
+   must return to login. Test airplane mode, unavailable API, wrong password and rate limits.
+   Logout offline must clear local credentials and report unconfirmed server revocation.
+8. On actual iOS/Android devices verify storage persistence, locked-device failure, local cleanup,
+   keyboard/large text layouts and signing. Never copy real credentials into test reports or logs.
+
+Automated evidence: `test/api_auth_service_test.dart` covers both registrations, login, exact JSON,
+verification/resend, restart, rotation/concurrency, corrupt/revoked/expired credentials, network,
+timeout, safe errors, secure-write failure, logout and successful routed UI flows.
+`test/token_store_test.dart` covers the platform adapter with a mock channel.
+Existing authentication, layout, routing and authorized-option fixture tests remain.
+No live database/SMTP/real-device verification is claimed by these automated checks.
+
+## Phase 4C delivery evidence
+
+Checks performed on 2026-10-23: `flutter pub get` passed; `flutter analyze` passed
+without findings; `flutter test` passed 27 tests; `flutter build ios --simulator
+--dart-define=API_BASE_URL=http://localhost:5080` passed. This is a build, not an
+app launch or live backend test. Android native build, physical-device storage and live
+SMTP/API checks were not performed.
+
+Changed/new files (relative to `mobile/`):
+- `lib/main.dart`, `lib/app/app.dart`, `lib/app/routing/app_router.dart`
+- `lib/features/auth/domain/auth_service.dart`, `auth_submission.dart`, `session_service.dart`
+- `lib/features/auth/data/api_auth_service.dart`, `token_store.dart`
+- `lib/features/auth/presentation/auth_form_screen.dart`, `verification_screen.dart`, `session_screen.dart`
+- `lib/core/network/README.md`, `README.md`
+- `pubspec.yaml`, `pubspec.lock`
+- `android/app/src/main/AndroidManifest.xml`, `android/app/src/debug/AndroidManifest.xml`
+- `ios/Runner/Info.plist`, `ios/Runner/Runner.entitlements`,
+  `ios/Runner.xcodeproj/project.pbxproj`
+- `test/api_auth_service_test.dart`, `token_store_test.dart`,
+  `auth_service_test.dart`, `auth_ui_test.dart`
+
+No backend behavior was changed. Issue #2 remains open; no commit/push was created.
+Suggested commit: `feat(mobile): integrate secure authentication and email verification (#2)`.
