@@ -478,3 +478,12 @@ backend/tests/WashFlow.IntegrationTests/EmailVerificationHttpTests.cs
 backend/tests/WashFlow.IntegrationTests/EmailVerificationPostgresTests.cs
 backend/tests/WashFlow.UnitTests/EmailVerificationTests.cs
 ```
+
+### Local Development mailbox
+
+For local verification without SMTP, see
+[the Development-only loopback mailbox instructions](docs/core-authentication.md#local-development-mailbox--issue-2).
+`POST /api/dev/email/verification/take` is registered only with the Development memory
+sender and consumes one message for the supplied address. It requires a direct
+127.0.0.1/::1 connection and rejects proxy headers. Never expose this path through a proxy.
+Existing registration, verification, login, refresh and logout behavior is unchanged.

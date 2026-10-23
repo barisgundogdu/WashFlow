@@ -166,10 +166,9 @@ migration back restores indexes but does not reactivate revoked credentials.
 
 ### Email configuration examples
 
-Development defaults to the bounded in-memory sender. No real email is sent, and the mailbox is
-available only through dependency injection (e.g. integration tests or an IDE debugger). No console
-logger, public inbox, verification bypass, disk pickup directory or raw-token HTTP endpoint exists.
-For manual delivery testing, configure a real STARTTLS SMTP service even in Development.
+Development defaults to the bounded in-memory sender. No real email is sent, and the mailbox can be read through dependency injection or the Development-only loopback endpoint
+documented below. No console logger, public inbox, verification bypass or disk pickup directory
+exists. Use STARTTLS SMTP to test actual email delivery.
 
 Production requires explicit SMTP configuration; `Memory` is rejected outside Development:
 
@@ -226,3 +225,59 @@ Migration: `20261021135215_EmailVerificationIssuanceIndexes`. The implementation
 or modify the existing PostgreSQL instance. Tests use dedicated temporary schemas only when
 `WASHFLOW_TEST_POSTGRES` is explicitly configured. SMTP delivery was not exercised against an
 external server in Codex; the test sender never transmits actual emails.
+
+## Local development mailbox — Issue #2
+
+**Only for local development and tests.** With
+`ASPNETCORE_ENVIRONMENT=Development` and `Email__Provider=Memory` (the Development
+default), `POST /api/dev/email/verification/take` accepts a JSON email address.
+The route is not registered in Production, Staging or any non-Development environment,
+even if a test happens to register a memory sender. With the normal SMTP provider
+there is no memory mailbox and this route is not registered.
+
+Run the backend on your own machine, preferably bound only to loopback:
+```sh
+ASPNETCORE_ENVIRONMENT=Development Email__Provider=Memory ASPNETCORE_URLS=http://127.0.0.1:5080 dotnet run --project src/WashFlow.Api
+```
+Keep your existing database/JWT configuration. From a terminal on that same machine:
+```sh
+curl --noproxy '*' --silent --show-error \
+  -X POST http://127.0.0.1:5080/api/dev/email/verification/take \
+  -H 'Content-Type: application/json' \
+  --data '{"email":"your-local-test-address@example.test"}'
+```
+The email address is an example; use the actual address you registered. The response
+contains `recipient`, `token` and `expiresAt`. Copy the returned token into Flutter's
+**Doğrulama bilgisi** field, then verify and log in normally. No account verification or
+session creation occurs when reading the mailbox. Do not save terminal output, include
+it in reports, or enable HTTP body/response logging for this route.
+
+The handler checks the connection's remote IP, never a client-supplied IP header:
+only exactly `127.0.0.1` or `::1` is accepted; unknown peers and IPv4-mapped addresses
+are rejected with 403. Requests carrying `Forwarded`, `Via`, `X-Forwarded-*` or
+`X-Original-*` headers are rejected even when their immediate peer is loopback.
+The latter also prevents normal forwarded-header rewriting from enabling access.
+Host headers are not used as proof of locality. Do not publish or forward this path
+through a reverse proxy, tunnel or port-forwarder. An application cannot distinguish
+a local program from a local proxy that deliberately strips all proxy metadata;
+loopback-only binding and keeping the development machine trusted remain necessary.
+This endpoint is intended for a local terminal, not an Android emulator, LAN device
+or production Flutter build.
+
+The mailbox's existing atomic `TryTake()` returns only the latest message for the
+specified address (case-insensitive, trimmed), once. A second read, an unknown address
+or a mailbox lost on process restart returns 404. Invalid JSON/email returns 400 and
+non-JSON content returns 415; rejected requests do not consume messages.
+Responses use `Cache-Control: no-store` and `Pragma: no-cache`. No token logging,
+files, plaintext database columns or new persistence are introduced.
+
+Delivery is asynchronous: if the worker has not delivered into memory yet, retry
+the read. If the process was restarted after registration, the old raw token is lost.
+Use Flutter's **Doğrulama e-postasını yeniden gönder** action after the existing cooldown,
+then read again. This preserves the existing resend/verification security rules.
+A real SMTP provider is still needed to test actual email delivery.
+
+Tests in `DevelopmentEmailHttpTests` cover IPv4/IPv6 loopback, single-use/latest-message
+semantics, recipient isolation, concurrent reads, absent non-Development routes,
+non-loopback/null peers, proxy header spoofing, malformed input and no-cache headers.
+These HTTP tests use TestServer connection features, not a live SMTP server or database.

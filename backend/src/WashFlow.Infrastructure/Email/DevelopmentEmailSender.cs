@@ -2,7 +2,7 @@ using WashFlow.Application.Authentication;
 
 namespace WashFlow.Infrastructure.Email;
 
-/// <summary>Process-memory mailbox for local development/tests. No files, logs or HTTP read endpoint.</summary>
+/// <summary>Process-memory mailbox for local development/tests. No files or logs. Development-only loopback API supports one-time reads.</summary>
 public sealed class DevelopmentEmailSender : IEmailSender
 {
     private readonly Dictionary<string, VerificationEmail> messages = new(StringComparer.OrdinalIgnoreCase);
