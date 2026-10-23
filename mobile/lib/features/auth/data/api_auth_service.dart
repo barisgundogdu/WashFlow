@@ -87,6 +87,8 @@ class ApiAuthService extends ChangeNotifier
             // Login failures retain the existing credential/verification message.
             ApiErrorCode.unauthenticated => AuthErrorCode.invalidCredentials,
             ApiErrorCode.forbidden => AuthErrorCode.forbidden,
+            ApiErrorCode.notFound ||
+            ApiErrorCode.invalidInvitation => AuthErrorCode.unexpected,
             ApiErrorCode.conflict => AuthErrorCode.conflict,
             ApiErrorCode.validation => AuthErrorCode.validation,
             ApiErrorCode.invalidVerificationToken =>

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../features/auth/domain/auth_submission.dart';
+import '../../features/invitations/domain/owner_invitation_service.dart';
 import '../../features/auth/domain/context_service.dart';
 import '../../features/auth/domain/session_service.dart';
 import '../../features/auth/presentation/session_screen.dart';
@@ -22,6 +23,7 @@ abstract final class AppRouter {
     RouteSettings settings, {
     SessionService? sessionService,
     ContextService? contextService,
+    OwnerInvitationService? invitationService,
     AuthSubmission submission = const UnavailableAuthSubmission(),
   }) {
     return MaterialPageRoute<void>(
@@ -36,6 +38,7 @@ abstract final class AppRouter {
         session => SessionScreen(
           service: sessionService,
           contextService: contextService,
+          invitationService: invitationService,
         ),
         welcome => const WelcomeScreen(),
         login => AuthFormScreen(

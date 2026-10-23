@@ -39,6 +39,8 @@ class ApiContextService implements ContextService {
           code: switch (e.code) {
             ApiErrorCode.unauthenticated => AuthErrorCode.unauthenticated,
             ApiErrorCode.forbidden => AuthErrorCode.forbidden,
+            ApiErrorCode.notFound ||
+            ApiErrorCode.invalidInvitation => AuthErrorCode.unexpected,
             ApiErrorCode.conflict => AuthErrorCode.conflict,
             ApiErrorCode.validation => AuthErrorCode.validation,
             ApiErrorCode.invalidVerificationToken => AuthErrorCode.unexpected,

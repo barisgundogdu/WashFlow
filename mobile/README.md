@@ -4,8 +4,8 @@ One Turkish Flutter Android/iOS application. Phase 4C connects the existing auth
 design to the Phase 4A/4B backend under Issue #2, which remains open. Issue #9 supplied the
 completed UI foundation. Requirements: FR-01, FR-20, NFR-01/02/04/05/07.
 Context discovery and role-aware navigation (FR-27) now use backend grants. Role destinations
-are clearly labeled temporary shells; employee invitation UI, business operations and dashboards
-remain subsequent work. A session alone does not grant tenant access.
+are clearly labeled temporary shells, with Owner employee invitation management now implemented.
+Recipient invitation UI, other business operations and dashboards remain subsequent work. A session alone does not grant tenant access.
 
 ## Dependencies and verification
 
@@ -276,3 +276,112 @@ Phase 2 changed/new files relative to `mobile/`:
 - Documentation: this README, `lib/core/network/README.md`, and customer/owner/employee READMEs.
 
 Suggested commit: `feat(mobile): add authorized context selection and secure navigation (#2)`.
+
+
+## Flutter integration Phase 3 — Owner employee invitation management
+
+Requirements: Issue #2, SRS FR-02/03/27 and NFR-02/03/04/05/07/14. `main.dart` injects a stateless
+`ApiOwnerInvitationService` through app/router/session composition, sharing the existing API origin,
+HTTP transport and serialized token provider. Secure storage and token rotation behavior are unchanged.
+
+Only the selected Owner experience exposes **Çalışan davetleri**. Entry revalidates current server
+contexts before opening a guarded nested route. Customer and Employee experiences have no entry;
+role/business arguments cannot select an unauthorized tenant. The backend independently authorizes
+all invitation requests. A guessed route under a stale Owner snapshot still cannot bypass the API.
+The screen displays the server-provided business name, metadata list, email form and status labels.
+Dates are displayed in local time through Turkish Material localization; expiry is only a UI hint.
+
+### Actual backend contracts
+
+| Method | Business-scoped route | Input / success |
+| --- | --- | --- |
+| GET | `/api/v1/businesses/{businessId}/employee-invitations` | Array of invitation metadata, 200 |
+| POST | same route | `{email}`, metadata 201 |
+| POST | `.../employee-invitations/{id}/revoke` | No body, 204 |
+| POST | `.../employee-invitations/{id}/resend` | No body, replacement metadata 200 |
+
+The DTO contains only `id`, `email`, `expiresAt`, `acceptedAt`, `revokedAt`.
+There is no invitation credential, business ID, capability flag or delivery receipt in this DTO.
+Unknown extra fields are not retained or displayed. Nonzero UUIDs, timezone-bearing timestamps,
+metadata shapes and mutually exclusive accepted/revoked states are validated by the adapter.
+
+Labels are **Kabul bekliyor**, **Süresi doldu**, **Kabul edildi**, **İptal edildi**.
+Accepted/revoked rows disable resend/revoke. Expired rows can still be resent or revoked per the
+backend. Repeating an already-revoked operation is backend-idempotent but is not offered by the UI.
+Resend creates a replacement record/ID and invalidates the previous credential. The client reloads
+the list instead of optimistically editing an old row. A confirmation dialog is required for revoke.
+
+### Errors, isolation and races
+
+400 validation shows safe email guidance; 400 `invalidInvitation` reports changed/unusable state;
+404 reports a missing resource; 409 reports a state/membership conflict; 429 asks the user to wait.
+Neither backend account existence nor exact conflict reason is inferred. 401 returns to login;
+403 clears the invitation subtree and refreshes server contexts. Removed grants cannot continue
+using the former screen; if grants still exist, entry must be explicitly attempted again.
+
+Each controller is bound to one immutable business ID and the originating shell generation.
+Switching businesses/roles/accounts clears the nested navigator, email input, records and confirmation
+dialogs. Late reads, mutation results and authorization failures cannot populate or invalidate the
+new tenant. All actions capture their business before awaiting; a switch never retargets a request.
+
+Mutations serialize and disable competing actions synchronously. They are never automatically
+retried, even after network timeout, redirects, 400, 404, 409 or 429. A single GET reconciles success,
+conflicts and uncertain outcomes. Failed reconciliation disables writes until a successful manual
+list refresh. If a write's response is lost/malformed, the UI reports that it may already have
+completed; it does not treat absence of a success response as proof of failure. An already-sent
+write may still commit in its original business after the user leaves. This cannot be cancelled
+or inferred from local navigation. Success clears the create form only after confirmed recording.
+
+Creation/resend success explicitly says that delivery is unconfirmed. The bounded backend email
+queue is non-durable and the API supplies no delivery status. No credential is displayed as a
+workaround. No email-delivery or live SMTP guarantee is made.
+
+### Backend gaps and scope
+
+Basic owner management needs no backend/schema change. The list is currently unpaginated; action
+capabilities and member-conflict reasons are not exposed, so UI actions remain hints and backend
+responses decide eligibility. A resend can still fail due to state changes or existing membership.
+Missing/terminal invitations commonly return 400 `invalidInvitation`, rather than a distinct 404.
+There is no mutation idempotency key or delivery/status receipt; uncertain writes need list review,
+not an automatic replay. The DTO omits business ID, so tenant ownership is established by the
+scoped endpoint/backend authorization rather than inferred from the payload.
+
+Recipient registration, verification continuation, acceptance, credential entry and recipient UI
+remain Phase 4 work. Other business operations remain unimplemented. No backend, schema, migration,
+or database change is part of Phase 3. Automated checks use mock HTTP/services/storage and do not
+prove live API, email delivery or physical-device behavior.
+
+Phase 3 verification (23 October 2026): `flutter analyze` passed with no issues;
+`flutter test` passed all 105 tests (29 additional invitation cases over Phase 2, with existing
+transport/authentication/session/context regressions preserved). `git diff --check` passed.
+Tests cover exact backend contracts and error codes, metadata validation, confirmation/cancellation,
+terminal/expired rows, serialized mutations, resend/revoke races, uncertain results and reconciliation,
+Owner-only entry, revocation, forged routes, business switching, late writes/reads/errors across
+business/account boundaries and compact/large-text UI. No live backend/device/email test was run.
+No recipient flow, backend change, database operation, migration, commit or push was performed.
+
+Complete Phase 3 changed/new file list, relative to `mobile/` (21 files):
+
+- `README.md`
+- `lib/main.dart`
+- `lib/app/app.dart`
+- `lib/app/routing/app_router.dart`
+- `lib/core/network/README.md`
+- `lib/core/network/api_client.dart`
+- `lib/features/auth/data/api_auth_service.dart`
+- `lib/features/auth/data/api_context_service.dart`
+- `lib/features/auth/domain/auth_service.dart`
+- `lib/features/auth/presentation/session_screen.dart`
+- `lib/features/invitations/domain/invitation.dart` (new)
+- `lib/features/invitations/domain/owner_invitation_service.dart` (new)
+- `lib/features/invitations/data/api_owner_invitation_service.dart` (new)
+- `lib/features/owner/README.md`
+- `lib/features/owner/presentation/owner_home_screen.dart`
+- `lib/features/owner/presentation/employee_invitations_controller.dart` (new)
+- `lib/features/owner/presentation/employee_invitations_screen.dart` (new)
+- `test/owner_invitation_service_test.dart` (new)
+- `test/employee_invitations_controller_test.dart` (new)
+- `test/employee_invitations_widget_test.dart` (new)
+- `test/support/invitation_fakes.dart` (new)
+
+Suggested commit: `feat(mobile): add owner employee invitation management (#2)`.

@@ -52,6 +52,8 @@ enum AuthErrorCode {
   invalidCredentials,
   unauthenticated,
   forbidden,
+  notFound,
+  invalidInvitation,
   validation,
   conflict,
   unexpected,

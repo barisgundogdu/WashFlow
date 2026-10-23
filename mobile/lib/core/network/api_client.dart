@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 enum ApiErrorCode {
   unauthenticated,
   forbidden,
+  notFound,
+  invalidInvitation,
   conflict,
   validation,
   invalidVerificationToken,
@@ -96,6 +98,9 @@ class ApiClient {
         throw ApiException(switch (response.statusCode) {
           401 => ApiErrorCode.unauthenticated,
           403 => ApiErrorCode.forbidden,
+          404 => ApiErrorCode.notFound,
+          400 when code == 'invalidInvitation' =>
+            ApiErrorCode.invalidInvitation,
           409 => ApiErrorCode.conflict,
           429 => ApiErrorCode.rateLimited,
           400 when code == 'invalidVerificationToken' =>

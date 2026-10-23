@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 
-/// Temporary destination; no operational or invitation actions are exposed.
+/// Owner entry point; other operational features remain temporary.
 class OwnerHomeScreen extends StatelessWidget {
-  const OwnerHomeScreen({super.key});
+  const OwnerHomeScreen({super.key, this.onInvitations});
+  final VoidCallback? onInvitations;
   @override
-  Widget build(BuildContext context) => const Column(
+  Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Text('İşletme sahibi alanı'),
-      Text('Geçici ekran. İşletme yönetimi henüz kullanıma açık değil.'),
+      const Text('İşletme sahibi alanı'),
+      const Text(
+        'Geçici ekran. Diğer işletme yönetimi işlemleri henüz kullanıma açık değil.',
+      ),
+      if (onInvitations != null)
+        FilledButton(
+          onPressed: onInvitations,
+          child: const Text('Çalışan davetleri'),
+        ),
     ],
   );
 }

@@ -29,3 +29,15 @@ following logout, account changes or tenant switches. Future business adapters m
 authorization failures with the originating controller generation; 403 revalidates contexts and
 401 exits the authenticated shell. Never attach an old request failure to a new controller.
 Context snapshots never replace backend ACLs.
+
+
+Phase 3 adds `ApiOwnerInvitationService` using the same transport/access-token provider and explicit
+business-scoped URLs. It is stateless and never stores a global current tenant. Account revisions
+are checked around asynchronous access-token acquisition so a queued old-account write cannot
+acquire and dispatch with a new account's credential. An already-dispatched server write cannot
+be rolled back merely by leaving a screen. Controllers discard its late UI result.
+
+Transport now distinguishes 404 (`notFound`) and 400 `invalidInvitation`; the invitation adapter
+maps these to safe feature messages. Existing authentication/context adapters retain their prior
+safe unexpected-error behavior for these endpoint-inapplicable statuses. No raw response/detail
+text is carried into error messages. Mutation retries remain disabled for every status and timeout.

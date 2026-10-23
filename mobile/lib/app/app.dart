@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'routing/app_router.dart';
+import '../features/invitations/domain/owner_invitation_service.dart';
 import '../features/auth/domain/context_service.dart';
 import '../features/auth/domain/session_service.dart';
 import '../features/auth/domain/auth_service.dart';
@@ -13,11 +14,13 @@ class WashFlowApp extends StatelessWidget {
     this.initialRoute = AppRouter.welcome,
     this.startupMessage,
     this.contextService,
+    this.invitationService,
     this.authService = const UnavailableAuthService(),
   });
 
   final AuthService authService;
   final ContextService? contextService;
+  final OwnerInvitationService? invitationService;
   final String initialRoute;
   final String? startupMessage;
 
@@ -25,7 +28,7 @@ class WashFlowApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       // Replacing an account/service boundary destroys the old route stack.
-      key: ValueKey((authService, contextService)),
+      key: ValueKey((authService, contextService, invitationService)),
       title: 'WashFlow',
       initialRoute: initialRoute,
       builder: (context, child) => Column(
@@ -87,6 +90,7 @@ class WashFlowApp extends StatelessWidget {
         settings,
         submission: ServiceAuthSubmission(authService),
         contextService: contextService,
+        invitationService: invitationService,
         sessionService: authService is SessionService
             ? authService as SessionService
             : null,
