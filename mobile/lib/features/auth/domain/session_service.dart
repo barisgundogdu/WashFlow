@@ -1,5 +1,11 @@
 import 'auth_service.dart';
 
+/// Provides a current credential through serialized session handling.
+/// Callers never read persisted credentials or rotate tokens themselves.
+abstract interface class AccessTokenProvider {
+  Future<AuthResult<String>> accessToken();
+}
+
 abstract interface class SessionService {
   Future<AuthResult<bool>> restoreSession();
   Future<AuthResult<void>> refreshSession();
@@ -9,6 +15,9 @@ abstract interface class SessionService {
 }
 
 String authErrorMessage(AuthError error) => switch (error.code) {
+  AuthErrorCode.unauthenticated =>
+    'Oturumunuz geçersiz. Lütfen yeniden giriş yapın.',
+  AuthErrorCode.forbidden => 'Bu işlem için yetkiniz yok.',
   AuthErrorCode.invalidCredentials =>
     'Giriş yapılamadı. Bilgilerinizi ve e-posta doğrulamanızı kontrol edin.',
   AuthErrorCode.validation => 'Bilgileri kontrol edin. Adlar en fazla 200, e-posta 320, şifre 1024 karakter olabilir.',

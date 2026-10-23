@@ -3,8 +3,9 @@
 One Turkish Flutter Android/iOS application. Phase 4C connects the existing authentication
 design to the Phase 4A/4B backend under Issue #2, which remains open. Issue #9 supplied the
 completed UI foundation. Requirements: FR-01, FR-20, NFR-01/02/04/05/07.
-Role/context authorization (FR-27), employee onboarding, business operations and dashboards
-remain subsequent work. A session does not grant tenant access.
+Typed context discovery (FR-27) now has a data/service boundary; context navigation, employee
+onboarding UI, business operations and dashboards remain subsequent work. A session does not
+grant tenant access.
 
 ## Dependencies and verification
 
@@ -159,3 +160,43 @@ Changed/new files (relative to `mobile/`):
 
 No backend behavior was changed. Issue #2 remains open; no commit/push was created.
 Suggested commit: `feat(mobile): integrate secure authentication and email verification (#2)`.
+
+
+## Flutter integration Phase 1 — Transport and context contracts
+
+The shared `lib/core/network/api_client.dart` now supplies authentication and protected context
+transport. Existing `ApiAuthService` constructor injection remains compatible. Session mutation
+serialization, pre-refresh predecessor removal, secure storage, and no-retry behavior remain in
+that adapter. No session-storage schema or UI routing changes were made.
+
+`AccessTokenProvider` exposes the existing serialized access boundary without requiring protected
+adapters to depend on concrete authentication implementation or storage. `ContextService` and
+`ApiContextService` load the authenticated `/api/v1/auth/contexts` response using the same
+`auth.apiClient` transport and `auth` session. They are not wired into the UI in this phase.
+
+`UserContexts` contains an optional `CustomerContext` and immutable `BusinessContext` snapshots
+with business ID/name, membership ID and an immutable set of `BusinessRole.owner/employee` grants.
+Parsing requires the backend response shape and nonzero UUID identifiers; duplicate business or
+membership entries fail closed. Both supported grants can coexist. Unknown string role names
+are ignored; unknown-only roles create no supported grant. Malformed shapes fail safely, and an
+explicit null customer plus empty business list is a valid authenticated account with no contexts.
+No customer context, membership or role is inferred from account registration or token contents.
+
+Transport 401 maps to `unauthenticated` for context reads; login retains its existing
+`invalidCredentials` message. 403 maps separately to `forbidden`, with safe Turkish messages.
+Raw server validation/detail strings are never displayed. Context failures never trigger automatic
+logout, credential deletion, forced refresh or request retries; navigation/session coordination is
+Phase 2 work. In particular, a late 401 must not clear a newer login. Failed/uncertain refresh still
+clears its predecessor under the existing authentication policy.
+
+Phase 1 tests include transport prefix/header/JSON/204 behavior, unsafe URL rejection, redirects,
+HTTP error classification, network and whole-response timeouts; immutable context parsing, unknown
+roles, malformed payloads, distinct authorization failures and no-cache behavior; and real session
+boundary concurrency with one refresh for simultaneous context consumers. Existing authentication,
+verification, secure-storage and UI regression tests remain in the full Flutter test suite.
+No live API, database, email delivery or device secure-storage behavior is exercised by these tests.
+
+Phase 1 verification (23 October 2026): `flutter analyze` passed with no issues; `flutter test`
+passed all 46 tests, including 14 new transport/context tests and the existing authentication
+regressions. `git diff --check` passed. No backend, database, migration, navigation or invitation UI
+changes were made; no commit or push was created. Context loading is available for Phase 2 wiring.

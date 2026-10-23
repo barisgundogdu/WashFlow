@@ -50,6 +50,8 @@ class BusinessRegistrationResult {
 enum AuthErrorCode {
   unavailable,
   invalidCredentials,
+  unauthenticated,
+  forbidden,
   validation,
   conflict,
   unexpected,

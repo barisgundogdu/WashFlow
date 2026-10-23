@@ -1,10 +1,28 @@
-# Network boundary
+# Network boundary — Flutter integration Phase 1
 
-Authentication transport currently lives in
-`features/auth/data/api_auth_service.dart`, using an injected HTTP client,
-bounded timeout and safe semantic errors. API origin is supplied through
-`--dart-define=API_BASE_URL=...`.
+`ApiClient` owns JSON GET/POST transport with an injected `http.Client`, validated API origin,
+deployment prefix support, a bounded whole-response timeout, and safe semantic errors. It supports
+object/list JSON and empty 204 responses. API paths cannot change the origin or contain query
+credentials. Redirects and automatic retries are disabled. It never logs requests, credentials,
+provider exceptions or response bodies. Origin comes from `--dart-define=API_BASE_URL=...`;
+HTTPS is required outside debug builds.
 
-Future protected API adapters must obtain a current token through the serialized
-`ApiAuthService.accessToken()` boundary, handle server 401 safely, and never infer
-tenant access from client-selected roles. No business APIs exist in this phase.
+`ApiAuthService` uses this transport and remains the sole session-storage/rotation owner.
+Its `AccessTokenProvider.accessToken()` implementation serializes session mutations and clears
+the predecessor before refresh. Protected adapters must use this boundary, not read secure storage
+or rotate/replay refresh credentials themselves.
+
+Compose context reads with the same transport and authenticated session:
+
+```dart
+final contexts = ApiContextService(apiClient: auth.apiClient, session: auth);
+final result = await contexts.getContexts();
+```
+
+This is a composition example, not currently wired into application navigation. Pair transport
+and session from the same configured API; never use an untrusted/user-provided transport origin.
+`ApiContextService` GETs `/api/v1/auth/contexts` with the returned bearer credential. It has no cache,
+JWT decoding, role headers, user overrides, or local grant fallback. 401 yields `unauthenticated`;
+403 yields `forbidden`. A context failure does not clear a possibly newer session or replay requests.
+Future session/navigation coordination must handle these outcomes and discard stale responses
+following logout, account changes or tenant switches. Context snapshots never replace backend ACLs.

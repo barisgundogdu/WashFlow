@@ -1,9 +1,8 @@
-import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../core/network/api_client.dart';
 import '../domain/auth_service.dart';
 import '../domain/session_service.dart';
 import 'token_store.dart';
@@ -39,27 +38,25 @@ class _Tokens {
 
 /// No credential logging, JWT role inference, automatic POST retries or redirects.
 /// All session mutations are serialized: a rotated token is never reused.
-class ApiAuthService implements AuthService, SessionService {
+class ApiAuthService
+    implements AuthService, SessionService, AccessTokenProvider {
   ApiAuthService({
     required this.baseUrl,
     required this.store,
     http.Client? client,
     this.timeout = const Duration(seconds: 15),
     DateTime Function()? now,
-  }) : _client = client ?? http.Client(),
-       _now = now ?? DateTime.now {
-    if (!baseUrl.hasAuthority ||
-        baseUrl.userInfo.isNotEmpty ||
-        baseUrl.hasQuery ||
-        baseUrl.hasFragment ||
-        (baseUrl.scheme != 'https' &&
-            !(kDebugMode && baseUrl.scheme == 'http'))) {
-      throw ArgumentError('API URL must use HTTPS (HTTP is debug-only).');
-    }
-  }
+  }) : apiClient = ApiClient(
+         baseUrl: baseUrl,
+         client: client,
+         timeout: timeout,
+       ),
+       _now = now ?? DateTime.now;
   final Uri baseUrl;
   final TokenStore store;
-  final http.Client _client;
+
+  /// Reuse this transport for protected adapters with this session's origin.
+  final ApiClient apiClient;
   final Duration timeout;
   final DateTime Function() _now;
   _Tokens? _tokens;
@@ -70,10 +67,25 @@ class ApiAuthService implements AuthService, SessionService {
       return AuthSuccess(await action());
     } on _SafeFailure catch (e) {
       return AuthFailure(AuthError(code: e.code));
-    } on TimeoutException {
-      return AuthFailure(AuthError(code: AuthErrorCode.timeout));
-    } on http.ClientException {
-      return AuthFailure(AuthError(code: AuthErrorCode.network));
+    } on ApiException catch (e) {
+      return AuthFailure(
+        AuthError(
+          code: switch (e.code) {
+            // Login failures retain the existing credential/verification message.
+            ApiErrorCode.unauthenticated => AuthErrorCode.invalidCredentials,
+            ApiErrorCode.forbidden => AuthErrorCode.forbidden,
+            ApiErrorCode.conflict => AuthErrorCode.conflict,
+            ApiErrorCode.validation => AuthErrorCode.validation,
+            ApiErrorCode.invalidVerificationToken =>
+              AuthErrorCode.invalidVerificationToken,
+            ApiErrorCode.rateLimited => AuthErrorCode.rateLimited,
+            ApiErrorCode.unavailable => AuthErrorCode.unavailable,
+            ApiErrorCode.network => AuthErrorCode.network,
+            ApiErrorCode.timeout => AuthErrorCode.timeout,
+            ApiErrorCode.unexpected => AuthErrorCode.unexpected,
+          },
+        ),
+      );
     } catch (_) {
       return AuthFailure(AuthError(code: AuthErrorCode.unexpected));
     }
@@ -91,38 +103,13 @@ class ApiAuthService implements AuthService, SessionService {
     String? access,
     int expected = 200,
   }) async {
-    final request = http.Request(
-      'POST',
-      Uri.parse(
-        '${baseUrl.toString().replaceFirst(RegExp(r"/+$"), "")}/api/v1/auth/$path',
-      ),
-    )..followRedirects = false;
-    request.headers['Content-Type'] = 'application/json';
-    if (access != null) request.headers['Authorization'] = 'Bearer $access';
-    if (body != null) request.body = jsonEncode(body);
-    final response = await (() async {
-      final streamed = await _client.send(request);
-      return http.Response.fromStream(streamed);
-    })().timeout(timeout);
-    if (response.statusCode != expected) {
-      // Never display arbitrary server text, including HTML/proxy responses.
-      String? code;
-      try {
-        code = (jsonDecode(response.body) as Map)['code'] as String?;
-      } catch (_) {}
-      throw _SafeFailure(switch (response.statusCode) {
-        401 => AuthErrorCode.invalidCredentials,
-        429 => AuthErrorCode.rateLimited,
-        400 when code == 'invalidVerificationToken' =>
-          AuthErrorCode.invalidVerificationToken,
-        400 => AuthErrorCode.validation,
-        503 => AuthErrorCode.unavailable,
-        _ => AuthErrorCode.unexpected,
-      });
-    }
-    return expected == 204
-        ? {}
-        : jsonDecode(response.body) as Map<String, dynamic>;
+    final json = await apiClient.post(
+      '/api/v1/auth/$path',
+      body,
+      access: access,
+      expected: expected,
+    );
+    return expected == 204 ? {} : json as Map<String, dynamic>;
   }
 
   Future<void> _save(_Tokens tokens) async {
@@ -229,7 +216,8 @@ class ApiAuthService implements AuthService, SessionService {
     }
   });
 
-  /// Future protected API adapters use this boundary and still enforce server ACLs.
+  /// Protected API adapters use this boundary and still enforce server ACLs.
+  @override
   Future<AuthResult<String>> accessToken() => _serial(() async {
     if (_tokens == null) {
       throw const _SafeFailure(AuthErrorCode.invalidCredentials);
