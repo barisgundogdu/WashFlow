@@ -13,7 +13,8 @@ public static class DevelopmentEmailEndpoints
         if (!app.Environment.IsDevelopment() ||
             app.Services.GetService<DevelopmentEmailSender>() is null) return;
 
-        app.MapPost("/api/dev/email/verification/take", async (HttpContext context) =>
+        foreach (var purpose in new[] { "verification", "invitation" })
+        app.MapPost($"/api/dev/email/{purpose}/take", async (HttpContext context) =>
         {
             context.Response.Headers.CacheControl = "no-store";
             context.Response.Headers.Pragma = "no-cache";
@@ -44,7 +45,7 @@ public static class DevelopmentEmailEndpoints
 
             var mailbox = context.RequestServices.GetRequiredService<DevelopmentEmailSender>();
             // Atomic destructive read: only the latest message for this recipient.
-            return mailbox.TryTake(request!.Email!.Trim(), out var email)
+            return mailbox.TryTake(request!.Email!.Trim(), purpose == "invitation" ? "employee-invitation" : "email-verification", out var email)
                 ? Results.Json(email)
                 : Results.Problem(statusCode: StatusCodes.Status404NotFound);
         }).AllowAnonymous();

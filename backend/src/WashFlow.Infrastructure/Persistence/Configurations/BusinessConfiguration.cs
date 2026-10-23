@@ -63,7 +63,10 @@ public sealed class EmployeeInvitationConfiguration : IEntityTypeConfiguration<E
             .HasForeignKey(x => new { x.BusinessId, x.InvitedByMembershipId })
             .HasPrincipalKey(x => new { x.BusinessId, x.Id }).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<User>().WithMany().HasForeignKey(x => x.AcceptedByUserId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(x => new { x.BusinessId, x.NormalizedEmail });
+        builder.HasIndex(x => new { x.BusinessId, x.NormalizedEmail }).IsUnique()
+            .HasFilter("\"AcceptedAt\" IS NULL AND \"RevokedAt\" IS NULL");
+        builder.ToTable("EmployeeInvitations", t => t.HasCheckConstraint("CK_EmployeeInvitations_FinalState",
+            "\"AcceptedAt\" IS NULL OR \"RevokedAt\" IS NULL"));
         builder.ToTable("EmployeeInvitations", t => t.HasCheckConstraint("CK_EmployeeInvitations_Acceptance",
             "(\"AcceptedAt\" IS NULL) = (\"AcceptedByUserId\" IS NULL)"));
     }

@@ -10,6 +10,7 @@ public static class DependencyInjection
         services.AddScoped<Authorization.UserContextService>();
         services.AddScoped<Authorization.BusinessAuthorizationService>();
         services.AddScoped<AuthService>();
+        services.AddScoped<Invitations.InvitationService>();
         services.AddScoped<EmailVerificationService>();
         return services;
     }

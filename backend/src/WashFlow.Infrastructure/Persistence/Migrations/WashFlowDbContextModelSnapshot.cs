@@ -171,7 +171,9 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("BusinessId", "InvitedByMembershipId");
 
-                    b.HasIndex("BusinessId", "NormalizedEmail");
+                    b.HasIndex("BusinessId", "NormalizedEmail")
+                        .IsUnique()
+                        .HasFilter("\"AcceptedAt\" IS NULL AND \"RevokedAt\" IS NULL");
 
                     b.ToTable("EmployeeInvitations", null, t =>
                         {
@@ -180,6 +182,8 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                             t.HasCheckConstraint("CK_EmployeeInvitations_Consumption", "\"AcceptedAt\" IS NULL OR (\"AcceptedAt\" >= \"CreatedAt\" AND \"AcceptedAt\" < \"ExpiresAt\")");
 
                             t.HasCheckConstraint("CK_EmployeeInvitations_Expiry", "\"ExpiresAt\" > \"CreatedAt\"");
+
+                            t.HasCheckConstraint("CK_EmployeeInvitations_FinalState", "\"AcceptedAt\" IS NULL OR \"RevokedAt\" IS NULL");
 
                             t.HasCheckConstraint("CK_EmployeeInvitations_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
 

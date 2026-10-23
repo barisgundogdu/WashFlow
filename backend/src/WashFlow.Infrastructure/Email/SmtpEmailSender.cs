@@ -23,8 +23,8 @@ public sealed class SmtpEmailSender(SmtpSettings settings) : IEmailSender
         };
         using var message = new MailMessage(settings.From, email.Recipient)
         {
-            Subject = "WashFlow e-posta doğrulaması",
-            Body = $"E-posta adresinizi doğrulamak için bu kodu kullanın:\n{email.Token}\n" +
+            Subject = email.Purpose == "employee-invitation" ? "WashFlow çalışan daveti" : "WashFlow e-posta doğrulaması",
+            Body = (email.Purpose == "employee-invitation" ? "İşletmeye çalışan olarak katılmak için giriş yaptıktan sonra bu davet kodunu kabul edin:\n" : "E-posta adresinizi doğrulamak için bu kodu kullanın:\n") + $"{email.Token}\n" +
                 $"Son geçerlilik zamanı (UTC): {email.ExpiresAt:O}\nBu kaydı siz oluşturmadıysanız e-postayı yok sayabilirsiniz.",
             IsBodyHtml = false
         };

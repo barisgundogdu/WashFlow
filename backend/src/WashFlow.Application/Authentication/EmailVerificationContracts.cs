@@ -9,6 +9,7 @@ public sealed record VerificationAcknowledgement(string Message);
 // Never use records/credential-bearing ToString implementations for delivery objects.
 public sealed class VerificationEmail
 {
+    public string Purpose { get; init; } = "email-verification";
     public required string Recipient { get; init; }
     public required string Token { get; init; }
     public required DateTimeOffset ExpiresAt { get; init; }

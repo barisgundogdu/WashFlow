@@ -22,6 +22,11 @@ public static class DependencyInjection
             options.UseNpgsql(connectionString));
         services.AddScoped<WashFlow.Application.Authorization.ICurrentUserContextStore, Authorization.EfUserContextStore>();
         services.AddScoped<WashFlow.Application.Authorization.IBusinessAuthorizationStore, Authorization.EfBusinessAuthorizationStore>();
+        var invitationHours = configuration.GetValue<int?>("Invitations:LifetimeHours") ?? 24;
+        if (invitationHours is < 1 or > 720) throw new InvalidOperationException("Invitations:LifetimeHours 1–720 arasında olmalıdır.");
+        services.AddSingleton(new WashFlow.Application.Invitations.InvitationOptions { Lifetime = TimeSpan.FromHours(invitationHours) });
+        services.AddSingleton<WashFlow.Application.Invitations.IInvitationTokens, Invitations.InvitationTokens>();
+        services.AddScoped<WashFlow.Application.Invitations.IInvitationStore, Invitations.EfInvitationStore>();
         services.AddHealthChecks()
             .AddCheck<PostgresHealthCheck>("postgresql", tags: ["ready"]);
         return services;

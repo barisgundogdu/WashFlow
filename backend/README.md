@@ -487,3 +487,9 @@ For local verification without SMTP, see
 sender and consumes one message for the supplied address. It requires a direct
 127.0.0.1/::1 connection and rejects proxy headers. Never expose this path through a proxy.
 Existing registration, verification, login, refresh and logout behavior is unchanged.
+
+## Employee invitations — Issue #2
+
+See [employee invitation API and security notes](docs/employee-invitations.md) for the backend
+lifecycle, configuration, migration, test setup, and in-memory email durability limitation.
+Flutter integration remains pending.

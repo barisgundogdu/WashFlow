@@ -37,6 +37,7 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapAuthEndpoints();
+app.MapInvitationEndpoints();
 app.MapDevelopmentEmailEndpoints();
 app.MapHealthChecks("/health", new HealthCheckOptions
 {

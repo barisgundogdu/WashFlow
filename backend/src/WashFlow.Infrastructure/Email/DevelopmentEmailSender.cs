@@ -13,12 +13,16 @@ public sealed class DevelopmentEmailSender : IEmailSender
         lock (gate)
         {
             if (messages.Count >= 100) messages.Remove(messages.Keys.First());
-            messages[email.Recipient] = email;
+            messages[email.Purpose + ":" + email.Recipient] = email;
         }
         return Task.CompletedTask;
     }
     public bool TryTake(string recipient, out VerificationEmail? email)
     {
-        lock (gate) return messages.Remove(recipient, out email);
+        return TryTake(recipient, "email-verification", out email);
+    }
+    public bool TryTake(string recipient, string purpose, out VerificationEmail? email)
+    {
+        lock (gate) return messages.Remove(purpose + ":" + recipient, out email);
     }
 }
