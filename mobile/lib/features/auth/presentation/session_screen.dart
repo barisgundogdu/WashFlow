@@ -21,10 +21,12 @@ class SessionScreen extends StatefulWidget {
     required this.service,
     this.contextService,
     this.invitationService,
+    this.redemptionEnabled = false,
   });
   final SessionService? service;
   final ContextService? contextService;
   final OwnerInvitationService? invitationService;
+  final bool redemptionEnabled;
   @override
   State<SessionScreen> createState() => _SessionScreenState();
 }
@@ -163,6 +165,18 @@ class _SessionScreenState extends State<SessionScreen>
                 child: const Text('Hesap değiştir'),
               ),
           ],
+          if (widget.redemptionEnabled &&
+              controller.phase == SessionPhase.ready)
+            TextButton(
+              onPressed: () {
+                controller.releaseForInvitationFlow();
+                Navigator.of(
+                  context,
+                  rootNavigator: true,
+                ).pushNamedAndRemoveUntil(AppRouter.redeem, (_) => false);
+              },
+              child: const Text('Davet koduyla katıl'),
+            ),
           if (controller.message case final message?)
             Semantics(liveRegion: true, child: Text(message)),
           const SizedBox(height: 16),

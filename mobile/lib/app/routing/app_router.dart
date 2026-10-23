@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../features/auth/domain/auth_submission.dart';
+import '../../features/auth/domain/auth_service.dart';
+import '../../features/invitations/domain/invitation_redemption_service.dart';
+import '../../features/invitations/presentation/invitation_redemption_screen.dart';
 import '../../features/invitations/domain/owner_invitation_service.dart';
 import '../../features/auth/domain/context_service.dart';
 import '../../features/auth/domain/session_service.dart';
@@ -11,6 +14,7 @@ import '../../features/auth/presentation/registration_choice_screen.dart';
 import '../../features/welcome/presentation/welcome_screen.dart';
 
 abstract final class AppRouter {
+  static const redeem = '/invitation/redeem';
   static const verify = '/email/verify';
   static const session = '/session';
   static const welcome = '/';
@@ -22,6 +26,8 @@ abstract final class AppRouter {
   static Route<void> onGenerateRoute(
     RouteSettings settings, {
     SessionService? sessionService,
+    AuthService? authService,
+    InvitationRedemptionService? redemptionService,
     ContextService? contextService,
     OwnerInvitationService? invitationService,
     AuthSubmission submission = const UnavailableAuthSubmission(),
@@ -29,6 +35,19 @@ abstract final class AppRouter {
     return MaterialPageRoute<void>(
       settings: settings,
       builder: (context) => switch (settings.name) {
+        redeem
+            when authService != null &&
+                sessionService != null &&
+                contextService != null &&
+                authService is AccessTokenProvider &&
+                redemptionService != null =>
+          InvitationRedemptionScreen(
+            auth: authService,
+            session: sessionService,
+            access: authService as AccessTokenProvider,
+            contexts: contextService,
+            service: redemptionService,
+          ),
         verify => VerificationScreen(
           service: sessionService,
           email: settings.arguments is String
@@ -39,8 +58,9 @@ abstract final class AppRouter {
           service: sessionService,
           contextService: contextService,
           invitationService: invitationService,
+          redemptionEnabled: redemptionService != null,
         ),
-        welcome => const WelcomeScreen(),
+        welcome => WelcomeScreen(redemptionEnabled: redemptionService != null),
         login => AuthFormScreen(
           kind: AuthFormKind.login,
           submission: submission,

@@ -41,3 +41,11 @@ Transport now distinguishes 404 (`notFound`) and 400 `invalidInvitation`; the in
 maps these to safe feature messages. Existing authentication/context adapters retain their prior
 safe unexpected-error behavior for these endpoint-inapplicable statuses. No raw response/detail
 text is carried into error messages. Mutation retries remain disabled for every status and timeout.
+
+
+Phase 4 adds `ApiInvitationRedemptionService`: anonymous invitation-specific registration and
+explicit authenticated acceptance use existing endpoints only. It shares the same validated API
+origin, timeout and no-retry transport. It never parses roles from a credential or persists it.
+An identity revision guard prevents dispatch under a changed account while acquiring access.
+Registration acknowledgements and acceptance/context results remain separate outcomes. See the
+mobile recipient-flow documentation for uncertainty handling and why contexts are not an invitation receipt.

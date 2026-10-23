@@ -266,4 +266,16 @@ void main() {
     expect(controller.selected!.business!.businessId, businessB);
     expect(controller.options.single.business!.businessId, businessB);
   });
+  test('invitation entry releases shell listeners and invalidates reads before route animation disposal', () async {
+    contexts.value = grants(customer: true);
+    await controller.refresh();
+    controller.releaseForInvitationFlow();
+    session.changeIdentity();
+    expect(controller.phase, SessionPhase.loading);
+    expect(controller.selected, isNull);
+    await controller.refresh();
+    await controller.logout();
+    expect(contexts.calls, 1);
+    expect(session.logouts, 0);
+  });
 }

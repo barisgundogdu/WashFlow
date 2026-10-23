@@ -57,6 +57,7 @@ class SessionController extends ChangeNotifier {
   final ContextService? contexts;
   SessionIdentity? _identity;
   bool _disposed = false;
+  bool _detached = false;
   bool _checking = false;
   bool _ending = false;
   int? _ownLogoutRevision;
@@ -71,7 +72,8 @@ class SessionController extends ChangeNotifier {
   String? _message;
   String? get message => _message;
 
-  bool _current(int generation) => !_disposed && generation == _generation;
+  bool _current(int generation) =>
+      !_disposed && !_detached && generation == _generation;
   void _clear(SessionPhase phase) {
     _generation++;
     _options = const [];
@@ -82,7 +84,7 @@ class SessionController extends ChangeNotifier {
   }
 
   void _identityChanged() {
-    if (_disposed) return;
+    if (_disposed || _detached) return;
     // Ignore only this logout's identity signal, never a subsequent account change.
     if (_ending && _identity?.sessionRevision == _ownLogoutRevision) return;
     _ending = false;
@@ -90,7 +92,9 @@ class SessionController extends ChangeNotifier {
   }
 
   Future<void> refresh({bool choose = false, String? requestedId}) async {
-    if (_disposed || _ending || _phase == SessionPhase.signedOut) return;
+    if (_disposed || _detached || _ending || _phase == SessionPhase.signedOut) {
+      return;
+    }
     final preferred = choose ? null : requestedId ?? _selected?.id;
     _clear(SessionPhase.loading);
     final generation = _generation;
@@ -149,15 +153,32 @@ class SessionController extends ChangeNotifier {
     }
   }
 
+  /// Release authority before a route transition finishes disposing this shell.
+  /// In-flow login is then observed only by the invitation flow's identity guard.
+  void releaseForInvitationFlow() {
+    if (_disposed || _detached) return;
+    _detached = true;
+    _identity?.removeListener(_identityChanged);
+    _identity = null;
+    _clear(SessionPhase.loading);
+  }
+
   /// Hide content while backgrounded and invalidate every in-flight response.
   void suspend() {
-    if (!_disposed && !_ending && _phase != SessionPhase.signedOut) {
+    if (!_disposed &&
+        !_detached &&
+        !_ending &&
+        _phase != SessionPhase.signedOut) {
       _clear(SessionPhase.loading);
     }
   }
 
   Future<void> checkSession() async {
-    if (_disposed || _ending || _checking || _phase != SessionPhase.ready) {
+    if (_disposed ||
+        _detached ||
+        _ending ||
+        _checking ||
+        _phase != SessionPhase.ready) {
       return;
     }
     _checking = true;
@@ -192,7 +213,7 @@ class SessionController extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    if (_disposed || _ending) return;
+    if (_disposed || _detached || _ending) return;
     _ending = true;
     _ownLogoutRevision = _identity == null
         ? null

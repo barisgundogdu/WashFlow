@@ -10,10 +10,19 @@ class AuthFormScreen extends StatefulWidget {
     super.key,
     required this.kind,
     this.submission = const UnavailableAuthSubmission(),
+    this.titleOverride,
+    this.subtitleOverride,
+    this.onSuccess,
+    this.onVerify,
+    this.onAlternative,
+    this.alternativeLabel,
   });
 
   final AuthFormKind kind;
   final AuthSubmission submission;
+  final String? titleOverride, subtitleOverride, alternativeLabel;
+  final ValueChanged<String>? onSuccess, onVerify;
+  final VoidCallback? onAlternative;
 
   @override
   State<AuthFormScreen> createState() => _AuthFormScreenState();
@@ -76,12 +85,16 @@ class _AuthFormScreenState extends State<AuthFormScreen> {
       if (mounted) {
         _password.clear();
         _confirmation.clear();
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          _login ? AppRouter.session : AppRouter.verify,
-          (route) => false,
-          arguments: _login ? null : _email.text.trim(),
-        );
+        if (widget.onSuccess != null) {
+          widget.onSuccess!(_email.text.trim());
+        } else {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            _login ? AppRouter.session : AppRouter.verify,
+            (route) => false,
+            arguments: _login ? null : _email.text.trim(),
+          );
+        }
       }
     } on AuthServiceUnavailable {
       if (mounted) {
@@ -151,12 +164,14 @@ class _AuthFormScreenState extends State<AuthFormScreen> {
   @override
   Widget build(BuildContext context) {
     return AuthLayout(
-      title: _title,
-      subtitle: _login
-          ? 'WashFlow hesabınızla giriş yapın.'
-          : _owner
-          ? 'İşletme ve hesap bilgilerinizi girin.'
-          : 'Kişisel hesap bilgilerinizi girin.',
+      title: widget.titleOverride ?? _title,
+      subtitle:
+          widget.subtitleOverride ??
+          (_login
+              ? 'WashFlow hesabınızla giriş yapın.'
+              : _owner
+              ? 'İşletme ve hesap bilgilerinizi girin.'
+              : 'Kişisel hesap bilgilerinizi girin.'),
       child: AutofillGroup(
         onDisposeAction: AutofillContextAction.cancel,
         child: Form(
@@ -297,25 +312,33 @@ class _AuthFormScreenState extends State<AuthFormScreen> {
                 TextButton(
                   onPressed: _busy
                       ? null
-                      : () => Navigator.pushNamed(
-                          context,
-                          AppRouter.verify,
-                          arguments: _email.text.trim(),
-                        ),
+                      : () {
+                          if (widget.onVerify != null) {
+                            widget.onVerify!(_email.text.trim());
+                          } else {
+                            Navigator.pushNamed(
+                              context,
+                              AppRouter.verify,
+                              arguments: _email.text.trim(),
+                            );
+                          }
+                        },
                   child: const Text('E-posta doğrula / yeniden gönder'),
                 ),
               const SizedBox(height: 12),
               TextButton(
                 onPressed: _busy
                     ? null
-                    : () => Navigator.pushReplacementNamed(
-                        context,
-                        _login ? AppRouter.register : AppRouter.login,
-                      ),
+                    : widget.onAlternative ??
+                          () => Navigator.pushReplacementNamed(
+                            context,
+                            _login ? AppRouter.register : AppRouter.login,
+                          ),
                 child: Text(
-                  _login
-                      ? 'Hesabınız yok mu? Kayıt ol'
-                      : 'Zaten hesabınız var mı? Giriş yap',
+                  widget.alternativeLabel ??
+                      (_login
+                          ? 'Hesabınız yok mu? Kayıt ol'
+                          : 'Zaten hesabınız var mı? Giriş yap'),
                 ),
               ),
               const SizedBox(height: 16),

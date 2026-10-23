@@ -5,7 +5,8 @@ design to the Phase 4A/4B backend under Issue #2, which remains open. Issue #9 s
 completed UI foundation. Requirements: FR-01, FR-20, NFR-01/02/04/05/07.
 Context discovery and role-aware navigation (FR-27) now use backend grants. Role destinations
 are clearly labeled temporary shells, with Owner employee invitation management now implemented.
-Recipient invitation UI, other business operations and dashboards remain subsequent work. A session alone does not grant tenant access.
+Recipient invitation registration/redemption is now implemented in Phase 4. Other business
+operations and dashboards remain subsequent work. A session alone does not grant tenant access.
 
 ## Dependencies and verification
 
@@ -385,3 +386,22 @@ Complete Phase 3 changed/new file list, relative to `mobile/` (21 files):
 - `test/support/invitation_fakes.dart` (new)
 
 Suggested commit: `feat(mobile): add owner employee invitation management (#2)`.
+
+
+## Flutter integration Phase 4 — Recipient invitation redemption
+
+Manual invitation entry is now available on Welcome and the authenticated shell. Existing users
+sign in if necessary, then explicitly confirm acceptance. New users register through the invitation
+endpoint, use the existing verification screen, sign in, then explicitly accept. Neither registration
+nor verification creates a membership or customer/business profile in Flutter.
+
+The pending credential exists only in the route-owned in-memory controller. Cancellation, disposal,
+confirmed acceptance, logout and unrelated account changes clear it. Business names are not inferred
+before acceptance. A confirmed acceptance reloads server contexts; failed/uncertain mutations never
+add a local grant or automatically retry. The shell's outgoing identity listener is detached before
+route animation completion to preserve a rapid legitimate in-flow login.
+
+See [recipient invitation flow, contracts, security and backend gaps](docs/employee-invitation-redemption.md)
+for the full behavior. Existing owner/customer authentication, session rotation and Owner invitation
+management remain covered by the regression suite. This phase adds no backend/schema/database changes
+or production email delivery, and does not implement operational role features.

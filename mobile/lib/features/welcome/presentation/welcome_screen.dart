@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../app/routing/app_router.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({super.key});
+  const WelcomeScreen({super.key, this.redemptionEnabled = false});
+  final bool redemptionEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +57,15 @@ class WelcomeScreen extends StatelessWidget {
                         Navigator.pushNamed(context, AppRouter.register),
                     child: const Text('Kayıt ol'),
                   ),
+                  if (redemptionEnabled)
+                    TextButton(
+                      onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        AppRouter.redeem,
+                        (_) => false,
+                      ),
+                      child: const Text('Davet koduyla katıl'),
+                    ),
                 ],
               ),
             ),

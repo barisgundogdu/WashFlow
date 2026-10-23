@@ -6,9 +6,15 @@ import '../domain/session_service.dart';
 import 'widgets/auth_layout.dart';
 
 class VerificationScreen extends StatefulWidget {
-  const VerificationScreen({super.key, required this.service, this.email = ''});
+  const VerificationScreen({
+    super.key,
+    required this.service,
+    this.email = '',
+    this.onLogin,
+  });
   final SessionService? service;
   final String email;
+  final VoidCallback? onLogin;
   @override
   State<VerificationScreen> createState() => _VerificationScreenState();
 }
@@ -116,11 +122,12 @@ class _VerificationScreenState extends State<VerificationScreen> {
         TextButton(
           onPressed: _busy
               ? null
-              : () => Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  AppRouter.login,
-                  (_) => false,
-                ),
+              : widget.onLogin ??
+                    () => Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      AppRouter.login,
+                      (_) => false,
+                    ),
           child: const Text('Girişe dön'),
         ),
       ],

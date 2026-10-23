@@ -6,6 +6,7 @@ import 'features/auth/data/api_auth_service.dart';
 import 'features/auth/data/api_context_service.dart';
 import 'features/auth/data/token_store.dart';
 import 'features/invitations/data/api_owner_invitation_service.dart';
+import 'features/invitations/data/api_invitation_redemption_service.dart';
 import 'features/auth/domain/auth_service.dart';
 import 'features/auth/domain/session_service.dart';
 
@@ -35,6 +36,10 @@ Future<void> main() async {
           session: service,
         ),
         invitationService: ApiOwnerInvitationService(
+          apiClient: service.apiClient,
+          session: service,
+        ),
+        redemptionService: ApiInvitationRedemptionService(
           apiClient: service.apiClient,
           session: service,
         ),
