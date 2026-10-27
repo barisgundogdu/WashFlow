@@ -493,3 +493,9 @@ Existing registration, verification, login, refresh and logout behavior is uncha
 See [employee invitation API and security notes](docs/employee-invitations.md) for the backend
 lifecycle, configuration, migration, test setup, and in-memory email durability limitation.
 Flutter integration remains pending.
+
+## Phase 6 — Business profile and operating hours
+
+Owner profile editing and seven-day hours are implemented end to end. See the
+[Phase 6 contract, migration, security and validation report](../docs/features/business-settings-phase6.md) for actual endpoints,
+replacement/version semantics, unconfigured defaults, timezone policy, test evidence and deployment safety.

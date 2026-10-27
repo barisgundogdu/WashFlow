@@ -27,13 +27,60 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AddressLine1")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("AddressLine2")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ContactEmail")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("CountryCode")
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("District")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("HoursConfigured")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("PostalCode")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Region")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("TimeZoneId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -194,6 +241,33 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                             t.HasCheckConstraint("CK_EmployeeInvitations_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
 
                             t.HasCheckConstraint("CK_EmployeeInvitations_TokenHash", "\"TokenHash\" ~ '^[0-9a-f]{64}$'");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Businesses.WeeklyOpeningDay", b =>
+                {
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Day")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Closed")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("ClosesAtMinute")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("OpensAtMinute")
+                        .HasColumnType("integer");
+
+                    b.HasKey("BusinessId", "Day");
+
+                    b.ToTable("WeeklyOpeningDays", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_WeeklyOpeningDays_Day", "\"Day\" BETWEEN 1 AND 7");
+
+                            t.HasCheckConstraint("CK_WeeklyOpeningDays_Interval", "(\"Closed\" AND \"OpensAtMinute\" IS NULL AND \"ClosesAtMinute\" IS NULL) OR (NOT \"Closed\" AND \"OpensAtMinute\" IS NOT NULL AND \"ClosesAtMinute\" IS NOT NULL AND \"OpensAtMinute\" >= 0 AND \"OpensAtMinute\" < \"ClosesAtMinute\" AND \"ClosesAtMinute\" <= 1440)");
                         });
                 });
 
@@ -595,6 +669,15 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("BusinessId", "InvitedByMembershipId")
                         .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Businesses.WeeklyOpeningDay", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

@@ -70,11 +70,12 @@ public sealed class IdentityModelTests
     public void MigrationsMatchCurrentModelWithoutAConnection()
     {
         using var context = new WashFlowDbContextFactory().CreateDbContext([]);
-        Assert.Equal(3, context.Database.GetMigrations().Count());
+        Assert.Equal(4, context.Database.GetMigrations().Count());
         Assert.False(context.Database.HasPendingModelChanges());
         var sql = context.Database.GenerateCreateScript();
         Assert.Contains("CK_DeviceSessions_MaxLifetime", sql);
         Assert.Contains("CK_BusinessMembershipRoles_Role", sql);
         Assert.Contains("CK_RefreshTokens_TokenHash", sql);
+        Assert.Contains("CK_WeeklyOpeningDays_Interval", sql);
     }
 }

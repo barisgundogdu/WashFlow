@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'routing/app_router.dart';
-import '../features/invitations/domain/owner_invitation_service.dart';
-import '../features/invitations/domain/invitation_redemption_service.dart';
-import '../features/auth/domain/context_service.dart';
-import '../features/auth/domain/session_service.dart';
 import '../features/auth/domain/auth_service.dart';
 import '../features/auth/domain/auth_submission.dart';
+import '../features/auth/domain/context_service.dart';
+import '../features/auth/domain/session_service.dart';
+import '../features/business_settings/domain/business_settings.dart';
+import '../features/invitations/domain/invitation_redemption_service.dart';
+import '../features/invitations/domain/owner_invitation_service.dart';
+import 'routing/app_router.dart';
 
 class WashFlowApp extends StatelessWidget {
   const WashFlowApp({
@@ -16,6 +17,7 @@ class WashFlowApp extends StatelessWidget {
     this.startupMessage,
     this.contextService,
     this.invitationService,
+    this.settingsService,
     this.redemptionService,
     this.authService = const UnavailableAuthService(),
   });
@@ -23,6 +25,7 @@ class WashFlowApp extends StatelessWidget {
   final AuthService authService;
   final ContextService? contextService;
   final OwnerInvitationService? invitationService;
+  final BusinessSettingsService? settingsService;
   final InvitationRedemptionService? redemptionService;
   final String initialRoute;
   final String? startupMessage;
@@ -35,6 +38,7 @@ class WashFlowApp extends StatelessWidget {
         authService,
         contextService,
         invitationService,
+        settingsService,
         redemptionService,
       )),
       title: 'WashFlow',
@@ -101,6 +105,7 @@ class WashFlowApp extends StatelessWidget {
         redemptionService: redemptionService,
         contextService: contextService,
         invitationService: invitationService,
+        settingsService: settingsService,
         sessionService: authService is SessionService
             ? authService as SessionService
             : null,

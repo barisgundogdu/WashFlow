@@ -12,6 +12,18 @@ public sealed class BusinessConfiguration : IEntityTypeConfiguration<Business>
     {
         builder.ConfigureEntity("Businesses");
         builder.NonBlank("Businesses", nameof(Business.Name), 200);
+        builder.Property(x => x.Phone).HasMaxLength(40);
+        builder.Property(x => x.ContactEmail).HasMaxLength(320);
+        builder.Property(x => x.AddressLine1).HasMaxLength(250);
+        builder.Property(x => x.AddressLine2).HasMaxLength(250);
+        builder.Property(x => x.District).HasMaxLength(100);
+        builder.Property(x => x.City).HasMaxLength(100);
+        builder.Property(x => x.Region).HasMaxLength(100);
+        builder.Property(x => x.PostalCode).HasMaxLength(32);
+        builder.Property(x => x.CountryCode).HasMaxLength(2);
+        builder.Property(x => x.Description).HasMaxLength(2000);
+        builder.Property(x => x.TimeZoneId).HasMaxLength(100);
+
     }
 }
 
@@ -69,5 +81,19 @@ public sealed class EmployeeInvitationConfiguration : IEntityTypeConfiguration<E
             "\"AcceptedAt\" IS NULL OR \"RevokedAt\" IS NULL"));
         builder.ToTable("EmployeeInvitations", t => t.HasCheckConstraint("CK_EmployeeInvitations_Acceptance",
             "(\"AcceptedAt\" IS NULL) = (\"AcceptedByUserId\" IS NULL)"));
+    }
+}
+
+public sealed class WeeklyOpeningDayConfiguration : IEntityTypeConfiguration<WeeklyOpeningDay>
+{
+    public void Configure(EntityTypeBuilder<WeeklyOpeningDay> builder)
+    {
+        builder.ToTable("WeeklyOpeningDays", t =>
+        {
+            t.HasCheckConstraint("CK_WeeklyOpeningDays_Day", "\"Day\" BETWEEN 1 AND 7");
+            t.HasCheckConstraint("CK_WeeklyOpeningDays_Interval", "(\"Closed\" AND \"OpensAtMinute\" IS NULL AND \"ClosesAtMinute\" IS NULL) OR (NOT \"Closed\" AND \"OpensAtMinute\" IS NOT NULL AND \"ClosesAtMinute\" IS NOT NULL AND \"OpensAtMinute\" >= 0 AND \"OpensAtMinute\" < \"ClosesAtMinute\" AND \"ClosesAtMinute\" <= 1440)");
+        });
+        builder.HasKey(x => new { x.BusinessId, x.Day });
+        builder.HasOne<Business>().WithMany().HasForeignKey(x => x.BusinessId).OnDelete(DeleteBehavior.Restrict);
     }
 }

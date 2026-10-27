@@ -18,6 +18,7 @@ public static class DependencyInjection
                 "ConnectionStrings__WashFlow yapılandırması gereklidir.");
         }
 
+        services.AddScoped<WashFlow.Application.Businesses.IBusinessSettingsStore, Businesses.EfBusinessSettingsStore>();
         services.AddDbContext<WashFlowDbContext>(options =>
             options.UseNpgsql(connectionString));
         services.AddScoped<WashFlow.Application.Authorization.ICurrentUserContextStore, Authorization.EfUserContextStore>();

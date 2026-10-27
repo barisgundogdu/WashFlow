@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../../features/auth/domain/auth_submission.dart';
 import '../../features/auth/domain/auth_service.dart';
-import '../../features/invitations/domain/invitation_redemption_service.dart';
-import '../../features/invitations/presentation/invitation_redemption_screen.dart';
-import '../../features/invitations/domain/owner_invitation_service.dart';
+import '../../features/auth/domain/auth_submission.dart';
 import '../../features/auth/domain/context_service.dart';
 import '../../features/auth/domain/session_service.dart';
-import '../../features/auth/presentation/session_screen.dart';
-import '../../features/auth/presentation/verification_screen.dart';
 import '../../features/auth/presentation/auth_form_screen.dart';
 import '../../features/auth/presentation/registration_choice_screen.dart';
+import '../../features/auth/presentation/session_screen.dart';
+import '../../features/auth/presentation/verification_screen.dart';
+import '../../features/business_settings/domain/business_settings.dart';
+import '../../features/invitations/domain/invitation_redemption_service.dart';
+import '../../features/invitations/domain/owner_invitation_service.dart';
+import '../../features/invitations/presentation/invitation_redemption_screen.dart';
 import '../../features/welcome/presentation/welcome_screen.dart';
 
 abstract final class AppRouter {
@@ -30,6 +31,7 @@ abstract final class AppRouter {
     InvitationRedemptionService? redemptionService,
     ContextService? contextService,
     OwnerInvitationService? invitationService,
+    BusinessSettingsService? settingsService,
     AuthSubmission submission = const UnavailableAuthSubmission(),
   }) {
     return MaterialPageRoute<void>(
@@ -58,6 +60,7 @@ abstract final class AppRouter {
           service: sessionService,
           contextService: contextService,
           invitationService: invitationService,
+          settingsService: settingsService,
           redemptionEnabled: redemptionService != null,
         ),
         welcome => WelcomeScreen(redemptionEnabled: redemptionService != null),

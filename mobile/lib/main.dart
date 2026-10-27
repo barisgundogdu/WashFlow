@@ -5,10 +5,11 @@ import 'app/routing/app_router.dart';
 import 'features/auth/data/api_auth_service.dart';
 import 'features/auth/data/api_context_service.dart';
 import 'features/auth/data/token_store.dart';
-import 'features/invitations/data/api_owner_invitation_service.dart';
-import 'features/invitations/data/api_invitation_redemption_service.dart';
 import 'features/auth/domain/auth_service.dart';
 import 'features/auth/domain/session_service.dart';
+import 'features/business_settings/data/api_business_settings_service.dart';
+import 'features/invitations/data/api_invitation_redemption_service.dart';
+import 'features/invitations/data/api_owner_invitation_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +33,10 @@ Future<void> main() async {
       WashFlowApp(
         authService: service,
         contextService: ApiContextService(
+          apiClient: service.apiClient,
+          session: service,
+        ),
+        settingsService: ApiBusinessSettingsService(
           apiClient: service.apiClient,
           session: service,
         ),

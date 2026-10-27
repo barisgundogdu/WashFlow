@@ -413,3 +413,9 @@ HTTP adapters and iOS secure storage against an isolated Kestrel/PostgreSQL back
 `integration_test` is a development dependency only. Ordinary `flutter test` remains mock-based.
 See [Phase 5 evidence and manual checklist](../docs/validation/employee-invitations-phase5.md)
 for precise test categories, environment setup, results and release limitations.
+
+## Phase 6 — Business profile and operating hours
+
+Owner profile editing and seven-day hours are implemented end to end. See the
+[Phase 6 contract, migration, security and validation report](../docs/features/business-settings-phase6.md) for actual endpoints,
+replacement/version semantics, unconfigured defaults, timezone policy, test evidence and deployment safety.

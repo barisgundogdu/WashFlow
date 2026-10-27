@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../app/routing/app_router.dart';
+import '../../business_settings/domain/business_settings.dart';
+import '../../business_settings/presentation/business_settings_screen.dart';
 import '../../customer/presentation/customer_home_screen.dart';
 import '../../employee/presentation/employee_home_screen.dart';
-import '../../owner/presentation/owner_home_screen.dart';
-import '../../owner/presentation/employee_invitations_screen.dart';
 import '../../invitations/domain/owner_invitation_service.dart';
+import '../../owner/presentation/employee_invitations_screen.dart';
+import '../../owner/presentation/owner_home_screen.dart';
 import '../domain/context_service.dart';
 import '../domain/session_service.dart';
 import 'session_controller.dart';
@@ -21,11 +23,13 @@ class SessionScreen extends StatefulWidget {
     required this.service,
     this.contextService,
     this.invitationService,
+    this.settingsService,
     this.redemptionEnabled = false,
   });
   final SessionService? service;
   final ContextService? contextService;
   final OwnerInvitationService? invitationService;
+  final BusinessSettingsService? settingsService;
   final bool redemptionEnabled;
   @override
   State<SessionScreen> createState() => _SessionScreenState();
@@ -72,7 +76,8 @@ class _SessionScreenState extends State<SessionScreen>
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.service, widget.service) ||
         !identical(oldWidget.contextService, widget.contextService) ||
-        !identical(oldWidget.invitationService, widget.invitationService)) {
+        !identical(oldWidget.invitationService, widget.invitationService) ||
+        !identical(oldWidget.settingsService, widget.settingsService)) {
       _controller.removeListener(_changed);
       _controller.dispose();
       _createController();
@@ -140,6 +145,9 @@ class _SessionScreenState extends State<SessionScreen>
               switch (selected.role) {
                 ExperienceRole.customer => const CustomerHomeScreen(),
                 ExperienceRole.owner => OwnerHomeScreen(
+                  onSettings: widget.settingsService == null
+                      ? null
+                      : () => _openOwner('/business-settings'),
                   onInvitations: widget.invitationService == null
                       ? null
                       : _openInvitations,
@@ -196,11 +204,14 @@ class _SessionScreenState extends State<SessionScreen>
     );
   }
 
-  Future<void> _openInvitations() async {
+  Future<void> _openInvitations() => _openOwner('/employee-invitations');
+  Future<void> _openOwner(String route) async {
     final controller = _controller;
     final selected = controller.selected;
     if (selected?.role != ExperienceRole.owner ||
-        widget.invitationService == null) {
+        (route == '/employee-invitations'
+            ? widget.invitationService == null
+            : widget.settingsService == null)) {
       return;
     }
     final revalidation = controller.refresh(requestedId: selected!.id);
@@ -219,11 +230,20 @@ class _SessionScreenState extends State<SessionScreen>
           identical(controller, _controller) &&
           controller.generation == generation &&
           _navigatorGeneration == generation) {
-        unawaited(
-          _tenantNavigator?.currentState?.pushNamed<void>(
-            '/employee-invitations',
-          ),
-        );
+        final navigator = _tenantNavigator?.currentState;
+        if (navigator != null) {
+          unawaited(
+            navigator.pushNamed<void>(route).then((_) {
+              if (route == '/business-settings' &&
+                  mounted &&
+                  identical(controller, _controller) &&
+                  controller.generation == generation &&
+                  controller.selected?.id == selected.id) {
+                unawaited(controller.refresh(requestedId: selected.id));
+              }
+            }),
+          );
+        }
       }
     });
   }
@@ -254,6 +274,22 @@ class _SessionScreenState extends State<SessionScreen>
                 settings: settings,
                 builder: (_) {
                   if (settings.name == '/') return _layout();
+                  if (settings.name == '/business-settings' &&
+                      currentOwner() &&
+                      widget.settingsService != null) {
+                    return BusinessSettingsScreen(
+                      businessId: selected.business!.businessId,
+                      service: widget.settingsService!,
+                      isCurrent: currentOwner,
+                      onAuthorizationFailure: (error) =>
+                          controller.handleAuthorizationFailure(
+                            error,
+                            generation: generation,
+                          ),
+                      onSwitch: controller.switchContext,
+                      onLogout: controller.logout,
+                    );
+                  }
                   if (settings.name == '/employee-invitations' &&
                       currentOwner() &&
                       widget.invitationService != null) {

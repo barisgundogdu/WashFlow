@@ -76,7 +76,7 @@ Customer accounts are **platform-wide**, not tenant-owned. Customer-owned vehicl
 
 A person may hold multiple authorized roles or tenant memberships. The API must validate the active role and business context on every protected operation; a role switch must not elevate privileges.
 
-**Design proposal pending confirmation:** One business location per tenant for the MVP. Multiple branches could be introduced later.
+**Approved business decision (Phase 6):** Each physical branch is one independent Business/tenant. A user may own multiple businesses; a membership may contain both Owner and Employee grants. A shared multi-branch tenant is outside this scope.
 
 ## 4. User Roles and Permissions
 
@@ -278,7 +278,7 @@ Each implementation task should have a GitHub Issue with acceptance criteria; co
 The following require confirmation before being treated as final implementation policies:
 
 1. Whether tenant onboarding is self-service or requires platform approval.
-2. Whether the MVP supports one location or multiple branches per business.
+2. Resolved: each physical branch is an independent Business/tenant (see Section 3.2).
 3. How owners invite/create employees and reset their access.
 4. Whether appointments reserve work areas during the 30-minute grace period.
 5. How to resolve conflicts when actual stage durations exceed estimates.
@@ -289,7 +289,7 @@ The following require confirmation before being treated as final implementation 
 10. Customer cancellation/rescheduling windows and business-specific booking policies.
 11. What business/customer contact details are visible before and after a booking.
 12. How tenant-local walk-in customer records are verified and linked to customer accounts.
-13. Whether a user can hold multiple business memberships and how role/context selection is presented.
+13. Resolved: multiple memberships and separate Owner/Employee experiences are supported through server-authorized context selection.
 14. Supervisor confirmation of the expanded customer self-service MVP scope and timeline.
 
 The expanded scope should be implemented incrementally: complete a secure owner-side vertical slice before adding customer booking. Any deferred requirement must be reflected consistently in the SRS, GitHub Issues, and thesis.

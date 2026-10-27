@@ -38,6 +38,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapAuthEndpoints();
 app.MapInvitationEndpoints();
+WashFlow.Api.Features.Businesses.BusinessSettingsEndpoints.MapBusinessSettingsEndpoints(app);
 app.MapDevelopmentEmailEndpoints();
 app.MapHealthChecks("/health", new HealthCheckOptions
 {
