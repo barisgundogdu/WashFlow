@@ -289,3 +289,70 @@ Total: 37 files. Paths below are repository-relative; generated migration design
 - `mobile/test/catalog_service_test.dart`
 - `mobile/test/catalog_widget_test.dart`
 - `mobile/test/support/catalog_fakes.dart`
+
+## Independent audit hardening — 27 October 2026
+
+Starting point was clean `main` at `8ace7e6f5f3f6eb813fc8371ee61ce90d55fe08d`.
+This follow-up addresses M1/M2/L1/L2 from the independent Phase 8 audit, linked to Issue #5.
+It does not complete the broader issue or add Phase 9 behavior.
+
+- **M1:** Validation rejects unsupported original characters before trimming/normalization, then
+  checks the final NFC service name, derived search name and optional description against storage
+  limits. The existing surrogate/control-character policy remains unchanged. Normalization-expanding
+  input now produces field validation errors instead of reaching PostgreSQL varchar errors. HTTP
+  POST/PUT tests cover expansion beyond both limits, unchanged data/version after rejection, exact
+  normalized boundaries, and canonical Turkish text persistence.
+- **M2:** New PostgreSQL tests pause the published read immediately before its offering SELECT,
+  after the parent SELECT establishes the snapshot. A separate request commits replacement,
+  disablement or archival before the read resumes. Each test verifies the original consistent
+  response and the authoritative subsequent response. Task-completion barriers control ordering;
+  timeouts only bound failures. Further tests exercise revoked membership with its Owner grant
+  retained, Employee/Customer denial for all private operations, and revoked sessions across all
+  six catalog endpoints.
+- **L1:** Shared Flutter field/draft validation checks the same original unsupported characters,
+  .NET whitespace trimming and NFC storage lengths. The pure-Dart `unorm_dart` dependency is locked
+  to 0.3.3. Unsupported inputs produce actionable Turkish name/description errors before HTTP.
+  Tests cover supplementary characters, unpaired surrogates, C1 controls, permitted description
+  whitespace, expanding/composing normalization, FEFF handling, and absence of HTTP submission.
+- **L2:** List responses fetch offerings once for the returned page IDs, skipping the child query
+  for empty pages. Existing tenant predicates, look-ahead pagination, ordering, authorization locks,
+  transaction isolation and published projection are preserved. Query-count tests exercise private
+  and published lists, both pages, empty search results, prices/categories and foreign-tenant data.
+
+Verification used a new `postgres:17` container, `washflow-phase8-hardening-20261027`, with tmpfs
+storage and loopback port 55439; the actual server reported PostgreSQL 17.11. All backend PostgreSQL
+fixtures migrated uniquely named schemas only inside this instance. The six existing migrations
+were also applied to this disposable database's fresh public schema for the loopback live API.
+No existing development/production database was accessed or migrated. No migration, model mapping,
+snapshot or SQL schema file changed.
+
+| Gate | Independently executed hardening result |
+| --- | --- |
+| `dotnet build backend/WashFlow.sln --no-restore -m:1 -nr:false` | Passed; zero warnings/errors |
+| `dotnet test backend/WashFlow.sln --no-build --no-restore -m:1 -nr:false --logger 'console;verbosity=minimal'` with disposable `WASHFLOW_TEST_POSTGRES` | Integration: 111 passed, zero failed/skipped, including eight new hardening tests |
+| `dotnet test backend/tests/WashFlow.UnitTests/WashFlow.UnitTests.csproj --no-restore -m:1 -nr:false --logger 'console;verbosity=minimal'` | Final unit run: 139 passed, zero failed/skipped; nine new cases |
+| `flutter analyze` from `mobile/` | Passed; no issues |
+| `flutter test --reporter expanded` from `mobile/` | 278 passed, zero failed/skipped; fourteen new cases |
+| `flutter test integration_test --dart-define=PHASE5_API_URL=http://127.0.0.1:5189 -d B46C9E93-8E89-47E1-AA7F-DA92D7C7987C --reporter expanded` from `mobile/` | Six passed, zero failed/skipped, in 4 min 38 sec including simulator builds |
+| `dotnet ef migrations has-pending-model-changes --project backend/src/WashFlow.Infrastructure --startup-project backend/src/WashFlow.Api --no-build` without a connection string | No pending model changes |
+
+The first unit run had 138 passing cases and one failing new test: C# attribute serialization
+replaced an intentionally unpaired surrogate before validation. The test now constructs that
+invalid UTF-16 string at runtime and asserts both field errors; no validation was weakened.
+Initial sandbox restrictions on MSBuild sockets were resolved by running verification with the
+necessary local-process access. EF CLI 10.0.8 reported its version warning against runtime 10.0.13;
+migration application, model consistency and the integration suite nevertheless completed.
+
+The live run passed both customer/vehicle scenarios, the catalog scenario, business settings and
+both invitation scenarios on an iPhone 18 Pro / iOS 27.0 simulator. The catalog scenario additionally
+checks Turkish field errors without creating a service, then round-trips a decomposed Turkish
+description as canonical NFC through real HTTP and PostgreSQL. The isolated API was stopped, the
+new disposable container removed, and the simulator booted for this task shut down after testing.
+No requested automated verification gate was left unexecuted. Physical devices, Android and
+release/production deployment remain outside this pass. Full diff review found no Phase 9 or schema
+changes, no removed tests and no staged changes; `git diff --check` passed.
+
+Additional changed files for hardening include
+`backend/tests/WashFlow.IntegrationTests/CatalogHardeningPostgresTests.cs`,
+`mobile/pubspec.yaml`, and `mobile/pubspec.lock`; the other edits are within existing Phase 8
+implementation/tests and this evidence document. Work remains uncommitted for review.

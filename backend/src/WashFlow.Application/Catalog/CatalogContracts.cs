@@ -47,9 +47,19 @@ public static partial class CatalogValidation
     {
         var errors = new Dictionary<string, string[]>();
         void Error(string key, string message) => errors[key] = [message];
-        bool Invalid(string? s, int max, bool multiline = false) => s?.Length > max || s?.Any(c => char.IsSurrogate(c) || char.IsControl(c) && !(multiline && c is '\n' or '\r' or '\t')) == true;
-        if (string.IsNullOrWhiteSpace(input.Name) || Invalid(input.Name, 200)) Error("name", "Hizmet adı 1–200 karakter olmalıdır.");
-        if (Invalid(input.Description, 2000, true)) Error("description", "Açıklama en fazla 2000 karakter olmalıdır.");
+        // Check the original characters before trimming so unsupported controls cannot disappear.
+        // Normalize only safe text; invalid UTF-16 must never reach String.Normalize.
+        bool Unsupported(string? s, bool multiline = false) => s?.Any(c => char.IsSurrogate(c) || char.IsControl(c) && !(multiline && c is '\n' or '\r' or '\t')) == true;
+        if (Unsupported(input.Name)) Error("name", "Hizmet adı desteklenmeyen karakter içeriyor.");
+        else
+        {
+            var name = CustomerVehicleValidation.Clean(input.Name);
+            if (name == null || name.Length > 200 || CustomerVehicleValidation.NameSearchKey(name).Length > 200)
+                Error("name", "Hizmet adı normalleştirme sonrasında 1–200 karakter olmalıdır.");
+        }
+        if (Unsupported(input.Description, true)) Error("description", "Açıklama desteklenmeyen karakter içeriyor.");
+        else if (CustomerVehicleValidation.Clean(input.Description)?.Length > 2000)
+            Error("description", "Açıklama normalleştirme sonrasında en fazla 2000 karakter olmalıdır.");
         if (update && input.Version is null or 0) Error("version", "Güncel kayıt sürümü gereklidir.");
         if (input.Published && !input.Enabled) Error("published", "Yayınlamak için hizmet etkin olmalıdır.");
         var rows = input.Offerings;

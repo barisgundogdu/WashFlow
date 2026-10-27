@@ -17,13 +17,15 @@ public sealed class EfCatalogStore(WashFlowDbContext db) : ICatalogStore
         return (await db.BusinessMembershipRoles.FromSqlInterpolated($"SELECT * FROM \"BusinessMembershipRoles\" WHERE \"BusinessMembershipId\" = {m.Id} AND \"Role\" = 1 FOR UPDATE").AsNoTracking().ToListAsync(ct)).Count == 1;
     }
     private IQueryable<BusinessService> Scoped(Guid business) => db.BusinessServices.Where(x => x.BusinessId == business && x.ArchivedAt == null);
-    private async Task<ServiceView> View(BusinessService s, CancellationToken ct) => new() {
+    private ServiceView View(BusinessService s, IEnumerable<ServiceOffering> offerings) => new() {
         Id = s.Id, BusinessId = s.BusinessId, Name = s.Name, Description = s.Description, Enabled = s.Enabled, Published = s.Published,
         Version = db.Entry(s).Property<uint>("Version").CurrentValue, CreatedAt = s.CreatedAt, UpdatedAt = s.UpdatedAt,
-        Offerings = (await db.ServiceOfferings.AsNoTracking().Where(x => x.ServiceId == s.Id).OrderBy(x => x.Category).ToListAsync(ct)).Select(x => new OfferingInput {
+        Offerings = offerings.Select(x => new OfferingInput {
             Category = x.Category, Price = CatalogValidation.Money(x.Price), Currency = x.Currency, ActiveMinutes = x.ActiveMinutes, WaitingMinutes = x.WaitingMinutes, Employees = x.Employees
         }).ToList()
     };
+    private async Task<ServiceView> View(BusinessService s, CancellationToken ct) => View(s,
+        await db.ServiceOfferings.AsNoTracking().Where(x => x.ServiceId == s.Id).OrderBy(x => x.Category).ToListAsync(ct));
     public async Task<ManagementResult> List(Guid? actor, Guid business, string? q, string status, int page, int size, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(actor == null ? System.Data.IsolationLevel.RepeatableRead : System.Data.IsolationLevel.ReadCommitted, ct);
@@ -33,10 +35,15 @@ public sealed class EfCatalogStore(WashFlowDbContext db) : ICatalogStore
         else if (status != "all") query = query.Where(x => x.Enabled == (status == "enabled"));
         if (!string.IsNullOrWhiteSpace(q)) { var key = CustomerVehicleValidation.NameSearchKey(q); query = query.Where(x => x.SearchName.Contains(key)); }
         var rows = await query.OrderBy(x => x.SearchName).ThenBy(x => x.Id).Skip((page - 1) * size).Take(size + 1).ToListAsync(ct);
+        var returned = rows.Take(size).ToList();
+        var ids = returned.Select(x => x.Id).ToArray();
+        var offerings = (ids.Length == 0 ? new List<ServiceOffering>() :
+            await db.ServiceOfferings.AsNoTracking().Where(x => ids.Contains(x.ServiceId)).OrderBy(x => x.Category).ToListAsync(ct))
+            .ToLookup(x => x.ServiceId);
         var views = new List<object>();
-        foreach (var row in rows.Take(size))
+        foreach (var row in returned)
         {
-            var view = await View(row, ct);
+            var view = View(row, offerings[row.Id]);
             if (actor != null) views.Add(view);
             else views.Add(new { view.Id, view.BusinessId, view.Name, view.Description, Offerings = view.Offerings!.Select(o => new { o.Category, o.Price, o.Currency, o.ActiveMinutes, o.WaitingMinutes }) });
         }

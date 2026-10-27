@@ -70,8 +70,24 @@ void main() {
       await live.tap(t, 'Hizmetler ve Fiyatlar');
       await live.visible(t, find.text('Gösterilecek hizmet bulunamadı.'));
       await live.tap(t, 'Hizmet ekle');
+      await field(t, 'Hizmet adı', 'Yıkama 🚗');
+      await field(t, 'Açıklama', 'Not\u0085');
+      await live.tap(t, 'Kaydet');
+      expect(
+        find.text('Hizmet adında emoji veya kontrol karakteri kullanmayın.'),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'Açıklamada emoji veya desteklenmeyen kontrol karakteri kullanmayın.',
+        ),
+        findsOneWidget,
+      );
+      final rejected = await api.list(b);
+      live.success(rejected);
+      expect((rejected as AuthSuccess).value.items, isEmpty);
       await field(t, 'Hizmet adı', 'Phase 8 exterior');
-      await field(t, 'Açıklama', 'Synthetic catalog validation');
+      await field(t, 'Açıklama', 'Sentetik ac\u0327ıklama');
       await toggle(t, 'Hizmet etkin');
       await toggle(t, 'Müşterilere yayınla');
       await toggle(t, 'Otomobil');
@@ -102,6 +118,7 @@ void main() {
       final stale =
           (list as AuthSuccess).value.items.single as CatalogServiceRecord;
       expect(stale.offerings.single.price.wire, '450.10');
+      expect(stale.description, 'Sentetik açıklama');
       await live.tap(t, 'Düzenle');
       await field(t, 'Hizmet adı', 'Phase 8 updated');
       await live.tap(t, 'Kaydet');

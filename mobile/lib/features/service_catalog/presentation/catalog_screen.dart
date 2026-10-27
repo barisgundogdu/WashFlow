@@ -339,8 +339,7 @@ class _CatalogEditorState extends State<CatalogEditor> {
           maxLength: 200,
           decoration: const InputDecoration(labelText: 'Hizmet adı'),
           onChanged: (v) => widget.draft.name = v,
-          validator: (v) =>
-              v == null || v.trim().isEmpty ? 'Hizmet adı girin.' : null,
+          validator: CatalogText.nameError,
         ),
         TextFormField(
           controller: description,
@@ -350,6 +349,7 @@ class _CatalogEditorState extends State<CatalogEditor> {
           maxLines: 5,
           decoration: const InputDecoration(labelText: 'Açıklama'),
           onChanged: (v) => widget.draft.description = v,
+          validator: CatalogText.descriptionError,
         ),
         SwitchListTile(
           title: const Text('Hizmet etkin'),

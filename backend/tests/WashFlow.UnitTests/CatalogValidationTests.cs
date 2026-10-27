@@ -2,6 +2,48 @@ using WashFlow.Application.Catalog;
 namespace WashFlow.UnitTests;
 public sealed class CatalogValidationTests
 {
+    [Theory]
+    [InlineData(100, true)]
+    [InlineData(101, false)]
+    public void NameLimitUsesNormalizedValue(int count, bool valid)
+    {
+        var input = Input(); input.Name = new string('\u0344', count);
+        Assert.Equal(valid, !CatalogValidation.Validate(input, false).ContainsKey("name"));
+    }
+    [Theory]
+    [InlineData(1000, true)]
+    [InlineData(1001, false)]
+    public void DescriptionLimitUsesNormalizedValue(int count, bool valid)
+    {
+        var input = Input(); input.Description = new string('\u0344', count);
+        Assert.Equal(valid, !CatalogValidation.Validate(input, false).ContainsKey("description"));
+    }
+    [Theory]
+    [InlineData("Yıkama 🚗")]
+    [InlineData("Yıkama\u0085")]
+    [InlineData("\tYıkama")]
+    public void OriginalUnsupportedNameCharactersRemainRejected(string name)
+    {
+        var input = Input(); input.Name = name;
+        Assert.Contains("name", CatalogValidation.Validate(input, false).Keys);
+    }
+    [Fact]
+    public void InvalidUtf16IsRejectedBeforeNormalization()
+    {
+        // Attribute strings are serialized as UTF-8 and cannot preserve an unpaired surrogate.
+        var input = Input(); input.Name = "Yıkama" + new string('\ud800', 1);
+        input.Description = new string('\udfff', 1);
+        var errors = CatalogValidation.Validate(input, false);
+        Assert.Contains("name", errors.Keys);
+        Assert.Contains("description", errors.Keys);
+    }
+    [Fact]
+    public void CanonicalCompositionAndTrimmingPrecedeLengthValidation()
+    {
+        var input = Input(); input.Name = "  " + string.Concat(Enumerable.Repeat("I\u0307", 200)) + "  ";
+        input.Description = "\tSatır\nİkinci satır\r\n";
+        Assert.Empty(CatalogValidation.Validate(input, false));
+    }
     private static ServiceInput Input() => new() { Name = "Dış yıkama", Enabled = true, Published = true, Offerings = [new() { Category = "Car", Currency = "TRY", Price = "450.00", ActiveMinutes = 20, Employees = 1 }] };
     [Theory]
     [InlineData("0", true)] [InlineData("0.00", true)] [InlineData("9999999.99", true)] [InlineData("10000000", false)]

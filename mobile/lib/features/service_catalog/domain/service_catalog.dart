@@ -1,3 +1,5 @@
+import 'package:unorm_dart/unorm_dart.dart' as unorm;
+
 import '../../auth/domain/auth_service.dart';
 import '../../customer_vehicles/domain/customer_vehicles.dart';
 import '../../invitations/domain/invitation.dart';
@@ -82,6 +84,45 @@ class Offering {
       '$activeMinutes dk etkin • ${waitingMinutes == null ? 'bekleme belirtilmedi' : '$waitingMinutes dk bekleme'} • $employees çalışan';
 }
 
+/// Matches backend NFC, .NET whitespace trimming and its existing BMP-only text policy.
+abstract final class CatalogText {
+  static final _edgeWhitespace = RegExp(
+    r'^[\u0009-\u000d\u0020\u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]+|[\u0009-\u000d\u0020\u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]+$',
+  );
+  static String normalize(String value) =>
+      unorm.nfc(value.replaceAll(_edgeWhitespace, ''));
+  static bool _unsupported(String value, {bool multiline = false}) =>
+      value.codeUnits.any(
+        (c) =>
+            c >= 0xd800 && c <= 0xdfff ||
+            (c < 0x20 || c >= 0x7f && c <= 0x9f) &&
+                !(multiline && (c == 9 || c == 10 || c == 13)),
+      );
+  static String? nameError(String? value) {
+    final text = value ?? '';
+    if (_unsupported(text)) {
+      return 'Hizmet adında emoji veya kontrol karakteri kullanmayın.';
+    }
+    final normalized = normalize(text);
+    if (normalized.isEmpty) return 'Hizmet adı girin.';
+    if (normalized.length > 200) {
+      return 'Hizmet adı normalleştirme sonrasında en fazla 200 karakter olabilir.';
+    }
+    return null;
+  }
+
+  static String? descriptionError(String? value) {
+    final text = value ?? '';
+    if (_unsupported(text, multiline: true)) {
+      return 'Açıklamada emoji veya desteklenmeyen kontrol karakteri kullanmayın.';
+    }
+    if (normalize(text).length > 2000) {
+      return 'Açıklama normalleştirme sonrasında en fazla 2000 karakter olabilir.';
+    }
+    return null;
+  }
+}
+
 class CatalogDraft {
   CatalogDraft({
     this.id,
@@ -98,13 +139,10 @@ class CatalogDraft {
   bool enabled, published;
   List<Offering> offerings;
   String? validate() {
-    if (name.trim().isEmpty ||
-        name.length > 200 ||
-        description.length > 2000 ||
-        RegExp(r'[\x00-\x1f\x7f]').hasMatch(name) ||
-        RegExp(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]').hasMatch(description)) {
-      return 'Hizmet adı 1–200, açıklama en fazla 2000 karakter olmalıdır.';
-    }
+    final textError =
+        CatalogText.nameError(name) ??
+        CatalogText.descriptionError(description);
+    if (textError != null) return textError;
     if (published && !enabled) return 'Yayınlamak için hizmet etkin olmalıdır.';
     if (offerings.length > 6 ||
         enabled && offerings.isEmpty ||
@@ -120,8 +158,8 @@ class CatalogDraft {
   }
 
   Map<String, dynamic> toJson() => {
-    'name': name.trim(),
-    'description': description.trim(),
+    'name': CatalogText.normalize(name),
+    'description': CatalogText.normalize(description),
     'enabled': enabled,
     'published': published,
     'offerings': offerings.map((o) => o.toJson()).toList(),

@@ -20,6 +20,72 @@ http.Response response(Object raw, [int code = 200]) => http.Response(
   headers: {'content-type': 'application/json; charset=utf-8'},
 );
 void main() {
+  test(
+    'text validation uses NFC storage limits and preserves Turkish text',
+    () {
+      expect(CatalogText.nameError('\u0344' * 100), isNull);
+      expect(CatalogText.nameError('\u0344' * 101), contains('200'));
+      expect(CatalogText.descriptionError('\u0344' * 1000), isNull);
+      expect(CatalogText.descriptionError('\u0344' * 1001), contains('2000'));
+      expect(CatalogText.nameError('  ${'I\u0307' * 200}  '), isNull);
+      final d = CatalogDraft(
+        name: '  I\u0307c\u0327 yıkama  ',
+        description: '\tAc\u0327ıklama\n',
+      );
+      expect(d.validate(), isNull);
+      expect(d.toJson()['name'], 'İç yıkama');
+      expect(d.toJson()['description'], 'Açıklama');
+      expect(CatalogText.descriptionError('Satır\nİkinci\r\n\tSatır'), isNull);
+      // FEFF is not .NET whitespace and must not be silently trimmed by Dart.
+      expect(CatalogText.nameError('\ufeff'), isNull);
+      expect(CatalogText.normalize('\ufeff'), '\ufeff');
+    },
+  );
+  for (final value in [
+    'Yıkama 🚗',
+    'Yıkama\u0085',
+    '\tYıkama',
+    'Yıkama\ud800',
+    'Yıkama\u009f',
+  ]) {
+    test('unsupported name rejected locally ${value.codeUnits}', () {
+      expect(CatalogText.nameError(value), isNotNull);
+      expect(CatalogDraft(name: value).validate(), isNotNull);
+    });
+  }
+  for (final value in [
+    'Açıklama 🚗',
+    'Açıklama\u0085',
+    'Açıklama\u009f',
+    'Açıklama\u000b',
+    'Açıklama\udfff',
+  ]) {
+    test('unsupported description rejected locally ${value.codeUnits}', () {
+      expect(CatalogText.descriptionError(value), isNotNull);
+    });
+  }
+  test('unsupported text never reaches HTTP', () async {
+    var calls = 0;
+    final s = ApiCatalogService(
+      session: RedemptionSession()..signedIn = true,
+      apiClient: ApiClient(
+        baseUrl: Uri.parse('https://example.test'),
+        client: MockClient((_) async {
+          calls++;
+          return response(catalogJson(), 201);
+        }),
+      ),
+    );
+    for (final draft in [
+      CatalogDraft(name: 'Yıkama 🚗'),
+      CatalogDraft(name: 'Yıkama', description: '\u0344' * 1001),
+    ]) {
+      final result =
+          await s.save(businessA, draft) as AuthFailure<CatalogServiceRecord>;
+      expect(result.error.code, AuthErrorCode.validation);
+    }
+    expect(calls, 0);
+  });
   test('exact Turkish currency round trip and estimate', () {
     expect(Lira.parse('9999999.99').kurus, 999999999);
     expect(Lira.parse('450,10', turkish: true).wire, '450.10');

@@ -44,6 +44,65 @@ void main() {
     await t.pumpAndSettle();
   }
 
+  testWidgets('unsupported text shows Turkish field feedback without saving', (
+    t,
+  ) async {
+    final s = FakeCatalog();
+    await show(t, s);
+    await tap(t, 'Hizmet ekle');
+    await t.enterText(
+      find.widgetWithText(TextFormField, 'Hizmet adı'),
+      'Yıkama 🚗',
+    );
+    await t.enterText(
+      find.widgetWithText(TextFormField, 'Açıklama'),
+      'Not\u0085',
+    );
+    await tap(t, 'Kaydet');
+    expect(
+      find.text('Hizmet adında emoji veya kontrol karakteri kullanmayın.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text(
+        'Açıklamada emoji veya desteklenmeyen kontrol karakteri kullanmayın.',
+      ),
+      findsOneWidget,
+    );
+    expect(s.saves, 0);
+  });
+
+  testWidgets(
+    'normalization-expanded lengths show field errors before submission',
+    (t) async {
+      final s = FakeCatalog();
+      await show(t, s);
+      await tap(t, 'Hizmet ekle');
+      await t.enterText(
+        find.widgetWithText(TextFormField, 'Hizmet adı'),
+        '\u0344' * 101,
+      );
+      await t.enterText(
+        find.widgetWithText(TextFormField, 'Açıklama'),
+        '\u0344' * 1001,
+      );
+      await tap(t, 'Kaydet');
+      expect(
+        find.text(
+          'Hizmet adı normalleştirme sonrasında en fazla 200 karakter olabilir.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'Açıklama normalleştirme sonrasında en fazla 2000 karakter olabilir.',
+        ),
+        findsOneWidget,
+      );
+      expect(s.saves, 0);
+    },
+  );
+
   testWidgets('list details edit confirmation and archive workflow', (t) async {
     final s = FakeCatalog();
     await show(t, s);

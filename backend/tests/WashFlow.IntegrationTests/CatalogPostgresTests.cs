@@ -18,10 +18,14 @@ using WashFlow.Infrastructure.Persistence;
 namespace WashFlow.IntegrationTests;
 
 [Trait("Category", "PostgreSQL")]
-public sealed class CatalogPostgresTests(PostgresModelFixture fixture) : IClassFixture<PostgresModelFixture>
+public sealed partial class CatalogPostgresTests(PostgresModelFixture fixture) : IClassFixture<PostgresModelFixture>
 {
     private WashFlowDbContext Db() => new(fixture.Options);
-    private WebApplicationFactory<Program> Api(ApiFactory root) => root.WithWebHostBuilder(b => b.ConfigureServices(s => { s.RemoveAll<WashFlowDbContext>(); s.AddScoped(_ => Db()); }));
+    private WebApplicationFactory<Program> Api(ApiFactory root, Microsoft.EntityFrameworkCore.Diagnostics.DbCommandInterceptor? interceptor = null) => root.WithWebHostBuilder(b => b.ConfigureServices(s => {
+        s.RemoveAll<WashFlowDbContext>();
+        s.AddScoped(_ => interceptor == null ? Db() : new WashFlowDbContext(
+            new DbContextOptionsBuilder<WashFlowDbContext>(fixture.Options).AddInterceptors(interceptor).Options));
+    }));
     private async Task<(Guid Business, Guid Profile, Guid User)> Seed(WebApplicationFactory<Program> api, HttpClient c, MembershipRole? role = MembershipRole.Owner, bool profile = false, Guid? sameUser = null)
     {
         await using var db = Db(); var u = sameUser == null ? new User("Test", $"{Guid.NewGuid()}@example.test", "hash") { EmailVerifiedAt = DateTimeOffset.UtcNow } : await db.Users.SingleAsync(u => u.Id == sameUser);
