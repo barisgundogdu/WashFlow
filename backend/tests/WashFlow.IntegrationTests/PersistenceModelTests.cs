@@ -19,10 +19,10 @@ public sealed class PersistenceModelTests(PostgresModelFixture fixture) : IClass
     {
         await using var context = NewContext();
         await context.Database.MigrateAsync();
-        Assert.Equal(6, (await context.Database.GetAppliedMigrationsAsync()).Count());
+        Assert.Equal(7, (await context.Database.GetAppliedMigrationsAsync()).Count());
         Assert.Empty(await context.Database.GetPendingMigrationsAsync());
         Assert.False(context.Database.HasPendingModelChanges());
-        // Queries prove all sixteen tables actually exist after migration.
+        // Queries prove all twenty-three tables actually exist after migration.
         await context.Users.CountAsync();
         await context.Businesses.CountAsync();
         await context.BusinessMemberships.CountAsync();
@@ -39,6 +39,13 @@ public sealed class PersistenceModelTests(PostgresModelFixture fixture) : IClass
         await context.OwnedVehicles.CountAsync();
         await context.BusinessServices.CountAsync();
         await context.ServiceOfferings.CountAsync();
+        await context.WorkAreas.CountAsync();
+        await context.ServiceSchedulingRequirements.CountAsync();
+        await context.EmployeeAvailabilities.CountAsync();
+        await context.Appointments.CountAsync();
+        await context.AppointmentEvents.CountAsync();
+        await context.AppointmentResourceReservations.CountAsync();
+        await context.SchedulingCreateReceipts.CountAsync();
     }
 
     [PostgresFact]

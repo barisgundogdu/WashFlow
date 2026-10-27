@@ -971,6 +971,534 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.Appointment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<DateTimeOffset>("ActiveEndsAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ActiveEndsAtUtc");
+
+                    b.Property<int>("ActiveMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("ActiveMinutes");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("BusinessId");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("Category");
+
+                    b.Property<Guid>("ClientRequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ClientRequestId");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatedByUserId");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("Currency");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("CustomerName");
+
+                    b.Property<int>("Employees")
+                        .HasColumnType("integer")
+                        .HasColumnName("Employees");
+
+                    b.Property<Guid>("LocalCustomerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LocalCustomerId");
+
+                    b.Property<Guid>("LocalVehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LocalVehicleId");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)")
+                        .HasColumnName("Price");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("RequestHash");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ServiceId");
+
+                    b.Property<string>("ServiceName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("ServiceName");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer")
+                        .HasColumnName("Source");
+
+                    b.Property<DateTimeOffset>("StartsAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("StartsAtUtc");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<string>("TimeZoneIdSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("TimeZoneIdSnapshot");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UpdatedAt");
+
+                    b.Property<string>("VehiclePlate")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("VehiclePlate");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<int?>("WaitingMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("WaitingMinutes");
+
+                    b.Property<Guid>("WorkAreaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("WorkAreaId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("BusinessId", "ClientRequestId")
+                        .IsUnique();
+
+                    b.HasIndex("BusinessId", "ServiceId");
+
+                    b.HasIndex("BusinessId", "WorkAreaId");
+
+                    b.HasIndex("BusinessId", "LocalCustomerId", "LocalVehicleId");
+
+                    b.HasIndex("BusinessId", "StartsAtUtc", "Id");
+
+                    b.HasIndex("BusinessId", "Status", "StartsAtUtc");
+
+                    b.ToTable("Appointments", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Appointments_Category", "length(btrim(\"Category\")) > 0");
+
+                            t.HasCheckConstraint("CK_Appointments_Currency", "length(btrim(\"Currency\")) > 0");
+
+                            t.HasCheckConstraint("CK_Appointments_CustomerName", "length(btrim(\"CustomerName\")) > 0");
+
+                            t.HasCheckConstraint("CK_Appointments_Hash", "\"RequestHash\" ~ '^[0-9a-f]{64}$'");
+
+                            t.HasCheckConstraint("CK_Appointments_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_Appointments_Interval", "\"StartsAtUtc\" < \"ActiveEndsAtUtc\" AND date_trunc('minute', \"StartsAtUtc\") = \"StartsAtUtc\" AND date_trunc('minute', \"ActiveEndsAtUtc\") = \"ActiveEndsAtUtc\"");
+
+                            t.HasCheckConstraint("CK_Appointments_RequestHash", "length(btrim(\"RequestHash\")) > 0");
+
+                            t.HasCheckConstraint("CK_Appointments_ServiceName", "length(btrim(\"ServiceName\")) > 0");
+
+                            t.HasCheckConstraint("CK_Appointments_Snapshot", "\"Price\" BETWEEN 0 AND 9999999.99 AND \"Currency\" = 'TRY' AND \"ActiveMinutes\" BETWEEN 1 AND 10080 AND (\"WaitingMinutes\" IS NULL OR \"WaitingMinutes\" BETWEEN 0 AND 43200) AND \"Employees\" BETWEEN 1 AND 100 AND \"ActiveEndsAtUtc\" = \"StartsAtUtc\" + \"ActiveMinutes\" * interval '1 minute'");
+
+                            t.HasCheckConstraint("CK_Appointments_State", "\"Status\" IN (1,2) AND \"Source\" = 1");
+
+                            t.HasCheckConstraint("CK_Appointments_TimeZoneIdSnapshot", "length(btrim(\"TimeZoneIdSnapshot\")) > 0");
+
+                            t.HasCheckConstraint("CK_Appointments_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+
+                            t.HasCheckConstraint("CK_Appointments_VehiclePlate", "length(btrim(\"VehiclePlate\")) > 0");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.AppointmentEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ActorUserId");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("AppointmentId");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("BusinessId");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer")
+                        .HasColumnName("Kind");
+
+                    b.Property<DateTimeOffset>("NewEnd")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("NewEnd");
+
+                    b.Property<DateTimeOffset>("NewStart")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("NewStart");
+
+                    b.Property<DateTimeOffset?>("PreviousEnd")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("PreviousEnd");
+
+                    b.Property<DateTimeOffset?>("PreviousStart")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("PreviousStart");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer")
+                        .HasColumnName("Sequence");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("Status");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UpdatedAt");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("BusinessId", "Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("BusinessId", "AppointmentId", "Sequence")
+                        .IsUnique();
+
+                    b.ToTable("AppointmentEvents", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_AppointmentEvents_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_AppointmentEvents_State", "\"Sequence\" > 0 AND \"Kind\" IN (1,2,3) AND \"Status\" IN (1,2) AND \"NewStart\" < \"NewEnd\" AND ((\"PreviousStart\" IS NULL AND \"PreviousEnd\" IS NULL) OR (\"PreviousStart\" IS NOT NULL AND \"PreviousEnd\" IS NOT NULL AND \"PreviousStart\" < \"PreviousEnd\"))");
+
+                            t.HasCheckConstraint("CK_AppointmentEvents_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.AppointmentResourceReservation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("AppointmentId");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("BusinessId");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<Guid?>("EmployeeMembershipId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("EmployeeMembershipId");
+
+                    b.Property<DateTimeOffset>("EndsAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("EndsAtUtc");
+
+                    b.Property<DateTimeOffset?>("ReleasedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ReleasedAt");
+
+                    b.Property<DateTimeOffset>("StartsAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("StartsAtUtc");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UpdatedAt");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid?>("WorkAreaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("WorkAreaId");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("BusinessId", "Id");
+
+                    b.HasIndex("BusinessId", "AppointmentId", "EmployeeMembershipId")
+                        .IsUnique()
+                        .HasFilter("\"ReleasedAt\" IS NULL AND \"EmployeeMembershipId\" IS NOT NULL");
+
+                    b.HasIndex("BusinessId", "AppointmentId", "WorkAreaId")
+                        .IsUnique()
+                        .HasFilter("\"ReleasedAt\" IS NULL AND \"WorkAreaId\" IS NOT NULL");
+
+                    b.HasIndex("BusinessId", "EmployeeMembershipId", "StartsAtUtc", "EndsAtUtc")
+                        .HasFilter("\"ReleasedAt\" IS NULL AND \"EmployeeMembershipId\" IS NOT NULL");
+
+                    b.HasIndex("BusinessId", "WorkAreaId", "StartsAtUtc", "EndsAtUtc")
+                        .HasFilter("\"ReleasedAt\" IS NULL AND \"WorkAreaId\" IS NOT NULL");
+
+                    b.ToTable("AppointmentResourceReservations", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_AppointmentResourceReservations_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_AppointmentResourceReservations_Interval", "\"StartsAtUtc\" < \"EndsAtUtc\" AND date_trunc('minute', \"StartsAtUtc\") = \"StartsAtUtc\" AND date_trunc('minute', \"EndsAtUtc\") = \"EndsAtUtc\"");
+
+                            t.HasCheckConstraint("CK_AppointmentResourceReservations_Release", "\"ReleasedAt\" IS NULL OR \"ReleasedAt\" >= \"CreatedAt\"");
+
+                            t.HasCheckConstraint("CK_AppointmentResourceReservations_Resource", "(\"WorkAreaId\" IS NULL) <> (\"EmployeeMembershipId\" IS NULL)");
+
+                            t.HasCheckConstraint("CK_AppointmentResourceReservations_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.EmployeeAvailability", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ArchivedAt");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("BusinessId");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<DateTimeOffset>("EndsAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("EndsAtUtc");
+
+                    b.Property<Guid>("MembershipId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("MembershipId");
+
+                    b.Property<DateTimeOffset>("StartsAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("StartsAtUtc");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UpdatedAt");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("BusinessId", "Id");
+
+                    b.HasIndex("BusinessId", "MembershipId", "StartsAtUtc", "EndsAtUtc")
+                        .HasFilter("\"ArchivedAt\" IS NULL");
+
+                    b.ToTable("EmployeeAvailabilities", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_EmployeeAvailabilities_Archive", "\"ArchivedAt\" IS NULL OR \"ArchivedAt\" >= \"CreatedAt\"");
+
+                            t.HasCheckConstraint("CK_EmployeeAvailabilities_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_EmployeeAvailabilities_Interval", "\"StartsAtUtc\" < \"EndsAtUtc\" AND date_trunc('minute', \"StartsAtUtc\") = \"StartsAtUtc\" AND date_trunc('minute', \"EndsAtUtc\") = \"EndsAtUtc\"");
+
+                            t.HasCheckConstraint("CK_EmployeeAvailabilities_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.ServiceSchedulingRequirement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("BusinessId");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("Category");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ServiceId");
+
+                    b.Property<bool>("SingleStageConfirmed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("SingleStageConfirmed");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UpdatedAt");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("WorkAreaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("WorkAreaId");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("BusinessId", "Id");
+
+                    b.HasIndex("BusinessId", "WorkAreaId");
+
+                    b.HasIndex("BusinessId", "ServiceId", "Category")
+                        .IsUnique();
+
+                    b.ToTable("ServiceSchedulingRequirements", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ServiceSchedulingRequirements_Category", "\"Category\" IN ('Car','Suv','Van','Pickup','Motorcycle','Other')");
+
+                            t.HasCheckConstraint("CK_ServiceSchedulingRequirements_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_ServiceSchedulingRequirements_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.WorkArea", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ArchivedAt");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("BusinessId");
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("integer")
+                        .HasColumnName("Capacity");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("Name");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UpdatedAt");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId", "Name", "Id");
+
+                    b.ToTable("WorkAreas", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_WorkAreas_Archive", "\"ArchivedAt\" IS NULL OR \"ArchivedAt\" >= \"CreatedAt\"");
+
+                            t.HasCheckConstraint("CK_WorkAreas_Capacity", "\"Capacity\" > 0");
+
+                            t.HasCheckConstraint("CK_WorkAreas_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_WorkAreas_Name", "length(btrim(\"Name\")) > 0");
+
+                            t.HasCheckConstraint("CK_WorkAreas_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Infrastructure.Scheduling.SchedulingCreateReceipt", b =>
+                {
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientRequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResultJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("BusinessId", "ClientRequestId");
+
+                    b.HasIndex("BusinessId", "AppointmentId")
+                        .IsUnique();
+
+                    b.ToTable("SchedulingCreateReceipts", (string)null);
+                });
+
             modelBuilder.Entity("WashFlow.Domain.Businesses.BusinessMembership", b =>
                 {
                     b.HasOne("WashFlow.Domain.Businesses.Business", null)
@@ -1120,6 +1648,164 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .HasForeignKey("DeviceSessionId", "ReplacedByTokenId")
                         .HasPrincipalKey("DeviceSessionId", "Id")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.Appointment", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Customers.LocalCustomer", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "LocalCustomerId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Catalog.BusinessService", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "ServiceId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Scheduling.WorkArea", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "WorkAreaId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Customers.LocalVehicle", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "LocalCustomerId", "LocalVehicleId")
+                        .HasPrincipalKey("BusinessId", "LocalCustomerId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.AppointmentEvent", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Scheduling.Appointment", null)
+                        .WithMany("Events")
+                        .HasForeignKey("BusinessId", "AppointmentId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.AppointmentResourceReservation", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Scheduling.Appointment", null)
+                        .WithMany("Reservations")
+                        .HasForeignKey("BusinessId", "AppointmentId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Businesses.BusinessMembership", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "EmployeeMembershipId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WashFlow.Domain.Scheduling.WorkArea", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "WorkAreaId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.EmployeeAvailability", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Businesses.BusinessMembership", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "MembershipId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.ServiceSchedulingRequirement", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Catalog.BusinessService", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "ServiceId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Scheduling.WorkArea", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "WorkAreaId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.WorkArea", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Infrastructure.Scheduling.SchedulingCreateReceipt", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Scheduling.Appointment", null)
+                        .WithOne()
+                        .HasForeignKey("WashFlow.Infrastructure.Scheduling.SchedulingCreateReceipt", "BusinessId", "AppointmentId")
+                        .HasPrincipalKey("WashFlow.Domain.Scheduling.Appointment", "BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.Appointment", b =>
+                {
+                    b.Navigation("Events");
+
+                    b.Navigation("Reservations");
                 });
 #pragma warning restore 612, 618
         }

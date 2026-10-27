@@ -15,6 +15,13 @@ public sealed class WashFlowDbContext(DbContextOptions<WashFlowDbContext> option
     public DbSet<LocalCustomer> LocalCustomers => Set<LocalCustomer>();
     public DbSet<LocalVehicle> LocalVehicles => Set<LocalVehicle>();
     public DbSet<OwnedVehicle> OwnedVehicles => Set<OwnedVehicle>();
+    public DbSet<WashFlow.Domain.Scheduling.WorkArea> WorkAreas => Set<WashFlow.Domain.Scheduling.WorkArea>();
+    public DbSet<WashFlow.Domain.Scheduling.ServiceSchedulingRequirement> ServiceSchedulingRequirements => Set<WashFlow.Domain.Scheduling.ServiceSchedulingRequirement>();
+    public DbSet<WashFlow.Domain.Scheduling.EmployeeAvailability> EmployeeAvailabilities => Set<WashFlow.Domain.Scheduling.EmployeeAvailability>();
+    public DbSet<WashFlow.Domain.Scheduling.Appointment> Appointments => Set<WashFlow.Domain.Scheduling.Appointment>();
+    public DbSet<WashFlow.Domain.Scheduling.AppointmentEvent> AppointmentEvents => Set<WashFlow.Domain.Scheduling.AppointmentEvent>();
+    public DbSet<WashFlow.Domain.Scheduling.AppointmentResourceReservation> AppointmentResourceReservations => Set<WashFlow.Domain.Scheduling.AppointmentResourceReservation>();
+    public DbSet<WashFlow.Infrastructure.Scheduling.SchedulingCreateReceipt> SchedulingCreateReceipts => Set<WashFlow.Infrastructure.Scheduling.SchedulingCreateReceipt>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Business> Businesses => Set<Business>();
     public DbSet<BusinessMembership> BusinessMemberships => Set<BusinessMembership>();
@@ -54,7 +61,10 @@ public sealed class WashFlowDbContext(DbContextOptions<WashFlowDbContext> option
             else if (entry.State == EntityState.Modified)
             {
                 entry.Property(x => x.CreatedAt).IsModified = false;
-                entry.Entity.UpdatedAt = now;
+                // Scheduling aggregates supply an explicit operation timestamp, shared with their
+                // events/releases and TimeProvider. Do not replace it with a second wall clock.
+                if (entry.Entity.GetType().Namespace != "WashFlow.Domain.Scheduling")
+                    entry.Entity.UpdatedAt = now;
             }
         }
     }

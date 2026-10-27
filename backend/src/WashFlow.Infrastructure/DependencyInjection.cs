@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,8 @@ public static class DependencyInjection
                 "ConnectionStrings__WashFlow yapılandırması gereklidir.");
         }
 
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddScoped<WashFlow.Application.Scheduling.ISchedulingService, Scheduling.EfSchedulingService>();
         services.AddScoped<WashFlow.Application.Catalog.ICatalogStore, Catalog.EfCatalogStore>();
         services.AddScoped<WashFlow.Application.Businesses.IBusinessSettingsStore, Businesses.EfBusinessSettingsStore>();
         services.AddScoped<WashFlow.Application.Customers.ICustomerVehicleStore, Customers.EfCustomerVehicleStore>();
