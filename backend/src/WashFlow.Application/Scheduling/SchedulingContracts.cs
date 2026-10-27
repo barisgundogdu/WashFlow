@@ -1,5 +1,5 @@
-using WashFlow.Application.Businesses;
-using WashFlow.Application.Customers;
+using System.Text.Json.Serialization;
+using WashFlow.Domain.Scheduling;
 
 namespace WashFlow.Application.Scheduling;
 
@@ -17,73 +17,32 @@ public sealed record BookingInput(Guid ClientRequestId, Guid LocalCustomerId, Gu
     uint ExpectedServiceVersion, uint ExpectedVehicleVersion, string? StartLocal, int? UtcOffsetMinutes,
     IReadOnlyList<Guid>? EmployeeMembershipIds, string Source = "OwnerPhone");
 public sealed record RescheduleInput(uint Version, string? StartLocal, int? UtcOffsetMinutes, IReadOnlyList<Guid>? EmployeeMembershipIds);
-public sealed record SchedulingResult(object? Value, bool Created = false);
-public interface ISchedulingStore
-{
-    Task<SchedulingResult> Execute(SchedulingActor actor, Guid business, string operation, Guid? id,
-        Guid? parent, object? input, string? from, string? to, int page, int size, CancellationToken ct);
-}
-
-public readonly record struct Occupancy(DateTimeOffset Start, DateTimeOffset End);
-public static class SchedulingRules
-{
-    public const int HorizonDays = 180;
-    public static void Fail(string code, string message, int status = 409) => throw new SchedulingFault(status, code, message);
-    public static bool Overlaps(Occupancy a, Occupancy b) => a.Start < b.End && b.Start < a.End;
-    public static int Peak(IEnumerable<Occupancy> existing, Occupancy? candidate = null)
-    {
-        var intervals = candidate is { } c ? existing.Where(x => Overlaps(x, c)).Select(x => new Occupancy(x.Start < c.Start ? c.Start : x.Start, x.End > c.End ? c.End : x.End)).Append(c) : existing;
-        var events = intervals.SelectMany(x => new[] { (Time: x.Start, Delta: 1), (Time: x.End, Delta: -1) }).OrderBy(x => x.Time).ThenBy(x => x.Delta);
-        var current = 0; var peak = 0;
-        foreach (var e in events) { current += e.Delta; peak = Math.Max(current, peak); }
-        return peak;
-    }
-    public static bool Covered(IEnumerable<Occupancy> windows, Occupancy interval)
-    {
-        var end = interval.Start;
-        foreach (var window in windows.OrderBy(x => x.Start))
-        {
-            if (window.Start > end) break;
-            if (window.End > end) end = window.End;
-            if (end >= interval.End) return true;
-        }
-        return false;
-    }
-    public static TimeZoneInfo Zone(string? id)
-    {
-        if (id == null || !BusinessSettingsValidation.ValidTimeZone(id)) Fail("hoursUnconfigured", "İşletmenin saat dilimini ve çalışma saatlerini yapılandırın.");
-        return TimeZoneInfo.FindSystemTimeZoneById(id!);
-    }
-    public static DateTimeOffset Resolve(string? local, int? offset, TimeZoneInfo zone)
-    {
-        if (!DateTime.TryParseExact(local, "yyyy-MM-dd'T'HH:mm", System.Globalization.CultureInfo.InvariantCulture,
-            System.Globalization.DateTimeStyles.None, out var wall)) Fail("invalidLocalTime", "Tarih ve saati dakika hassasiyetinde girin.", 400);
-        wall = DateTime.SpecifyKind(wall, DateTimeKind.Unspecified);
-        if (zone.IsInvalidTime(wall)) Fail("invalidLocalTime", "Bu yerel saat saat dilimi geçişi nedeniyle mevcut değil.", 400);
-        var offsets = zone.IsAmbiguousTime(wall) ? zone.GetAmbiguousTimeOffsets(wall) : [zone.GetUtcOffset(wall)];
-        if (offset == null && offsets.Length > 1) Fail("ambiguousLocalTime", "Bu saat iki kez oluşuyor. UTC farkını dakika olarak belirtin.", 400);
-        var selected = offset == null ? offsets[0] : TimeSpan.FromMinutes(offset.Value);
-        if (!offsets.Contains(selected)) Fail("invalidLocalTime", "UTC farkı işletmenin saat dilimine uymuyor.", 400);
-        return new DateTimeOffset(wall, selected).ToUniversalTime();
-    }
-    public static bool WithinHours(Occupancy interval, TimeZoneInfo zone, IReadOnlyList<OpeningDay>? hours)
-    {
-        if (hours == null) return false;
-        var start = TimeZoneInfo.ConvertTime(interval.Start, zone);
-        var day = hours.SingleOrDefault(x => x.Day == ((int)start.DayOfWeek + 6) % 7 + 1);
-        if (day == null || day.Closed || day.OpensAtMinute == null || day.ClosesAtMinute == null) return false;
-        var open = start.Date.AddMinutes(day.OpensAtMinute.Value);
-        var close = start.Date.AddMinutes(day.ClosesAtMinute.Value);
-        // Conservatively reject transition-boundary schedules; never pick an offset silently.
-        if (zone.IsInvalidTime(open) || zone.IsAmbiguousTime(open) || zone.IsInvalidTime(close) || zone.IsAmbiguousTime(close)) return false;
-        var opensAt = new DateTimeOffset(open, zone.GetUtcOffset(open)).ToUniversalTime();
-        var closesAt = new DateTimeOffset(close, zone.GetUtcOffset(close)).ToUniversalTime();
-        return interval.Start >= opensAt && interval.End <= closesAt;
-    }
-    public static Guid[] Employees(IReadOnlyList<Guid>? ids, int count)
-    {
-        if (ids == null || ids.Count != count || ids.Count > 100 || ids.Any(x => x == Guid.Empty) || ids.Distinct().Count() != ids.Count)
-            Fail("invalidEmployees", $"Tam olarak {count} farklı çalışan seçin.", 400);
-        return ids!.OrderBy(x => x).ToArray();
-    }
-}
+// Persistence operations are deliberately not defined by a string/object dispatcher.
+// Phase 9B will introduce a typed transactional boundary; no store implementation exists in 9A.
+public sealed record SchedulingResult<T>(T Value, bool Created = false);
+public sealed record AvailabilityCheckInput(Guid ServiceId, string Category, string? StartLocal,
+    int? UtcOffsetMinutes, IReadOnlyList<Guid>? EmployeeMembershipIds);
+public sealed record CalendarInput(DateOnly FromDate, DateOnly ToDateExclusive, int Page = 1, int PageSize = 20,
+    AppointmentStatus? Status = null);
+public sealed record WorkAreaView(Guid Id, Guid BusinessId, string Name, int Capacity, DateTimeOffset? ArchivedAt, uint Version);
+public sealed record AvailabilityView(Guid Id, Guid BusinessId, Guid MembershipId, DateTimeOffset StartsAtUtc,
+    DateTimeOffset EndsAtUtc, DateTimeOffset? ArchivedAt, uint Version);
+public sealed record RequirementView(Guid Id, Guid BusinessId, Guid ServiceId, string Category, Guid WorkAreaId,
+    bool SingleStageConfirmed, uint Version);
+public sealed record EmployeeView(Guid MembershipId, Guid BusinessId, string Name);
+public sealed record ReservationView(Guid Id, Guid? WorkAreaId, Guid? EmployeeMembershipId,
+    DateTimeOffset StartsAtUtc, DateTimeOffset EndsAtUtc, DateTimeOffset? ReleasedAt);
+public sealed record EventView(int Sequence,
+    [property: JsonConverter(typeof(JsonStringEnumConverter<AppointmentEventKind>))] AppointmentEventKind Kind,
+    [property: JsonConverter(typeof(JsonStringEnumConverter<AppointmentStatus>))] AppointmentStatus Status,
+    DateTimeOffset? PreviousStart, DateTimeOffset? PreviousEnd, DateTimeOffset NewStart, DateTimeOffset NewEnd,
+    DateTimeOffset OccurredAt);
+public sealed record AppointmentView(Guid Id, Guid BusinessId, uint Version,
+    [property: JsonConverter(typeof(JsonStringEnumConverter<BookingSource>))] BookingSource Source,
+    [property: JsonConverter(typeof(JsonStringEnumConverter<AppointmentStatus>))] AppointmentStatus Status,
+    Guid LocalCustomerId, Guid LocalVehicleId, Guid ServiceId, Guid WorkAreaId,
+    string ServiceName, string CustomerName, string VehiclePlate, string Category, string Price, string Currency,
+    int ActiveMinutes, int? WaitingMinutes, int Employees, string TimeZoneId,
+    DateTimeOffset StartsAtUtc, DateTimeOffset ActiveEndsAtUtc,
+    IReadOnlyList<ReservationView> Reservations, IReadOnlyList<EventView> Events);
+public sealed record AvailabilityCheckView(bool Available, DateTimeOffset StartsAtUtc, DateTimeOffset ActiveEndsAtUtc);
