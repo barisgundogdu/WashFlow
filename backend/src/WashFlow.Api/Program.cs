@@ -11,6 +11,8 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+// Customer search can contain personal data. Never log raw request targets/query strings.
+builder.Logging.AddFilter("Microsoft.AspNetCore.Hosting.Diagnostics", LogLevel.Warning);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddCoreAuthentication(builder.Configuration);
@@ -38,6 +40,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapAuthEndpoints();
 app.MapInvitationEndpoints();
+WashFlow.Api.Features.Customers.CustomerVehicleEndpoints.MapCustomerVehicleEndpoints(app);
 WashFlow.Api.Features.Businesses.BusinessSettingsEndpoints.MapBusinessSettingsEndpoints(app);
 app.MapDevelopmentEmailEndpoints();
 app.MapHealthChecks("/health", new HealthCheckOptions

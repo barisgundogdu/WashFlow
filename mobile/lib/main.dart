@@ -1,3 +1,5 @@
+import 'features/customer_vehicles/data/api_customer_vehicle_service.dart';
+
 import 'package:flutter/material.dart';
 
 import 'app/app.dart';
@@ -33,6 +35,10 @@ Future<void> main() async {
       WashFlowApp(
         authService: service,
         contextService: ApiContextService(
+          apiClient: service.apiClient,
+          session: service,
+        ),
+        customerVehicleService: ApiCustomerVehicleService(
           apiClient: service.apiClient,
           session: service,
         ),

@@ -492,10 +492,16 @@ Existing registration, verification, login, refresh and logout behavior is uncha
 
 See [employee invitation API and security notes](docs/employee-invitations.md) for the backend
 lifecycle, configuration, migration, test setup, and in-memory email durability limitation.
-Flutter integration remains pending.
+Flutter invitation integration is implemented and validated in Phases 3–5.
 
 ## Phase 6 — Business profile and operating hours
 
 Owner profile editing and seven-day hours are implemented end to end. See the
 [Phase 6 contract, migration, security and validation report](../docs/features/business-settings-phase6.md) for actual endpoints,
 replacement/version semantics, unconfigured defaults, timezone policy, test evidence and deployment safety.
+
+## Phase 7 — Customer and vehicle management
+
+Tenant-local Owner customer/vehicle management and Customer **Araçlarım** are implemented as separate
+ownership models. See the [Phase 7 contract, migration and validation report](../docs/features/customer-vehicle-management-phase7.md)
+for endpoints, plate policy, authorization, migration safety, exact test evidence and limitations.

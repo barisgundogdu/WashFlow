@@ -51,8 +51,19 @@ class ApiClient {
   final Duration timeout;
   final http.Client _client;
 
-  Future<Object?> get(String path, {String? access, int expected = 200}) =>
-      _request('GET', path, access: access, expected: expected);
+  Future<Object?> get(
+    String path, {
+    String? access,
+    int expected = 200,
+    Map<String, String>? query,
+  }) => _request('GET', path, access: access, expected: expected, query: query);
+
+  Future<Object?> put(
+    String path,
+    Map<String, dynamic> body, {
+    String? access,
+    int expected = 200,
+  }) => _request('PUT', path, body: body, access: access, expected: expected);
 
   Future<Object?> post(
     String path,
@@ -67,19 +78,26 @@ class ApiClient {
     Map<String, dynamic>? body,
     String? access,
     required int expected,
+    Map<String, String>? query,
   }) async {
     try {
       // Accept API paths only, never caller-supplied origins or query credentials.
       if (!RegExp(r'^/api/v1(?:/[a-zA-Z0-9_-]+)+/?$').hasMatch(path)) {
         throw const ApiException(ApiErrorCode.unexpected);
       }
+      if (query != null &&
+          query.keys.any(
+            (key) => !const {'q', 'page', 'pageSize'}.contains(key),
+          )) {
+        throw const ApiException(ApiErrorCode.unexpected);
+      }
       final prefix = baseUrl.path.replaceFirst(RegExp(r'/+$'), '');
       final request = http.Request(
         method,
-        baseUrl.replace(path: '$prefix$path'),
+        baseUrl.replace(path: '$prefix$path', queryParameters: query),
       )..followRedirects = false;
       request.headers['Accept'] = 'application/json';
-      if (method == 'POST') {
+      if (method == 'POST' || method == 'PUT') {
         request.headers['Content-Type'] = 'application/json';
       }
       if (access != null) request.headers['Authorization'] = 'Bearer $access';

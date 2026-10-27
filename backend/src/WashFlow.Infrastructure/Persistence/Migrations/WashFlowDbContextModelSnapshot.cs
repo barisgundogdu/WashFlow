@@ -304,6 +304,245 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("WashFlow.Domain.Customers.LocalCustomer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("NormalizedPhone")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId", "NormalizedPhone");
+
+                    b.HasIndex("BusinessId", "NormalizedName", "Id");
+
+                    b.ToTable("LocalCustomers", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LocalCustomers_FullName", "length(btrim(\"FullName\")) > 0");
+
+                            t.HasCheckConstraint("CK_LocalCustomers_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_LocalCustomers_NormalizedName", "length(btrim(\"NormalizedName\")) > 0");
+
+                            t.HasCheckConstraint("CK_LocalCustomers_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Customers.LocalVehicle", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LocalCustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int?>("ModelYear")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("NormalizedPlate")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Plate")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId", "LocalCustomerId", "Id");
+
+                    b.HasIndex("BusinessId", "NormalizedPlate", "Id");
+
+                    b.ToTable("LocalVehicles", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LocalVehicles_Archive", "\"ArchivedAt\" IS NULL OR \"ArchivedAt\" >= \"CreatedAt\"");
+
+                            t.HasCheckConstraint("CK_LocalVehicles_Brand", "length(btrim(\"Brand\")) > 0");
+
+                            t.HasCheckConstraint("CK_LocalVehicles_Category", "\"Category\" IN ('Car','Suv','Van','Pickup','Motorcycle','Other')");
+
+                            t.HasCheckConstraint("CK_LocalVehicles_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_LocalVehicles_Model", "length(btrim(\"Model\")) > 0");
+
+                            t.HasCheckConstraint("CK_LocalVehicles_NormalizedPlate", "length(btrim(\"NormalizedPlate\")) > 0");
+
+                            t.HasCheckConstraint("CK_LocalVehicles_Plate", "length(btrim(\"Plate\")) > 0");
+
+                            t.HasCheckConstraint("CK_LocalVehicles_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+
+                            t.HasCheckConstraint("CK_LocalVehicles_Year", "\"ModelYear\" IS NULL OR \"ModelYear\" BETWEEN 1886 AND 2100");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Customers.OwnedVehicle", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CustomerProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int?>("ModelYear")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("NormalizedPlate")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Plate")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerProfileId", "NormalizedPlate", "Id");
+
+                    b.ToTable("OwnedVehicles", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_OwnedVehicles_Archive", "\"ArchivedAt\" IS NULL OR \"ArchivedAt\" >= \"CreatedAt\"");
+
+                            t.HasCheckConstraint("CK_OwnedVehicles_Brand", "length(btrim(\"Brand\")) > 0");
+
+                            t.HasCheckConstraint("CK_OwnedVehicles_Category", "\"Category\" IN ('Car','Suv','Van','Pickup','Motorcycle','Other')");
+
+                            t.HasCheckConstraint("CK_OwnedVehicles_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_OwnedVehicles_Model", "length(btrim(\"Model\")) > 0");
+
+                            t.HasCheckConstraint("CK_OwnedVehicles_NormalizedPlate", "length(btrim(\"NormalizedPlate\")) > 0");
+
+                            t.HasCheckConstraint("CK_OwnedVehicles_Plate", "length(btrim(\"Plate\")) > 0");
+
+                            t.HasCheckConstraint("CK_OwnedVehicles_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+
+                            t.HasCheckConstraint("CK_OwnedVehicles_Year", "\"ModelYear\" IS NULL OR \"ModelYear\" BETWEEN 1886 AND 2100");
+                        });
+                });
+
             modelBuilder.Entity("WashFlow.Domain.Identity.DeviceSession", b =>
                 {
                     b.Property<Guid>("Id")
@@ -687,6 +926,34 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                     b.HasOne("WashFlow.Domain.Identity.User", null)
                         .WithOne()
                         .HasForeignKey("WashFlow.Domain.Customers.CustomerProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Customers.LocalCustomer", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Customers.LocalVehicle", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Customers.LocalCustomer", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "LocalCustomerId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Customers.OwnedVehicle", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Customers.CustomerProfile", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerProfileId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

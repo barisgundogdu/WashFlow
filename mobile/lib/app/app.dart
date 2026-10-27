@@ -1,3 +1,5 @@
+import '../features/customer_vehicles/domain/customer_vehicles.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -18,6 +20,7 @@ class WashFlowApp extends StatelessWidget {
     this.contextService,
     this.invitationService,
     this.settingsService,
+    this.customerVehicleService,
     this.redemptionService,
     this.authService = const UnavailableAuthService(),
   });
@@ -26,6 +29,7 @@ class WashFlowApp extends StatelessWidget {
   final ContextService? contextService;
   final OwnerInvitationService? invitationService;
   final BusinessSettingsService? settingsService;
+  final CustomerVehicleService? customerVehicleService;
   final InvitationRedemptionService? redemptionService;
   final String initialRoute;
   final String? startupMessage;
@@ -39,6 +43,7 @@ class WashFlowApp extends StatelessWidget {
         contextService,
         invitationService,
         settingsService,
+        customerVehicleService,
         redemptionService,
       )),
       title: 'WashFlow',
@@ -106,6 +111,7 @@ class WashFlowApp extends StatelessWidget {
         contextService: contextService,
         invitationService: invitationService,
         settingsService: settingsService,
+        customerVehicleService: customerVehicleService,
         sessionService: authService is SessionService
             ? authService as SessionService
             : null,

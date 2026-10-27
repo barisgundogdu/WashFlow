@@ -419,3 +419,9 @@ for precise test categories, environment setup, results and release limitations.
 Owner profile editing and seven-day hours are implemented end to end. See the
 [Phase 6 contract, migration, security and validation report](../docs/features/business-settings-phase6.md) for actual endpoints,
 replacement/version semantics, unconfigured defaults, timezone policy, test evidence and deployment safety.
+
+## Phase 7 — Customer and vehicle management
+
+Tenant-local Owner customer/vehicle management and Customer **Araçlarım** are implemented as separate
+ownership models. See the [Phase 7 contract, migration and validation report](../docs/features/customer-vehicle-management-phase7.md)
+for endpoints, plate policy, authorization, migration safety, exact test evidence and limitations.

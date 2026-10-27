@@ -43,7 +43,10 @@ void main() {
     pending.complete(AuthSuccess(grants(customer: true)));
     await tester.pumpAndSettle();
     expect(find.text('Müşteri alanı'), findsOneWidget);
-    expect(find.textContaining('Geçici ekran.'), findsOneWidget);
+    expect(
+      find.text('Randevu işlemleri henüz kullanıma açık değil.'),
+      findsOneWidget,
+    );
   });
 
   for (final role in ['Owner', 'Employee']) {

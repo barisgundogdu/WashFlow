@@ -1,3 +1,6 @@
+import '../../customer_vehicles/presentation/customer_directory_screen.dart';
+import '../../customer_vehicles/domain/customer_vehicles.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -24,12 +27,14 @@ class SessionScreen extends StatefulWidget {
     this.contextService,
     this.invitationService,
     this.settingsService,
+    this.customerVehicleService,
     this.redemptionEnabled = false,
   });
   final SessionService? service;
   final ContextService? contextService;
   final OwnerInvitationService? invitationService;
   final BusinessSettingsService? settingsService;
+  final CustomerVehicleService? customerVehicleService;
   final bool redemptionEnabled;
   @override
   State<SessionScreen> createState() => _SessionScreenState();
@@ -77,7 +82,11 @@ class _SessionScreenState extends State<SessionScreen>
     if (!identical(oldWidget.service, widget.service) ||
         !identical(oldWidget.contextService, widget.contextService) ||
         !identical(oldWidget.invitationService, widget.invitationService) ||
-        !identical(oldWidget.settingsService, widget.settingsService)) {
+        !identical(oldWidget.settingsService, widget.settingsService) ||
+        !identical(
+          oldWidget.customerVehicleService,
+          widget.customerVehicleService,
+        )) {
       _controller.removeListener(_changed);
       _controller.dispose();
       _createController();
@@ -143,8 +152,15 @@ class _SessionScreenState extends State<SessionScreen>
           ] else if (controller.phase == SessionPhase.ready) ...[
             if (selected != null)
               switch (selected.role) {
-                ExperienceRole.customer => const CustomerHomeScreen(),
+                ExperienceRole.customer => CustomerHomeScreen(
+                  onVehicles: widget.customerVehicleService == null
+                      ? null
+                      : () => _openDirectory(false),
+                ),
                 ExperienceRole.owner => OwnerHomeScreen(
+                  onCustomers: widget.customerVehicleService == null
+                      ? null
+                      : () => _openDirectory(true),
                   onSettings: widget.settingsService == null
                       ? null
                       : () => _openOwner('/business-settings'),
@@ -204,6 +220,35 @@ class _SessionScreenState extends State<SessionScreen>
     );
   }
 
+  Future<void> _openDirectory(bool owner) async {
+    final controller = _controller;
+    final selected = controller.selected;
+    final role = owner ? ExperienceRole.owner : ExperienceRole.customer;
+    if (selected?.role != role || widget.customerVehicleService == null) return;
+    final future = controller.refresh(requestedId: selected!.id);
+    final g = controller.generation;
+    await future;
+    if (!mounted ||
+        !identical(controller, _controller) ||
+        controller.generation != g ||
+        controller.selected?.id != selected.id ||
+        controller.selected?.role != role) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted &&
+          identical(controller, _controller) &&
+          controller.generation == g &&
+          _navigatorGeneration == g) {
+        unawaited(
+          _tenantNavigator?.currentState?.pushNamed<void>(
+            owner ? '/local-customers' : '/my-vehicles',
+          ),
+        );
+      }
+    });
+  }
+
   Future<void> _openInvitations() => _openOwner('/employee-invitations');
   Future<void> _openOwner(String route) async {
     final controller = _controller;
@@ -257,6 +302,13 @@ class _SessionScreenState extends State<SessionScreen>
       _navigatorGeneration = generation;
       _tenantNavigator = GlobalKey<NavigatorState>();
     }
+    bool currentScope(ExperienceRole role) =>
+        mounted &&
+        identical(controller, _controller) &&
+        controller.generation == generation &&
+        controller.phase == SessionPhase.ready &&
+        controller.selected?.id == selected?.id &&
+        controller.selected?.role == role;
     bool currentOwner() =>
         mounted &&
         identical(controller, _controller) &&
@@ -274,6 +326,26 @@ class _SessionScreenState extends State<SessionScreen>
                 settings: settings,
                 builder: (_) {
                   if (settings.name == '/') return _layout();
+                  if ((settings.name == '/local-customers' && currentOwner() ||
+                          settings.name == '/my-vehicles' &&
+                              currentScope(ExperienceRole.customer)) &&
+                      widget.customerVehicleService != null) {
+                    final owner = settings.name == '/local-customers';
+                    return CustomerDirectoryScreen(
+                      service: widget.customerVehicleService!,
+                      business: owner ? selected.business!.businessId : null,
+                      isCurrent: () => currentScope(
+                        owner ? ExperienceRole.owner : ExperienceRole.customer,
+                      ),
+                      onAuthorizationFailure: (error) =>
+                          controller.handleAuthorizationFailure(
+                            error,
+                            generation: generation,
+                          ),
+                      onSwitch: controller.switchContext,
+                      onLogout: controller.logout,
+                    );
+                  }
                   if (settings.name == '/business-settings' &&
                       currentOwner() &&
                       widget.settingsService != null) {

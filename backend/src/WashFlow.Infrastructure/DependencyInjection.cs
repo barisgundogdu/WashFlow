@@ -19,6 +19,7 @@ public static class DependencyInjection
         }
 
         services.AddScoped<WashFlow.Application.Businesses.IBusinessSettingsStore, Businesses.EfBusinessSettingsStore>();
+        services.AddScoped<WashFlow.Application.Customers.ICustomerVehicleStore, Customers.EfCustomerVehicleStore>();
         services.AddDbContext<WashFlowDbContext>(options =>
             options.UseNpgsql(connectionString));
         services.AddScoped<WashFlow.Application.Authorization.ICurrentUserContextStore, Authorization.EfUserContextStore>();

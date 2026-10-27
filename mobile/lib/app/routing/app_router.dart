@@ -1,3 +1,5 @@
+import '../../features/customer_vehicles/domain/customer_vehicles.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../features/auth/domain/auth_service.dart';
@@ -32,6 +34,7 @@ abstract final class AppRouter {
     ContextService? contextService,
     OwnerInvitationService? invitationService,
     BusinessSettingsService? settingsService,
+    CustomerVehicleService? customerVehicleService,
     AuthSubmission submission = const UnavailableAuthSubmission(),
   }) {
     return MaterialPageRoute<void>(
@@ -61,6 +64,7 @@ abstract final class AppRouter {
           contextService: contextService,
           invitationService: invitationService,
           settingsService: settingsService,
+          customerVehicleService: customerVehicleService,
           redemptionEnabled: redemptionService != null,
         ),
         welcome => WelcomeScreen(redemptionEnabled: redemptionService != null),

@@ -10,6 +10,9 @@ public sealed class WashFlowDbContext(DbContextOptions<WashFlowDbContext> option
     : DbContext(options)
 {
     public DbSet<WeeklyOpeningDay> WeeklyOpeningDays => Set<WeeklyOpeningDay>();
+    public DbSet<LocalCustomer> LocalCustomers => Set<LocalCustomer>();
+    public DbSet<LocalVehicle> LocalVehicles => Set<LocalVehicle>();
+    public DbSet<OwnedVehicle> OwnedVehicles => Set<OwnedVehicle>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Business> Businesses => Set<Business>();
     public DbSet<BusinessMembership> BusinessMemberships => Set<BusinessMembership>();

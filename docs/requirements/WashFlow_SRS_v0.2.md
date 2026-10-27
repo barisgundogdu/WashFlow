@@ -302,3 +302,11 @@ The expanded scope should be implemented incrementally: complete a secure owner-
 | 0.2 | 2026-10-20 | Revised scope to one Flutter app for owners, employees and customers; added customer accounts, booking, privacy and updated requirements. |
 
 **Review note:** This is a revised SRS draft, not a claim that the system is already implemented or tested. Requirements, diagrams, and acceptance criteria will be updated as supervisor feedback and implementation evidence become available.
+
+### Implementation evidence — Phase 7 (27 October 2026)
+
+FR-04/05/21/28 and US-01 now have an integrated customer/vehicle management slice, with separate
+Owner tenant-local records and Customer-owned vehicles, scoped search/pagination, versioned edits
+and vehicle archival. No automatic linking, scheduling, work-order execution or cross-business
+sharing is implemented. This note records implementation status without changing the requirements.
+See [Phase 7 evidence](../features/customer-vehicle-management-phase7.md) for exact tests and limits.

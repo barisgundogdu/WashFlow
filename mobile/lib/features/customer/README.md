@@ -1,6 +1,6 @@
 # Customer features
 
-`CustomerHomeScreen` is a clearly labeled temporary destination shown only when the server
-returns the user's customer profile. Profile, owned-vehicle and booking operations remain planned.
-Employee/owner membership does not imply a customer profile. Keep account-owned data distinct
-from tenant-local records; implement self-service booking after the secure owner flow.
+CustomerHomeScreen is selected only from a server-authorized CustomerProfile context. **Araçlarım**
+opens the authenticated `/me/vehicles` flow: multiple vehicles, search, editing and confirmed archival.
+Employee/Owner membership alone never implies a CustomerProfile. Tenant-local records remain separate.
+Booking and account linking are not implemented. See the repository Phase 7 feature report.

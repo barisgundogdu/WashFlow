@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-/// Temporary destination; customer operations are not implemented yet.
 class CustomerHomeScreen extends StatelessWidget {
-  const CustomerHomeScreen({super.key});
+  const CustomerHomeScreen({super.key, this.onVehicles});
+  final VoidCallback? onVehicles;
   @override
-  Widget build(BuildContext context) => const Column(
+  Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Text('Müşteri alanı'),
-      Text(
-        'Geçici ekran. Araç ve randevu işlemleri henüz kullanıma açık değil.',
-      ),
+      const Text('Müşteri alanı'),
+      if (onVehicles != null)
+        FilledButton(onPressed: onVehicles, child: const Text('Araçlarım')),
+      const Text('Randevu işlemleri henüz kullanıma açık değil.'),
     ],
   );
 }

@@ -11,5 +11,8 @@ actions; expired, unaccepted/unrevoked rows may be resent. These are UI hints, n
 every API call rechecks backend authorization/state. Mutation results, including errors/races, are
 reconciled by GET without replaying the mutation. See the mobile README Phase 3 contract notes.
 
-Other operational features remain temporary. Tenant-local customer/vehicle operations remain
-planned under SRS milestone A. No recipient-side invitation flow is implemented here.
+Owner home also exposes business settings (Phase 6) and **Müşteriler ve araçlar** (Phase 7), each
+behind freshly validated server Owner context and private tenant navigation. Tenant-local customer
+creation/search/edit/details and associated vehicle creation/search/edit/archive are implemented.
+Personal Customer vehicles are a separate context/API. Other operational features remain planned;
+recipient invitation redemption is implemented in the invitations feature, not this Owner module.
