@@ -11,14 +11,15 @@ public sealed class SchedulingFault(int status, string code, string message) : E
 public sealed record SchedulingActor(Guid UserId, Guid SessionId);
 public sealed record WorkAreaInput(string? Name, int Capacity, uint? Version);
 public sealed record AvailabilityInput(DateTimeOffset StartsAtUtc, DateTimeOffset EndsAtUtc, uint? Version);
-public sealed record RequirementInput(Guid WorkAreaId, bool SingleStageConfirmed, uint? Version);
+public sealed record RequirementInput(Guid WorkAreaId, [property: JsonRequired] bool SingleStageConfirmed, uint? Version);
+public sealed record AvailabilityRangeInput(DateTimeOffset FromUtc, DateTimeOffset ToUtcExclusive, int Page = 1, int PageSize = 20);
 public sealed record VersionInput(uint Version);
 public sealed record BookingInput(Guid ClientRequestId, Guid LocalCustomerId, Guid LocalVehicleId, Guid ServiceId,
     uint ExpectedServiceVersion, uint ExpectedVehicleVersion, string? StartLocal, int? UtcOffsetMinutes,
     IReadOnlyList<Guid>? EmployeeMembershipIds, string Source = "OwnerPhone");
 public sealed record RescheduleInput(uint Version, string? StartLocal, int? UtcOffsetMinutes, IReadOnlyList<Guid>? EmployeeMembershipIds);
 // Persistence operations are deliberately not defined by a string/object dispatcher.
-// Phase 9B will introduce a typed transactional boundary; no store implementation exists in 9A.
+// ISchedulingService is the typed transactional boundary introduced in Phase 9B.
 public sealed record SchedulingResult<T>(T Value, bool Created = false);
 public sealed record AvailabilityCheckInput(Guid ServiceId, string Category, string? StartLocal,
     int? UtcOffsetMinutes, IReadOnlyList<Guid>? EmployeeMembershipIds);

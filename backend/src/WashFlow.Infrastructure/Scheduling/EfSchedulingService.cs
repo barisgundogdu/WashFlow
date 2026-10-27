@@ -141,6 +141,37 @@ public sealed class EfSchedulingService(WashFlowDbContext db, TimeProvider clock
         }
         await db.SaveChangesAsync(ct); return View(row);
     }, ct);
+    public Task<RequirementView> DisableRequirement(SchedulingActor actor, Guid business, Guid service, string category, VersionInput input, CancellationToken ct = default) => Execute(actor, business, async _ =>
+    {
+        Validate(SchedulingValidation.Versioned(input));
+        if (!WashFlow.Application.Customers.CustomerVehicleValidation.Categories.Contains(category))
+            Fail("invalidCategory", "Geçerli araç türü seçin.", 400);
+        var row = Found(await db.ServiceSchedulingRequirements.SingleOrDefaultAsync(x => x.BusinessId == business && x.ServiceId == service && x.Category == category, ct));
+        Expected(row, input.Version);
+        if (row.SingleStageConfirmed && await db.Appointments.AnyAsync(x => x.BusinessId == business && x.ServiceId == service && x.Category == category && x.Status == AppointmentStatus.Confirmed && x.ActiveEndsAtUtc > clock.GetUtcNow(), ct))
+            Fail("requirementInUse", "Planlanmış randevular varken kaynak gereksinimi devre dışı bırakılamaz.");
+        // Withdraw the existing single-stage confirmation; keep the row and its stable references.
+        // Unlike SaveRequirement, disabling must also work after catalog/area archival/removal.
+        row.Update(row.WorkAreaId, false, clock.GetUtcNow());
+        db.Entry(row).Property(x => x.UpdatedAt).IsModified = true;
+        await db.SaveChangesAsync(ct); return View(row);
+    }, ct);
+    public Task<IReadOnlyList<RequirementView>> ServiceRequirements(SchedulingActor actor, Guid business, Guid service, string? category, CancellationToken ct = default) => Execute<IReadOnlyList<RequirementView>>(actor, business, async _ =>
+    {
+        Found(await db.BusinessServices.AsNoTracking().SingleOrDefaultAsync(x => x.BusinessId == business && x.Id == service, ct));
+        if (category != null && !WashFlow.Application.Customers.CustomerVehicleValidation.Categories.Contains(category))
+            Fail("invalidCategory", "Geçerli araç türü seçin.", 400);
+        return (await db.ServiceSchedulingRequirements.Where(x => x.BusinessId == business && x.ServiceId == service && (category == null || x.Category == category))
+            .OrderBy(x => x.Category).ToListAsync(ct)).Select(View).ToArray();
+    }, ct);
+    public Task<IReadOnlyList<AvailabilityView>> DatedAvailability(SchedulingActor actor, Guid business, Guid employee, AvailabilityRangeInput input, CancellationToken ct = default) => Execute<IReadOnlyList<AvailabilityView>>(actor, business, async _ =>
+    {
+        Validate(SchedulingValidation.AvailabilityRange(input));
+        Found(await db.BusinessMemberships.AsNoTracking().SingleOrDefaultAsync(x => x.BusinessId == business && x.Id == employee, ct));
+        var start = input.FromUtc.ToUniversalTime(); var end = input.ToUtcExclusive.ToUniversalTime();
+        return (await db.EmployeeAvailabilities.Where(x => x.BusinessId == business && x.MembershipId == employee && x.StartsAtUtc < end && x.EndsAtUtc > start)
+            .OrderBy(x => x.StartsAtUtc).ThenBy(x => x.Id).Skip((input.Page - 1) * input.PageSize).Take(input.PageSize).ToListAsync(ct)).Select(View).ToArray();
+    }, ct);
     private async Task PreserveCoverage(Guid business, Guid employee, Guid changed, Occupancy? replacement, CancellationToken ct)
     {
         var remaining = await db.EmployeeAvailabilities.AsNoTracking().Where(x => x.BusinessId == business && x.MembershipId == employee && x.Id != changed && x.ArchivedAt == null).ToListAsync(ct);

@@ -79,6 +79,15 @@ public static class SchedulingValidation
         LocalTime(errors, input.StartLocal, input.UtcOffsetMinutes); EmployeeIds(errors, input.EmployeeMembershipIds);
         return errors;
     }
+    public static Dictionary<string, string[]> AvailabilityRange(AvailabilityRangeInput input)
+    {
+        var errors = new Dictionary<string, string[]>();
+        if (input.ToUtcExclusive <= input.FromUtc || input.ToUtcExclusive - input.FromUtc > TimeSpan.FromDays(31))
+            errors["dateRange"] = ["Uygunluk sorgusu pozitif ve en fazla 31 gün olmalıdır."];
+        if (input.Page is < 1 or > 10000 || input.PageSize is < 1 or > 50)
+            errors["page"] = ["Geçerli sayfa bilgileri girin."];
+        return errors;
+    }
     public static Dictionary<string, string[]> Calendar(CalendarInput input)
     {
         var errors = new Dictionary<string, string[]>();

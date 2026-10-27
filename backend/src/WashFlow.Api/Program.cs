@@ -1,3 +1,5 @@
+using WashFlow.Api.Features.Scheduling;
+using Microsoft.OpenApi;
 using WashFlow.Api.Features.Catalog;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +33,29 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = ApiProblemDetails.Customize);
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 
+builder.Services.AddOpenApi("v1", options =>
+{
+    // No OpenAPI setup existed before Phase 9C; publish the new scheduling surface explicitly.
+    options.ShouldInclude = description => description.GroupName == "scheduling";
+    options.AddDocumentTransformer((document, _, _) =>
+    {
+        document.Info.Title = "WashFlow Owner Scheduling API";
+        document.Info.Version = "v1";
+        document.Components ??= new();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+        document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme { Type = SecuritySchemeType.Http, Scheme = "bearer", BearerFormat = "JWT", Description = "Geçerli oturum ve işletmede güncel Owner yetkisi gereklidir." };
+        foreach (var path in document.Paths.Values)
+            if (path.Operations != null)
+                foreach (var operation in path.Operations.Values)
+                {
+                    operation.Security = [new OpenApiSecurityRequirement { [new OpenApiSecuritySchemeReference("Bearer", document)] = [] }];
+                    // Nullable handler bodies allow our Turkish null-body validation, not optional requests.
+                    if (operation.RequestBody is OpenApiRequestBody body) body.Required = true;
+                }
+        return Task.CompletedTask;
+    });
+});
+
 var app = builder.Build();
 app.MapCatalogEndpoints();
 // Keep safe problem responses in Development too; never enable the developer exception page.
@@ -40,6 +65,8 @@ app.UseRouting();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapSchedulingEndpoints();
+app.MapOpenApi().RequireAuthorization();
 app.MapAuthEndpoints();
 app.MapInvitationEndpoints();
 WashFlow.Api.Features.Customers.CustomerVehicleEndpoints.MapCustomerVehicleEndpoints(app);
