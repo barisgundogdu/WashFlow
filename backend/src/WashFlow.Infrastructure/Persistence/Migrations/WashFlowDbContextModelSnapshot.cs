@@ -271,6 +271,110 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("WashFlow.Domain.Catalog.BusinessService", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("Published")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SearchName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId", "SearchName", "Id");
+
+                    b.ToTable("BusinessServices", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_BusinessServices_Archive", "\"ArchivedAt\" IS NULL OR (\"ArchivedAt\" >= \"CreatedAt\" AND NOT \"Enabled\" AND NOT \"Published\")");
+
+                            t.HasCheckConstraint("CK_BusinessServices_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_BusinessServices_Name", "length(btrim(\"Name\")) > 0");
+
+                            t.HasCheckConstraint("CK_BusinessServices_Publication", "NOT \"Published\" OR \"Enabled\"");
+
+                            t.HasCheckConstraint("CK_BusinessServices_SearchName", "length(btrim(\"SearchName\")) > 0");
+
+                            t.HasCheckConstraint("CK_BusinessServices_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Catalog.ServiceOffering", b =>
+                {
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int>("ActiveMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<int>("Employees")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)");
+
+                    b.Property<int?>("WaitingMinutes")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ServiceId", "Category");
+
+                    b.ToTable("ServiceOfferings", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ServiceOfferings_Category", "\"Category\" IN ('Car','Suv','Van','Pickup','Motorcycle','Other')");
+
+                            t.HasCheckConstraint("CK_ServiceOfferings_Currency", "\"Currency\" = 'TRY'");
+
+                            t.HasCheckConstraint("CK_ServiceOfferings_Estimates", "\"ActiveMinutes\" BETWEEN 1 AND 10080 AND (\"WaitingMinutes\" IS NULL OR \"WaitingMinutes\" BETWEEN 0 AND 43200) AND \"Employees\" BETWEEN 1 AND 100");
+
+                            t.HasCheckConstraint("CK_ServiceOfferings_Price", "\"Price\" BETWEEN 0 AND 9999999.99 AND scale(\"Price\") <= 2");
+                        });
+                });
+
             modelBuilder.Entity("WashFlow.Domain.Customers.CustomerProfile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -917,6 +1021,24 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                     b.HasOne("WashFlow.Domain.Businesses.Business", null)
                         .WithMany()
                         .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Catalog.BusinessService", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Catalog.ServiceOffering", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Catalog.BusinessService", null)
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

@@ -310,3 +310,13 @@ Owner tenant-local records and Customer-owned vehicles, scoped search/pagination
 and vehicle archival. No automatic linking, scheduling, work-order execution or cross-business
 sharing is implemented. This note records implementation status without changing the requirements.
 See [Phase 7 evidence](../features/customer-vehicle-management-phase7.md) for exact tests and limits.
+
+
+### Implementation evidence — Phase 8 (27 October 2026)
+
+Issue #5 / FR-06: tenant-scoped Owner service catalog, exact vehicle-category TRY pricing, active/waiting
+and staff estimates, publication and archival are implemented. A known-business authenticated published
+catalog provides part of FR-22; full discovery, booking, work areas, sequential stages and historical
+work-order price snapshots remain future work. Pilot values in §6.4 are preserved as historical
+elicitation evidence; newer Phase 8 examples are optional inputs, never global seeded defaults.
+See [Phase 8 evidence](../features/service-catalog-phase8.md) for contracts, safety and measured results.

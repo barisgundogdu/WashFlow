@@ -9,6 +9,8 @@ namespace WashFlow.Infrastructure.Persistence;
 public sealed class WashFlowDbContext(DbContextOptions<WashFlowDbContext> options)
     : DbContext(options)
 {
+    public DbSet<WashFlow.Domain.Catalog.BusinessService> BusinessServices => Set<WashFlow.Domain.Catalog.BusinessService>();
+    public DbSet<WashFlow.Domain.Catalog.ServiceOffering> ServiceOfferings => Set<WashFlow.Domain.Catalog.ServiceOffering>();
     public DbSet<WeeklyOpeningDay> WeeklyOpeningDays => Set<WeeklyOpeningDay>();
     public DbSet<LocalCustomer> LocalCustomers => Set<LocalCustomer>();
     public DbSet<LocalVehicle> LocalVehicles => Set<LocalVehicle>();

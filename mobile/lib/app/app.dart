@@ -1,3 +1,4 @@
+import '../features/service_catalog/domain/service_catalog.dart';
 import '../features/customer_vehicles/domain/customer_vehicles.dart';
 
 import 'package:flutter/material.dart';
@@ -21,10 +22,12 @@ class WashFlowApp extends StatelessWidget {
     this.invitationService,
     this.settingsService,
     this.customerVehicleService,
+    this.catalogService,
     this.redemptionService,
     this.authService = const UnavailableAuthService(),
   });
 
+  final CatalogService? catalogService;
   final AuthService authService;
   final ContextService? contextService;
   final OwnerInvitationService? invitationService;
@@ -44,6 +47,7 @@ class WashFlowApp extends StatelessWidget {
         invitationService,
         settingsService,
         customerVehicleService,
+        catalogService,
         redemptionService,
       )),
       title: 'WashFlow',
@@ -112,6 +116,7 @@ class WashFlowApp extends StatelessWidget {
         invitationService: invitationService,
         settingsService: settingsService,
         customerVehicleService: customerVehicleService,
+        catalogService: catalogService,
         sessionService: authService is SessionService
             ? authService as SessionService
             : null,

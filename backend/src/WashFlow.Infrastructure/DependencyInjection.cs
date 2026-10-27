@@ -18,6 +18,7 @@ public static class DependencyInjection
                 "ConnectionStrings__WashFlow yapılandırması gereklidir.");
         }
 
+        services.AddScoped<WashFlow.Application.Catalog.ICatalogStore, Catalog.EfCatalogStore>();
         services.AddScoped<WashFlow.Application.Businesses.IBusinessSettingsStore, Businesses.EfBusinessSettingsStore>();
         services.AddScoped<WashFlow.Application.Customers.ICustomerVehicleStore, Customers.EfCustomerVehicleStore>();
         services.AddDbContext<WashFlowDbContext>(options =>

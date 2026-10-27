@@ -7,8 +7,9 @@ class OwnerHomeScreen extends StatelessWidget {
     this.onInvitations,
     this.onSettings,
     this.onCustomers,
+    this.onCatalog,
   });
-  final VoidCallback? onInvitations, onSettings, onCustomers;
+  final VoidCallback? onInvitations, onSettings, onCustomers, onCatalog;
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -17,6 +18,11 @@ class OwnerHomeScreen extends StatelessWidget {
       const Text(
         'Geçici ekran. Diğer işletme yönetimi işlemleri henüz kullanıma açık değil.',
       ),
+      if (onCatalog != null)
+        FilledButton(
+          onPressed: onCatalog,
+          child: const Text('Hizmetler ve Fiyatlar'),
+        ),
       if (onCustomers != null)
         FilledButton(
           onPressed: onCustomers,

@@ -1,3 +1,4 @@
+using WashFlow.Api.Features.Catalog;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -31,6 +32,7 @@ builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = 
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 
 var app = builder.Build();
+app.MapCatalogEndpoints();
 // Keep safe problem responses in Development too; never enable the developer exception page.
 app.UseExceptionHandler();
 app.UseStatusCodePages();

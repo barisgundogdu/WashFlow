@@ -1,3 +1,5 @@
+import '../../service_catalog/domain/service_catalog.dart';
+import '../../service_catalog/presentation/catalog_screen.dart';
 import '../../customer_vehicles/presentation/customer_directory_screen.dart';
 import '../../customer_vehicles/domain/customer_vehicles.dart';
 
@@ -28,12 +30,14 @@ class SessionScreen extends StatefulWidget {
     this.invitationService,
     this.settingsService,
     this.customerVehicleService,
+    this.catalogService,
     this.redemptionEnabled = false,
   });
   final SessionService? service;
   final ContextService? contextService;
   final OwnerInvitationService? invitationService;
   final BusinessSettingsService? settingsService;
+  final CatalogService? catalogService;
   final CustomerVehicleService? customerVehicleService;
   final bool redemptionEnabled;
   @override
@@ -83,6 +87,7 @@ class _SessionScreenState extends State<SessionScreen>
         !identical(oldWidget.contextService, widget.contextService) ||
         !identical(oldWidget.invitationService, widget.invitationService) ||
         !identical(oldWidget.settingsService, widget.settingsService) ||
+        !identical(oldWidget.catalogService, widget.catalogService) ||
         !identical(
           oldWidget.customerVehicleService,
           widget.customerVehicleService,
@@ -158,6 +163,9 @@ class _SessionScreenState extends State<SessionScreen>
                       : () => _openDirectory(false),
                 ),
                 ExperienceRole.owner => OwnerHomeScreen(
+                  onCatalog: widget.catalogService == null
+                      ? null
+                      : () => _openOwner('/service-catalog'),
                   onCustomers: widget.customerVehicleService == null
                       ? null
                       : () => _openDirectory(true),
@@ -254,9 +262,12 @@ class _SessionScreenState extends State<SessionScreen>
     final controller = _controller;
     final selected = controller.selected;
     if (selected?.role != ExperienceRole.owner ||
-        (route == '/employee-invitations'
-            ? widget.invitationService == null
-            : widget.settingsService == null)) {
+        (switch (route) {
+          '/employee-invitations' => widget.invitationService == null,
+          '/business-settings' => widget.settingsService == null,
+          '/service-catalog' => widget.catalogService == null,
+          _ => true,
+        })) {
       return;
     }
     final revalidation = controller.refresh(requestedId: selected!.id);
@@ -337,6 +348,23 @@ class _SessionScreenState extends State<SessionScreen>
                       isCurrent: () => currentScope(
                         owner ? ExperienceRole.owner : ExperienceRole.customer,
                       ),
+                      onAuthorizationFailure: (error) =>
+                          controller.handleAuthorizationFailure(
+                            error,
+                            generation: generation,
+                          ),
+                      onSwitch: controller.switchContext,
+                      onLogout: controller.logout,
+                    );
+                  }
+                  if (settings.name == '/service-catalog' &&
+                      currentOwner() &&
+                      widget.catalogService != null) {
+                    return CatalogScreen(
+                      service: widget.catalogService!,
+                      business: selected.business!.businessId,
+                      businessName: selected.business!.businessName,
+                      isCurrent: currentOwner,
                       onAuthorizationFailure: (error) =>
                           controller.handleAuthorizationFailure(
                             error,

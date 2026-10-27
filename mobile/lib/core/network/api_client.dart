@@ -87,7 +87,7 @@ class ApiClient {
       }
       if (query != null &&
           query.keys.any(
-            (key) => !const {'q', 'page', 'pageSize'}.contains(key),
+            (key) => !const {'q', 'page', 'pageSize', 'status'}.contains(key),
           )) {
         throw const ApiException(ApiErrorCode.unexpected);
       }

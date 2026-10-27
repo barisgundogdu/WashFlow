@@ -505,3 +505,11 @@ replacement/version semantics, unconfigured defaults, timezone policy, test evid
 Tenant-local Owner customer/vehicle management and Customer **Araçlarım** are implemented as separate
 ownership models. See the [Phase 7 contract, migration and validation report](../docs/features/customer-vehicle-management-phase7.md)
 for endpoints, plate policy, authorization, migration safety, exact test evidence and limitations.
+
+
+## Phase 8 — Service catalog and category pricing
+
+Owner service management now includes exact TRY category prices, active/waiting/staff estimates,
+enabled/publication controls, versioned edits and safe archival. Authenticated published reads are
+scoped to a known business; discovery and scheduling remain future work. See the
+[Phase 8 contract, migration safety and validation report](../docs/features/service-catalog-phase8.md).
