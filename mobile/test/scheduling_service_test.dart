@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -19,7 +20,69 @@ class Tokens implements AccessTokenProvider {
       const AuthSuccess('fixture');
 }
 
+class IdentityTokens extends FakeSession implements AccessTokenProvider {
+  Future<AuthResult<String>> Function()? handler;
+  @override
+  Future<AuthResult<String>> accessToken() async =>
+      handler == null ? const AuthSuccess('fixture') : handler!();
+}
+
 void main() {
+  test(
+    'identity change during token retrieval prevents sending request',
+    () async {
+      final session = IdentityTokens();
+      addTearDown(session.dispose);
+      final pending = Completer<AuthResult<String>>();
+      session.handler = () => pending.future;
+      var calls = 0;
+      final service = ApiSchedulingService(
+        session: session,
+        apiClient: ApiClient(
+          baseUrl: Uri.parse('https://example.test'),
+          client: MockClient((_) async {
+            calls++;
+            return http.Response('[]', 200);
+          }),
+        ),
+      );
+      final result = service.areas(businessA);
+      session.changeIdentity();
+      pending.complete(const AuthSuccess('old-fixture'));
+      expect(await result, isA<AuthFailure<List<WorkArea>>>());
+      expect(calls, 0);
+    },
+  );
+  test(
+    'identity change while HTTP is pending discards old account response',
+    () async {
+      final session = IdentityTokens();
+      addTearDown(session.dispose);
+      final sent = Completer<void>(), response = Completer<http.Response>();
+      final service = ApiSchedulingService(
+        session: session,
+        apiClient: ApiClient(
+          baseUrl: Uri.parse('https://example.test'),
+          client: MockClient((_) {
+            sent.complete();
+            return response.future;
+          }),
+        ),
+      );
+      final result = service.areas(businessA);
+      await sent.future;
+      session.changeIdentity();
+      response.complete(
+        http.Response(
+          jsonEncode([areaJson()]),
+          200,
+          headers: {'content-type': 'application/json; charset=utf-8'},
+        ),
+      );
+      final error = ((await result) as AuthFailure<List<WorkArea>>).error;
+      expect(error.code, AuthErrorCode.unauthenticated);
+    },
+  );
   final base = '/api/v1/businesses/$businessA';
   late List<http.Request> requests;
   late ApiSchedulingService s;
@@ -34,7 +97,11 @@ void main() {
         baseUrl: Uri.parse('https://example.test'),
         client: MockClient((r) async {
           requests.add(r);
-          return http.Response(jsonEncode(response), status);
+          return http.Response(
+            jsonEncode(response),
+            status,
+            headers: {'content-type': 'application/json; charset=utf-8'},
+          );
         }),
       ),
       session: Tokens(),
@@ -92,9 +159,16 @@ void main() {
     'detail reschedule cancellation echo opaque version and exact routes',
     () async {
       final a = Appointment.fromJson(appointmentJson(version: 4294967295));
-      await s.detail(businessA, appointmentId);
-      await s.reschedule(businessA, a, bookingPayload().schedule);
-      await s.cancel(businessA, a);
+      expect(
+        await s.detail(businessA, appointmentId),
+        isA<AuthSuccess<Appointment>>(),
+      );
+      expect(
+        await s.reschedule(businessA, a, bookingPayload().schedule),
+        isA<AuthSuccess<Appointment>>(),
+      );
+      expect(await s.cancel(businessA, a), isA<AuthSuccess<Appointment>>());
+      expect(requests.map((r) => r.method), ['GET', 'POST', 'POST']);
       expect(requests.map((r) => r.url.path), [
         '$base/appointments/$appointmentId',
         '$base/appointments/$appointmentId/reschedule',
@@ -132,15 +206,24 @@ void main() {
   test('area create/update/archive and validation', () async {
     response = areaJson();
     status = 201;
-    await s.saveArea(businessA, const WorkAreaInput('Alan', 3));
+    expect(
+      await s.saveArea(businessA, const WorkAreaInput('Alan', 3)),
+      isA<AuthSuccess<WorkArea>>(),
+    );
     status = 200;
-    await s.saveArea(
-      businessA,
-      const WorkAreaInput('Alan', 4, version: 7),
-      id: areaId,
+    expect(
+      await s.saveArea(
+        businessA,
+        const WorkAreaInput('Alan', 4, version: 7),
+        id: areaId,
+      ),
+      isA<AuthSuccess<WorkArea>>(),
     );
     status = 204;
-    await s.archiveArea(businessA, WorkArea.fromJson(areaJson()));
+    expect(
+      await s.archiveArea(businessA, WorkArea.fromJson(areaJson())),
+      isA<AuthSuccess<void>>(),
+    );
     expect(requests.map((r) => r.method), ['POST', 'PUT', 'POST']);
     expect(requests.last.url.path, '$base/work-areas/$areaId/archive');
     expect(jsonDecode(requests[1].body), {
@@ -156,17 +239,26 @@ void main() {
   });
   test('requirements preserve confirmation/version and actual disable action', () async {
     response = [requirementJson()];
-    await s.requirements(businessA, catalog.serviceId);
-    response = requirementJson();
-    await s.saveRequirement(
-      businessA,
-      catalog.serviceId,
-      'Car',
-      const RequirementInput(areaId, true, version: 8),
+    expect(
+      await s.requirements(businessA, catalog.serviceId),
+      isA<AuthSuccess<List<SchedulingRequirement>>>(),
     );
-    await s.disableRequirement(
-      businessA,
-      SchedulingRequirement.fromJson(requirementJson()),
+    response = requirementJson();
+    expect(
+      await s.saveRequirement(
+        businessA,
+        catalog.serviceId,
+        'Car',
+        const RequirementInput(areaId, true, version: 8),
+      ),
+      isA<AuthSuccess<SchedulingRequirement>>(),
+    );
+    expect(
+      await s.disableRequirement(
+        businessA,
+        SchedulingRequirement.fromJson(requirementJson()),
+      ),
+      isA<AuthSuccess<SchedulingRequirement>>(),
     );
     expect(
       requests[1].url.path,
@@ -181,11 +273,14 @@ void main() {
   });
   test('availability list/create/update/archive serialize UTC instants and versions', () async {
     response = [availabilityJson()];
-    await s.availability(
-      businessA,
-      employeeId,
-      DateTime.utc(2030, 1, 2),
-      DateTime.utc(2030, 1, 9),
+    expect(
+      await s.availability(
+        businessA,
+        employeeId,
+        DateTime.utc(2030, 1, 2),
+        DateTime.utc(2030, 1, 9),
+      ),
+      isA<AuthSuccess<List<EmployeeAvailability>>>(),
     );
     expect(
       requests.single.url.queryParameters['fromUtc'],
@@ -198,13 +293,27 @@ void main() {
     );
     response = availabilityJson();
     status = 201;
-    await s.saveAvailability(businessA, employeeId, input);
+    expect(
+      await s.saveAvailability(businessA, employeeId, input),
+      isA<AuthSuccess<EmployeeAvailability>>(),
+    );
     status = 200;
-    await s.saveAvailability(businessA, employeeId, input, id: availabilityId);
+    expect(
+      await s.saveAvailability(
+        businessA,
+        employeeId,
+        input,
+        id: availabilityId,
+      ),
+      isA<AuthSuccess<EmployeeAvailability>>(),
+    );
     status = 204;
-    await s.archiveAvailability(
-      businessA,
-      EmployeeAvailability.fromJson(availabilityJson()),
+    expect(
+      await s.archiveAvailability(
+        businessA,
+        EmployeeAvailability.fromJson(availabilityJson()),
+      ),
+      isA<AuthSuccess<void>>(),
     );
     expect(
       jsonDecode(requests[1].body)['startsAtUtc'],

@@ -327,7 +327,11 @@ class AvailabilityInput {
   String? validate() =>
       !endsAtUtc.isAfter(startsAtUtc) ||
           startsAtUtc.second != 0 ||
-          endsAtUtc.second != 0
+          endsAtUtc.second != 0 ||
+          startsAtUtc.millisecond != 0 ||
+          startsAtUtc.microsecond != 0 ||
+          endsAtUtc.millisecond != 0 ||
+          endsAtUtc.microsecond != 0
       ? 'Bitiş başlangıçtan sonra, saatler dakika hassasiyetinde olmalıdır.'
       : null;
   Map<String, dynamic> toJson() => {
@@ -376,8 +380,39 @@ class BookingPayload {
   };
 }
 
+/// Local recovery storage; production scopes it to an authorized owner membership.
+abstract interface class BookingAttemptStore {
+  Future<String?> read();
+  Future<void> write(String value);
+  Future<void> clear();
+}
+
 /// One logical create attempt. Immutable payload is reused byte-for-byte across retries.
 class BookingAttempt {
+  factory BookingAttempt.fromJson(Map<String, dynamic> j) {
+    if (j['source'] != 'OwnerPhone' ||
+        j['utcOffsetMinutes'] is! int ||
+        j['employeeMembershipIds'] is! List ||
+        !RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$')
+            .hasMatch(_s(j, 'startLocal'))) {
+      throw const FormatException();
+    }
+    return BookingAttempt(
+      BookingPayload(
+        customerId: invitationId(j['localCustomerId']),
+        vehicleId: invitationId(j['localVehicleId']),
+        serviceId: invitationId(j['serviceId']),
+        serviceVersion: _n(j, 'expectedServiceVersion'),
+        vehicleVersion: _n(j, 'expectedVehicleVersion'),
+        schedule: ScheduleInput(
+          startLocal: j['startLocal'] as String,
+          utcOffsetMinutes: j['utcOffsetMinutes'] as int,
+          employees: (j['employeeMembershipIds'] as List).map(invitationId),
+        ),
+      ),
+      requestId: invitationId(j['clientRequestId']),
+    );
+  }
   BookingAttempt(this.payload, {String? requestId})
     : clientRequestId = requestId ?? _uuid();
   final BookingPayload payload;
@@ -404,6 +439,9 @@ class SchedulingError extends AuthError {
 }
 
 String schedulingError(AuthError e) {
+  if (e.code == AuthErrorCode.storage) {
+    return 'Randevu işlem kaydı güvenle saklanamadı veya okunamadı. Aynı isteği tekrar deneyin; sorun sürerse uygulamayı kapatmadan takvimi kontrol edin.';
+  }
   final reason = e is SchedulingError ? e.reason : null;
   return switch (reason) {
     'resourceConflict' => 'Alan kapasitesi veya çalışan uygunluğu değişti. Saat ve çalışan seçimini kontrol edin.',

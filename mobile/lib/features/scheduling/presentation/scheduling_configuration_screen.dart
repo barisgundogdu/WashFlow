@@ -33,7 +33,7 @@ class _SchedulingConfigurationScreenState
   List<SchedulingEmployee> employees = [];
   List<SchedulingRequirement> requirements = [];
   List<EmployeeAvailability> windows = [];
-  bool loaded = false;
+  bool loaded = false, windowsLoaded = false;
   String? serviceId, employeeId;
   int page = 1;
   late DateTime day;
@@ -41,7 +41,9 @@ class _SchedulingConfigurationScreenState
   void initState() {
     super.initState();
     day = c.date ?? DateTime.utc(2000);
-    unawaited(_load());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && c.active) unawaited(_load());
+    });
   }
 
   Future<void> _load() async {
@@ -61,6 +63,10 @@ class _SchedulingConfigurationScreenState
         );
         if (!mounted || !c.active || s == null) return;
         services = s;
+        if (!services.any((v) => v.id == serviceId)) {
+          serviceId = null;
+          requirements = [];
+        }
         if (serviceId != null) {
           final r = await c.request(
             () => c.service.requirements(c.business, serviceId!),
@@ -82,6 +88,11 @@ class _SchedulingConfigurationScreenState
   }
 
   Future<bool> _loadWindows() async {
+    if (!mounted || !c.active || c.busy || employeeId == null) return false;
+    setState(() {
+      windows = [];
+      windowsLoaded = false;
+    });
     try {
       final from = c.clock!.resolve(day),
           to = c.clock!.resolve(day.add(const Duration(days: 7)));
@@ -95,7 +106,10 @@ class _SchedulingConfigurationScreenState
         ),
       );
       if (!mounted || !c.active || values == null) return false;
-      setState(() => windows = values);
+      setState(() {
+        windows = values;
+        windowsLoaded = true;
+      });
       return true;
     } catch (_) {
       c.show(
@@ -125,7 +139,7 @@ class _SchedulingConfigurationScreenState
     await _load();
     if (!ok && c.active) {
       c.show(
-        '${error ?? 'Sonuç doğrulanamadı.'} Liste yenilendi; otomatik tekrar yapılmadı.',
+        '${error ?? 'Sonuç doğrulanamadı.'} Güncel listeyi kontrol edin; otomatik tekrar yapılmadı.',
       );
     }
   }
@@ -431,8 +445,13 @@ class _SchedulingConfigurationScreenState
                   onPressed: c.busy ? null : _availabilityEditor,
                   child: const Text('Uygunluk ekle'),
                 ),
-                if (windows.isEmpty)
+                if (windowsLoaded && windows.isEmpty)
                   const Text('Bu aralıkta uygunluk kaydı yok.'),
+                if (!windowsLoaded && !c.busy)
+                  OutlinedButton(
+                    onPressed: _loadWindows,
+                    child: const Text('Uygunluğu yeniden yükle'),
+                  ),
                 for (final w in windows)
                   Card(
                     child: Padding(
@@ -496,7 +515,11 @@ class _SchedulingConfigurationScreenState
                       child: const Text('Önceki'),
                     ),
                     TextButton(
-                      onPressed: c.busy || windows.length < 50
+                      onPressed:
+                          c.busy ||
+                              !windowsLoaded ||
+                              page >= 10000 ||
+                              windows.length < 50
                           ? null
                           : () {
                               page++;

@@ -382,6 +382,7 @@ class _SessionScreenState extends State<SessionScreen>
                       widget.customerVehicleService != null) {
                     return SchedulingScreen(
                       business: selected.business!.businessId,
+                      ownerMembershipId: selected.business!.membershipId,
                       service: widget.schedulingService!,
                       settings: widget.settingsService!,
                       catalog: widget.catalogService!,

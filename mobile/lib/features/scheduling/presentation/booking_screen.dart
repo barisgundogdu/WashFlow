@@ -60,7 +60,8 @@ class _BookingScreenState extends State<BookingScreen> {
       .firstOrNull;
   SchedulingRequirement? get requirement =>
       requirements.where((v) => v.category == vehicle?.category).firstOrNull;
-  bool get locked => c.busy || c.uncertainBooking || completed || stale;
+  bool get locked =>
+      c.busy || (!rescheduling && c.uncertainBooking) || completed || stale;
   @override
   void initState() {
     super.initState();
@@ -80,7 +81,9 @@ class _BookingScreenState extends State<BookingScreen> {
               : null)
         : c.clock!.local(a.startsAtUtc).timeZoneOffset.inMinutes;
     selectedEmployees = a?.employeeIds ?? {};
-    unawaited(_load());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && c.active) unawaited(_load());
+    });
   }
 
   Future<void> _load() async {
@@ -108,8 +111,41 @@ class _BookingScreenState extends State<BookingScreen> {
       final ws = await c.request(() => c.service.areas(c.business));
       if (!mounted || !c.active || ws == null) return;
       areas = ws;
+      if (!customers.any((v) => v.id == customerId)) {
+        customerId = null;
+        vehicleId = null;
+        vehicles = [];
+      }
+      if (!services.any((v) => v.id == serviceId)) {
+        serviceId = null;
+        requirements = [];
+      }
+      if (customerId != null) {
+        final rows = await c.request(
+          () => schedulingPages(
+            (p) => c.customers.vehicles(
+              business: c.business,
+              customer: customerId!,
+              page: p,
+            ),
+          ),
+        );
+        if (!mounted || !c.active || rows == null) return;
+        vehicles = rows;
+        if (!vehicles.any((v) => v.id == vehicleId)) vehicleId = null;
+      }
+      if (serviceId != null) {
+        final rows = await c.request(
+          () => c.service.requirements(c.business, serviceId!),
+        );
+        if (!mounted || !c.active || rows == null) return;
+        requirements = rows;
+      }
     }
-    setState(() => loaded = true);
+    setState(() {
+      loaded = true;
+      stale = false;
+    });
   }
 
   Future<void> _customer(String? value) async {
@@ -193,6 +229,29 @@ class _BookingScreenState extends State<BookingScreen> {
     if (mounted && c.active) setState(() => preview = result);
   }
 
+  Future<void> _retryPending() async {
+    final pending = c.attempt;
+    if (pending == null || !c.uncertainBooking) return;
+    if (!await schedulingConfirm(
+          context,
+          'Önceki kayıt isteğini doğrula',
+          '${pending.payload.schedule.startLocal} • UTC farkı ${pending.payload.schedule.utcOffsetMinutes} dakika\nÖnceki müşteri, araç, hizmet sürümleri ve çalışan seçimiyle aynı istek gönderilecek. Sunucuda oluşmuşsa özgün kayıt döner.',
+          action: 'Aynı isteği gönder',
+        ) ||
+        !mounted ||
+        !c.active) {
+      return;
+    }
+    final result = await c.book(pending.payload);
+    if (!mounted || !c.active || result == null) return;
+    setState(() => completed = true);
+    await Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(
+        builder: (_) => AppointmentDetailScreen(controller: c, id: result.id),
+      ),
+    );
+  }
+
   Future<void> _submit() async {
     final input = _input();
     if (input == null) return;
@@ -230,7 +289,15 @@ class _BookingScreenState extends State<BookingScreen> {
           schedule: input,
         ),
       );
-      if (!mounted || !c.active || result == null) return;
+      if (!mounted || !c.active) return;
+      if (result == null) {
+        final error = c.lastError;
+        if (error is SchedulingError &&
+            {'scheduleConflict', 'requirementChanged'}.contains(error.reason)) {
+          setState(() => stale = true);
+        }
+        return;
+      }
       setState(() => completed = true);
       // Replay intentionally returns the original snapshot. Always open current detail.
       await Navigator.of(context).pushReplacement(
@@ -245,18 +312,17 @@ class _BookingScreenState extends State<BookingScreen> {
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: c,
     builder: (context, _) => PopScope(
-      canPop: !c.busy && !c.uncertainBooking,
+      canPop: !c.busy && (rescheduling || !c.uncertainBooking),
       onPopInvokedWithResult: (didPop, _) async {
-        if (didPop || c.busy || !c.uncertainBooking) return;
+        if (didPop || c.busy || rescheduling || !c.uncertainBooking) return;
         if (await schedulingConfirm(
               context,
               'Kaydetme sonucu doğrulanmadı',
-              'Randevu sunucuda oluşmuş olabilir. Çıkarsanız yeni kayıt oluşturmadan önce takvimi kontrol edin.',
+              'Randevu sunucuda oluşmuş olabilir. İşlem anahtarı korunacak; takvimi kontrol ettikten sonra aynı isteği yeniden deneyebilirsiniz.',
               action: 'Takvime dön',
             ) &&
             context.mounted &&
             c.active) {
-          c.abandonAttempt();
           Navigator.pop(context);
         }
       },
@@ -264,10 +330,24 @@ class _BookingScreenState extends State<BookingScreen> {
         controller: c,
         title: rescheduling ? 'Yeniden planla' : 'Yeni randevu',
         children: [
-          if (!loaded)
+          if (!rescheduling && c.uncertainBooking)
+            FilledButton(
+              onPressed: c.busy ? null : _retryPending,
+              child: const Text('Aynı isteği tekrar dene'),
+            ),
+          if (!rescheduling || !loaded)
             OutlinedButton(
-              onPressed: c.busy ? null : _load,
+              onPressed:
+                  c.busy || (!rescheduling && c.uncertainBooking) || completed
+                  ? null
+                  : _load,
               child: const Text('Seçenekleri yeniden yükle'),
+            ),
+          if (stale)
+            Text(
+              rescheduling
+                  ? 'Ayrıntıya dönüp güncel kaydı yükleyin.'
+                  : 'Seçenekleri yeniden yükleyip güncel bilgileri onaylayın.',
             ),
           if (loaded) ...[
             if (!rescheduling) ...[
@@ -295,6 +375,10 @@ class _BookingScreenState extends State<BookingScreen> {
                         preview = null;
                       }),
               ),
+              if (services.isEmpty)
+                const Text(
+                  'Etkin hizmet bulunmuyor. Hizmetler ve Fiyatlar bölümünü kontrol edin.',
+                ),
               schedulingSelect<String>(
                 label: 'Etkin hizmet',
                 value: serviceId,
@@ -382,30 +466,28 @@ class _BookingScreenState extends State<BookingScreen> {
                 'Fiyat ve süre sunucudaki katalogdan alınır. Bekleme süresi etkin alan kapasitesini kullanmaz.',
               ),
             ],
-            FilledButton(
-              onPressed: c.busy || completed || stale ? null : _submit,
-              child: Text(
-                c.uncertainBooking
-                    ? 'Aynı isteği tekrar dene'
-                    : rescheduling
-                    ? 'Yeniden planlamayı onayla'
-                    : 'Randevuyu onayla',
+            if (rescheduling || !c.uncertainBooking)
+              FilledButton(
+                onPressed: c.busy || completed || stale ? null : _submit,
+                child: Text(
+                  rescheduling
+                      ? 'Yeniden planlamayı onayla'
+                      : 'Randevuyu onayla',
+                ),
               ),
-            ),
-            if (c.uncertainBooking)
+            if (!rescheduling && c.uncertainBooking)
               OutlinedButton(
                 onPressed: c.busy
                     ? null
                     : () async {
                         if (await schedulingConfirm(
                               context,
-                              'Yeni bir denemeye geçilsin mi?',
-                              'Önce takvimden önceki kaydın oluşup oluşmadığını doğrulayın. Aynı bilgilerle tekrar deneme mevcut anahtarı korur.',
+                              'Takvimden kontrol edilsin mi?',
+                              'İşlem anahtarı korunacak. Önce takvimden önceki kaydın oluşup oluşmadığını doğrulayın.',
                               action: 'Takvime dön',
                             ) &&
                             context.mounted &&
                             c.active) {
-                          c.abandonAttempt();
                           Navigator.pop(context);
                         }
                       },

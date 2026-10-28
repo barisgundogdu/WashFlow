@@ -7,6 +7,7 @@ import '../../business_settings/domain/business_settings.dart';
 import '../../customer_vehicles/domain/customer_vehicles.dart';
 import '../../service_catalog/domain/service_catalog.dart';
 import '../domain/scheduling.dart';
+import '../data/secure_booking_attempt_store.dart';
 import 'scheduling_controller.dart';
 import 'scheduling_widgets.dart';
 import 'booking_screen.dart';
@@ -17,6 +18,7 @@ class SchedulingScreen extends StatefulWidget {
   const SchedulingScreen({
     super.key,
     required this.business,
+    this.ownerMembershipId,
     required this.service,
     required this.settings,
     required this.catalog,
@@ -25,6 +27,7 @@ class SchedulingScreen extends StatefulWidget {
     required this.onAuthorizationFailure,
   });
   final String business;
+  final String? ownerMembershipId;
   final SchedulingService service;
   final BusinessSettingsService settings;
   final CatalogService catalog;
@@ -42,6 +45,12 @@ class _SchedulingScreenState extends State<SchedulingScreen> {
     super.initState();
     c = SchedulingController(
       service: widget.service,
+      attemptStore: widget.ownerMembershipId == null
+          ? null
+          : SecureBookingAttemptStore(
+              widget.business,
+              widget.ownerMembershipId!,
+            ),
       settings: widget.settings,
       catalog: widget.catalog,
       customers: widget.customers,
@@ -84,12 +93,37 @@ class _SchedulingScreenState extends State<SchedulingScreen> {
       controller: c,
       title: 'Planlama',
       children: [
+        if (c.recoveryBlocked || c.uncertainBooking)
+          OutlinedButton(
+            onPressed: c.busy
+                ? null
+                : () async {
+                    if (!await schedulingConfirm(
+                          context,
+                          'İşlem kaydı temizlensin mi?',
+                          'Önce takvimde önceki randevunun oluşup oluşmadığını kontrol edin. Kayıt temizlendikten sonra eski işlem anahtarı geri alınamaz.',
+                          action: 'Kontrol ettim, kaydı temizle',
+                        ) ||
+                        !context.mounted ||
+                        !c.active) {
+                      return;
+                    }
+                    if (await c.abandonAttempt() && mounted && c.active) {
+                      await c.loadCalendar();
+                    }
+                  },
+            child: const Text('Önceki işlem kaydını kontrol ettim'),
+          ),
+        if (c.uncertainBooking)
+          const Text(
+            'Sonucu doğrulanmamış bir kayıt isteği var. Yeni randevu ekranından aynı isteği tekrar deneyin veya takvimi kontrol edin.',
+          ),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
             FilledButton.icon(
-              onPressed: c.busy || c.clock == null
+              onPressed: c.busy || c.clock == null || c.recoveryBlocked
                   ? null
                   : () => _open(BookingScreen(controller: c)),
               icon: const Icon(Icons.add),
@@ -230,7 +264,8 @@ class _SchedulingScreenState extends State<SchedulingScreen> {
                 child: const Text('Önceki sayfa'),
               ),
               TextButton(
-                onPressed: c.busy || c.appointments.length < 50
+                onPressed:
+                    c.busy || c.page >= 10000 || c.appointments.length < 50
                     ? null
                     : () => c.loadCalendar(nextPage: c.page + 1),
                 child: const Text('Sonraki sayfa'),

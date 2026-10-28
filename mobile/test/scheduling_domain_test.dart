@@ -4,6 +4,29 @@ import 'package:washflow/features/scheduling/domain/scheduling.dart';
 import 'support/scheduling_fakes.dart';
 
 void main() {
+  test('pending request journal round trips exact UUID and payload', () {
+    final attempt = BookingAttempt(bookingPayload());
+    expect(
+      BookingAttempt.fromJson(attempt.toJson()).toJson(),
+      attempt.toJson(),
+    );
+    expect(
+      () => BookingAttempt.fromJson({
+        ...attempt.toJson(),
+        'expectedVehicleVersion': 0,
+      }),
+      throwsA(anything),
+    );
+  });
+  test('fractional availability precision is rejected before HTTP', () {
+    expect(
+      AvailabilityInput(
+        DateTime.utc(2030, 1, 2, 9, 0, 0, 1),
+        DateTime.utc(2030, 1, 2, 18),
+      ).validate(),
+      isNotNull,
+    );
+  });
   test(
     'Istanbul input and previous UTC calendar date never use device zone',
     () {

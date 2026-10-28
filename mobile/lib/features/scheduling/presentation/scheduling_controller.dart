@@ -11,6 +11,7 @@ import '../domain/scheduling.dart';
 class SchedulingController extends ChangeNotifier {
   SchedulingController({
     required this.service,
+    this.attemptStore,
     required this.settings,
     required this.catalog,
     required this.customers,
@@ -19,6 +20,9 @@ class SchedulingController extends ChangeNotifier {
     required this.onAuthorizationFailure,
   });
   final SchedulingService service;
+  final BookingAttemptStore? attemptStore;
+  bool _attemptRestored = false;
+  bool recoveryBlocked = false;
   final BusinessSettingsService settings;
   final CatalogService catalog;
   final CustomerVehicleService customers;
@@ -91,20 +95,50 @@ class SchedulingController extends ChangeNotifier {
 
   Future<void> loadCalendar({int nextPage = 1}) async {
     if (!active || busy) return;
+    if (nextPage < 1 || nextPage > 10000) {
+      show('Geçerli bir takvim sayfası seçin.');
+      return;
+    }
+    AuthError? recoveryError;
+    if (!_attemptRestored && attemptStore != null) {
+      final restored = await request(() async {
+        try {
+          final raw = await attemptStore!.read();
+          return AuthSuccess(
+            raw == null
+                ? null
+                : BookingAttempt.fromJson(
+                    jsonDecode(raw) as Map<String, dynamic>,
+                  ),
+          );
+        } catch (_) {
+          return AuthFailure<BookingAttempt?>(
+            AuthError(code: AuthErrorCode.storage),
+          );
+        }
+      });
+      if (!active) return;
+      recoveryError = lastError;
+      recoveryBlocked = recoveryError != null;
+      if (!recoveryBlocked) {
+        attempt = restored;
+        uncertainBooking = restored != null;
+        _attemptRestored = true;
+      }
+    }
     appointments = [];
     loaded = false;
-    if (clock == null) {
-      final value = await request(() => settings.read(business));
-      if (!active || value == null) return;
-      try {
-        clock = BusinessClock(value.fields['timeZoneId'] ?? '');
-        date = clock!.today;
-      } catch (_) {
-        show(
-          'İşletmenin geçerli IANA saat dilimi gerekli. İşletme ayarlarını kontrol edin.',
-        );
-        return;
-      }
+    final settingsValue = await request(() => settings.read(business));
+    if (!active || settingsValue == null) return;
+    try {
+      clock = BusinessClock(settingsValue.fields['timeZoneId'] ?? '');
+      date ??= clock!.today;
+    } catch (_) {
+      clock = null;
+      show(
+        'İşletmenin geçerli IANA saat dilimi gerekli. İşletme ayarlarını kontrol edin.',
+      );
+      return;
     }
     final start = date!;
     final value = await request(
@@ -123,11 +157,19 @@ class SchedulingController extends ChangeNotifier {
     appointments = value;
     page = nextPage;
     loaded = true;
+    if (recoveryError != null) {
+      lastError = recoveryError;
+      message = schedulingError(recoveryError);
+    }
     changed();
   }
 
   Future<Appointment?> book(BookingPayload payload) async {
     if (!active || busy) return null;
+    if (recoveryBlocked) {
+      show('Önce önceki randevu işlem kaydını doğrulayın.');
+      return null;
+    }
     final fingerprint = jsonEncode(payload.toJson());
     if (attempt?.fingerprint != fingerprint) {
       if (uncertainBooking) {
@@ -138,11 +180,37 @@ class SchedulingController extends ChangeNotifier {
       }
       attempt = BookingAttempt(payload);
     }
-    final result = await request(() => service.create(business, attempt!));
+    final result = await request(() async {
+      try {
+        await attemptStore?.write(jsonEncode(attempt!.toJson()));
+      } catch (_) {
+        return AuthFailure<Appointment>(AuthError(code: AuthErrorCode.storage));
+      }
+      if (!active) {
+        return AuthFailure<Appointment>(
+          AuthError(code: AuthErrorCode.unauthenticated),
+        );
+      }
+      final response = await service.create(business, attempt!);
+      if (!active) return response;
+      if (response is AuthSuccess<Appointment>) {
+        try {
+          await attemptStore?.clear();
+        } catch (_) {
+          return AuthFailure<Appointment>(
+            AuthError(code: AuthErrorCode.storage),
+          );
+        }
+      }
+      return response;
+    });
     if (!active) return null;
     if (result == null) {
       // Keep the exact attempt even for validation/conflict: never rotate on retry.
-      uncertainBooking = lastError == null || uncertainWrite(lastError!);
+      uncertainBooking =
+          lastError == null ||
+          uncertainWrite(lastError!) ||
+          lastError!.code == AuthErrorCode.storage;
       show(
         '${message ?? 'Randevu onaylanamadı.'} Aynı bilgilerle tekrar deneyebilirsiniz; işlem anahtarı korunur.',
       );
@@ -153,10 +221,23 @@ class SchedulingController extends ChangeNotifier {
     return result;
   }
 
-  void abandonAttempt() {
+  Future<bool> abandonAttempt() async {
+    if (!active || busy) return false;
+    final cleared = await request(() async {
+      try {
+        await attemptStore?.clear();
+        return const AuthSuccess(true);
+      } catch (_) {
+        return AuthFailure<bool>(AuthError(code: AuthErrorCode.storage));
+      }
+    });
+    if (!active || cleared != true) return false;
     attempt = null;
     uncertainBooking = false;
+    recoveryBlocked = false;
+    _attemptRestored = true;
     changed();
+    return true;
   }
 
   @override

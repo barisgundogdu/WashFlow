@@ -29,7 +29,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   @override
   void initState() {
     super.initState();
-    unawaited(_load());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && c.active) unawaited(_load());
+    });
   }
 
   Future<void> _load() async {
@@ -70,8 +72,10 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     if (mounted && c.active) {
       c.show(
         value != null
-            ? 'Randevu iptal edildi.'
-            : '${failure ?? 'İptal sonucu doğrulanamadı.'} Güncel kayıt yüklendi; otomatik tekrar yapılmadı.',
+            ? a != null
+                  ? 'Randevu iptal edildi.'
+                  : 'Randevu iptal edildi. Güncel ayrıntı yüklenemedi; yeniden deneyin.'
+            : '${failure ?? 'İptal sonucu doğrulanamadı.'} ${a != null ? 'Güncel kayıt yüklendi' : 'Güncel kayıt yüklenemedi; yeniden yükleyin'}; otomatik tekrar yapılmadı.',
       );
     }
   }

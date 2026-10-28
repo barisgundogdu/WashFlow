@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:washflow/features/auth/domain/auth_service.dart';
@@ -15,8 +16,10 @@ SchedulingController controller(
   FakeScheduling s, {
   bool Function()? current,
   Future<void> Function(AuthError)? failure,
+  BookingAttemptStore? store,
 }) => SchedulingController(
   service: s,
+  attemptStore: store,
   settings: FakeSettings()
     ..value = settings().change(
       fields: {...settings().fields, 'timeZoneId': 'Europe/Istanbul'},
@@ -27,10 +30,109 @@ SchedulingController controller(
   isCurrent: current ?? () => true,
   onAuthorizationFailure: failure ?? (_) async {},
 );
+
+class MemoryAttemptStore implements BookingAttemptStore {
+  String? value;
+  bool fail = false;
+  @override
+  Future<String?> read() async {
+    if (fail) throw StateError('storage');
+    return value;
+  }
+
+  @override
+  Future<void> write(String v) async {
+    if (fail) throw StateError('storage');
+    value = v;
+  }
+
+  @override
+  Future<void> clear() async {
+    if (fail) throw StateError('storage');
+    value = null;
+  }
+}
+
 void main() {
+  test('pending create survives controller restart and replays original versions and UUID', () async {
+    final store = MemoryAttemptStore();
+    final s = FakeScheduling()
+      ..createHandler = () async =>
+          AuthFailure(AuthError(code: AuthErrorCode.timeout));
+    final first = controller(s, store: store);
+    await first.book(bookingPayload());
+    final original = s.creates.single.toJson();
+    expect(jsonDecode(store.value!), original);
+    first.dispose();
+    final recovered = controller(s, store: store);
+    addTearDown(recovered.dispose);
+    await recovered.loadCalendar();
+    expect(recovered.uncertainBooking, isTrue);
+    expect(recovered.attempt!.toJson(), original);
+    s.createHandler = null;
+    await recovered.book(recovered.attempt!.payload);
+    expect(s.creates.last.toJson(), original);
+    expect(store.value, isNull);
+  });
+  test(
+    'storage failure prevents an unjournaled network create and supports retry',
+    () async {
+      final store = MemoryAttemptStore()..fail = true;
+      final s = FakeScheduling(), c = controller(FakeScheduling());
+      c.dispose();
+      final actual = controller(s, store: store);
+      addTearDown(actual.dispose);
+      await actual.book(bookingPayload());
+      expect(s.creates, isEmpty);
+      expect(actual.uncertainBooking, isTrue);
+      expect(actual.lastError!.code, AuthErrorCode.storage);
+      store.fail = false;
+      await actual.book(bookingPayload());
+      expect(s.creates, hasLength(1));
+    },
+  );
+  test(
+    'corrupt journal fails closed; explicit abandonment must clear storage',
+    () async {
+      final store = MemoryAttemptStore()..value = 'invalid json';
+      final s = FakeScheduling();
+      final actual = controller(s, store: store);
+      addTearDown(actual.dispose);
+      await actual.loadCalendar();
+      expect(actual.loaded, isTrue);
+      expect(s.calendars, 1);
+      expect(actual.recoveryBlocked, isTrue);
+      await actual.book(bookingPayload());
+      expect(s.creates, isEmpty);
+      expect(actual.lastError!.code, AuthErrorCode.storage);
+      expect(await actual.abandonAttempt(), isTrue);
+      expect(store.value, isNull);
+      await actual.loadCalendar();
+      expect(actual.loaded, isTrue);
+    },
+  );
+  test(
+    'calendar rechecks business timezone and rejects invalid page locally',
+    () async {
+      final s = FakeScheduling();
+      final c = controller(s);
+      addTearDown(c.dispose);
+      await c.loadCalendar();
+      final date = c.date;
+      final settingsService = c.settings as FakeSettings;
+      settingsService.value = settings().change(
+        fields: {...settings().fields, 'timeZoneId': 'Europe/London'},
+      );
+      await c.loadCalendar();
+      expect(c.clock!.zoneId, 'Europe/London');
+      expect(c.date, date);
+      final count = s.calendars;
+      await c.loadCalendar(nextPage: 10001);
+      expect(s.calendars, count);
+    },
+  );
   test('calendar empty, failure, retry and valid local clock', () async {
-    final s = FakeScheduling(), c = controller(FakeScheduling());
-    c.dispose();
+    final s = FakeScheduling();
     final actual = controller(s);
     addTearDown(actual.dispose);
     await actual.loadCalendar();

@@ -115,6 +115,13 @@ class FakeScheduling implements SchedulingService {
   List<SchedulingRequirement> requirementValues = [
     SchedulingRequirement.fromJson(requirementJson()),
   ];
+  Appointment? savedAppointment;
+  final calendarRanges = <(DateTime, DateTime, int)>[];
+  final availabilityRanges = <(DateTime, DateTime, int)>[];
+  final requirementInputs = <RequirementInput>[];
+  Future<AuthResult<List<WorkArea>>> Function()? areasHandler;
+  Future<AuthResult<List<EmployeeAvailability>>> Function()?
+  availabilityHandler;
   final creates = <BookingAttempt>[];
   final schedules = <ScheduleInput>[];
   final versions = <int>[];
@@ -140,6 +147,7 @@ class FakeScheduling implements SchedulingService {
     int page = 1,
   }) async {
     calendars++;
+    calendarRanges.add((from, to, page));
     return calendarHandler == null
         ? AuthSuccess(appointments)
         : calendarHandler!();
@@ -149,7 +157,9 @@ class FakeScheduling implements SchedulingService {
   Future<AuthResult<Appointment>> detail(String b, String id) async {
     details++;
     return detailHandler == null
-        ? AuthSuccess(Appointment.fromJson(appointmentJson()))
+        ? AuthSuccess(
+            savedAppointment ?? Appointment.fromJson(appointmentJson()),
+          )
         : detailHandler!();
   }
 
@@ -166,7 +176,7 @@ class FakeScheduling implements SchedulingService {
 
   @override
   Future<AuthResult<List<WorkArea>>> areas(String b) async =>
-      AuthSuccess(workAreas);
+      areasHandler == null ? AuthSuccess(workAreas) : areasHandler!();
   @override
   Future<AuthResult<WorkArea>> saveArea(
     String b,
@@ -205,13 +215,17 @@ class FakeScheduling implements SchedulingService {
     String s,
     String category,
     RequirementInput input,
-  ) async => AuthSuccess(
-    SchedulingRequirement.fromJson({
+  ) async {
+    requirementInputs.add(input);
+    final value = SchedulingRequirement.fromJson({
       ...requirementJson(),
       ...input.toJson(),
       'version': 12,
-    }),
-  );
+    });
+    requirementValues = [value];
+    return AuthSuccess(value);
+  }
+
   @override
   Future<AuthResult<SchedulingRequirement>> disableRequirement(
     String b,
@@ -234,7 +248,13 @@ class FakeScheduling implements SchedulingService {
     DateTime from,
     DateTime to, {
     int page = 1,
-  }) async => AuthSuccess(windows);
+  }) async {
+    availabilityRanges.add((from, to, page));
+    return availabilityHandler == null
+        ? AuthSuccess(windows)
+        : availabilityHandler!();
+  }
+
   @override
   Future<AuthResult<EmployeeAvailability>> saveAvailability(
     String b,
@@ -286,21 +306,23 @@ class FakeScheduling implements SchedulingService {
   ) async {
     schedules.add(input);
     versions.add(a.version);
-    return rescheduleHandler == null
-        ? AuthSuccess(Appointment.fromJson(appointmentJson(version: 11)))
-        : rescheduleHandler!();
+    if (rescheduleHandler != null) return rescheduleHandler!();
+    savedAppointment = Appointment.fromJson({
+      ...appointmentJson(version: 11),
+      'startsAtUtc': '2030-01-02T08:00:00Z',
+      'activeEndsAtUtc': '2030-01-02T08:20:00Z',
+    });
+    return AuthSuccess(savedAppointment!);
   }
 
   @override
   Future<AuthResult<Appointment>> cancel(String b, Appointment a) async {
     cancellations++;
     versions.add(a.version);
-    return error == null
-        ? AuthSuccess(
-            Appointment.fromJson(
-              appointmentJson(version: 11, status: 'Cancelled'),
-            ),
-          )
-        : AuthFailure(error!);
+    if (error != null) return AuthFailure(error!);
+    savedAppointment = Appointment.fromJson(
+      appointmentJson(version: 11, status: 'Cancelled'),
+    );
+    return AuthSuccess(savedAppointment!);
   }
 }
