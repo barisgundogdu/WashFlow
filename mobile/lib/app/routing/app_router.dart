@@ -1,3 +1,4 @@
+import '../../features/scheduling/domain/scheduling.dart';
 import '../../features/service_catalog/domain/service_catalog.dart';
 import '../../features/customer_vehicles/domain/customer_vehicles.dart';
 
@@ -37,6 +38,7 @@ abstract final class AppRouter {
     BusinessSettingsService? settingsService,
     CustomerVehicleService? customerVehicleService,
     CatalogService? catalogService,
+    SchedulingService? schedulingService,
     AuthSubmission submission = const UnavailableAuthSubmission(),
   }) {
     return MaterialPageRoute<void>(
@@ -68,6 +70,7 @@ abstract final class AppRouter {
           settingsService: settingsService,
           customerVehicleService: customerVehicleService,
           catalogService: catalogService,
+          schedulingService: schedulingService,
           redemptionEnabled: redemptionService != null,
         ),
         welcome => WelcomeScreen(redemptionEnabled: redemptionService != null),

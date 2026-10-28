@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
   flutter_secure_storage: ^11.2.0
   http: ^1.6.0
+  timezone: ^0.11.2
   unorm_dart: ^0.3.2
 
 dev_dependencies:
