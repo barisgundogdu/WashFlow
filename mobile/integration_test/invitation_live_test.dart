@@ -334,7 +334,7 @@ void main() {
       expect(before.value.customerContext == null, isTrue);
       await acceptUi(tester);
       await visible(tester, find.text('Çalışan alanı'));
-      expect(find.text('İşletme sahibi alanı'), findsNothing);
+      expect(find.text('İşletme sahibi'), findsNothing);
       final saved = await store.read();
       expect(saved != null && !saved.contains(credential), isTrue);
       await tester.pumpWidget(const SizedBox.shrink());

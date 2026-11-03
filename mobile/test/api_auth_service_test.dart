@@ -476,7 +476,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(paths, ['/api/v1/auth/refresh', '/api/v1/auth/contexts']);
     expect(find.text('Müşteri alanı'), findsOneWidget);
-    expect(find.text('İşletme sahibi alanı'), findsNothing);
+    expect(find.text('İşletme sahibi'), findsNothing);
   });
 
   test(

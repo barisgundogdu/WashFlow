@@ -149,6 +149,83 @@ class _SessionScreenState extends State<SessionScreen>
     final busy =
         controller.phase == SessionPhase.loading ||
         controller.phase == SessionPhase.loggingOut;
+    final owner =
+        !busy &&
+        controller.phase == SessionPhase.ready &&
+        selected?.role == ExperienceRole.owner;
+    final ownerTextActionStyle = owner
+        ? TextButton.styleFrom(alignment: AlignmentDirectional.centerStart)
+        : null;
+    final accountActions = <Widget>[
+      if (widget.redemptionEnabled && controller.phase == SessionPhase.ready)
+        TextButton(
+          style: ownerTextActionStyle,
+          onPressed: () {
+            controller.releaseForInvitationFlow();
+            Navigator.of(
+              context,
+              rootNavigator: true,
+            ).pushNamedAndRemoveUntil(AppRouter.redeem, (_) => false);
+          },
+          child: const Text('Davet koduyla katıl'),
+        ),
+      if (controller.message case final message?)
+        Semantics(liveRegion: true, child: Text(message)),
+      if (!owner) const SizedBox(height: 16),
+      TextButton(
+        style: ownerTextActionStyle,
+        onPressed: busy ? null : controller.refresh,
+        child: const Text('Yenile'),
+      ),
+    ];
+    // Logout is available during reads and invalidates their responses immediately.
+    final onLogout = controller.phase == SessionPhase.loggingOut
+        ? null
+        : controller.logout;
+    if (owner && selected != null) {
+      return OwnerHomeScreen(
+        businessName: selected.business!.businessName,
+        accountActions: [
+          if (controller.options.length > 1)
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                alignment: AlignmentDirectional.centerStart,
+              ),
+              onPressed: controller.switchContext,
+              child: const Text('Hesap değiştir'),
+            ),
+          ...accountActions,
+          const Divider(height: 1),
+          TextButton(
+            style: TextButton.styleFrom(
+              alignment: AlignmentDirectional.centerStart,
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            onPressed: onLogout,
+            child: const Text('Çıkış yap'),
+          ),
+        ],
+        onScheduling:
+            widget.schedulingService == null ||
+                widget.catalogService == null ||
+                widget.settingsService == null ||
+                widget.customerVehicleService == null
+            ? null
+            : () => _openOwner('/scheduling'),
+        onCatalog: widget.catalogService == null
+            ? null
+            : () => _openOwner('/service-catalog'),
+        onCustomers: widget.customerVehicleService == null
+            ? null
+            : () => _openDirectory(true),
+        onSettings: widget.settingsService == null
+            ? null
+            : () => _openOwner('/business-settings'),
+        onInvitations: widget.invitationService == null
+            ? null
+            : _openInvitations,
+      );
+    }
     return AuthLayout(
       allowBack: false,
       title: 'Oturum açıldı',
@@ -167,27 +244,7 @@ class _SessionScreenState extends State<SessionScreen>
                       ? null
                       : () => _openDirectory(false),
                 ),
-                ExperienceRole.owner => OwnerHomeScreen(
-                  onScheduling:
-                      widget.schedulingService == null ||
-                          widget.catalogService == null ||
-                          widget.settingsService == null ||
-                          widget.customerVehicleService == null
-                      ? null
-                      : () => _openOwner('/scheduling'),
-                  onCatalog: widget.catalogService == null
-                      ? null
-                      : () => _openOwner('/service-catalog'),
-                  onCustomers: widget.customerVehicleService == null
-                      ? null
-                      : () => _openDirectory(true),
-                  onSettings: widget.settingsService == null
-                      ? null
-                      : () => _openOwner('/business-settings'),
-                  onInvitations: widget.invitationService == null
-                      ? null
-                      : _openInvitations,
-                ),
+                ExperienceRole.owner => const SizedBox.shrink(),
                 ExperienceRole.employee => const EmployeeHomeScreen(),
               }
             else if (controller.options.isEmpty)
@@ -209,32 +266,8 @@ class _SessionScreenState extends State<SessionScreen>
                 child: const Text('Hesap değiştir'),
               ),
           ],
-          if (widget.redemptionEnabled &&
-              controller.phase == SessionPhase.ready)
-            TextButton(
-              onPressed: () {
-                controller.releaseForInvitationFlow();
-                Navigator.of(
-                  context,
-                  rootNavigator: true,
-                ).pushNamedAndRemoveUntil(AppRouter.redeem, (_) => false);
-              },
-              child: const Text('Davet koduyla katıl'),
-            ),
-          if (controller.message case final message?)
-            Semantics(liveRegion: true, child: Text(message)),
-          const SizedBox(height: 16),
-          TextButton(
-            onPressed: busy ? null : controller.refresh,
-            child: const Text('Yenile'),
-          ),
-          FilledButton(
-            // Logout is available during reads and invalidates their responses immediately.
-            onPressed: controller.phase == SessionPhase.loggingOut
-                ? null
-                : controller.logout,
-            child: const Text('Çıkış yap'),
-          ),
+          ...accountActions,
+          FilledButton(onPressed: onLogout, child: const Text('Çıkış yap')),
         ],
       ),
     );

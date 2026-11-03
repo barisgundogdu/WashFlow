@@ -360,7 +360,7 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('Private draft'), findsNothing);
     expect(find.text('Onayla'), findsNothing);
-    expect(find.text('İşletme sahibi alanı'), findsOneWidget);
+    expect(find.text('İşletme sahibi'), findsOneWidget);
   });
   testWidgets('compact large-text vehicle form handles keyboard and saves', (
     t,

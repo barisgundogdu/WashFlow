@@ -99,7 +99,7 @@ void main() {
       expect(find.textContaining('Davet kabul edildi.'), findsOneWidget);
       await tap(tester, 'Hesabıma devam et');
       expect(find.text('Çalışan alanı'), findsOneWidget);
-      expect(find.text('İşletme sahibi alanı'), findsNothing);
+      expect(find.text('İşletme sahibi'), findsNothing);
       expect(
         contexts.calls,
         3,

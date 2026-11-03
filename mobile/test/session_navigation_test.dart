@@ -39,7 +39,7 @@ void main() {
     await tester.pump();
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
     expect(find.text('Müşteri alanı'), findsNothing);
-    expect(find.text('İşletme sahibi alanı'), findsNothing);
+    expect(find.text('İşletme sahibi'), findsNothing);
     pending.complete(AuthSuccess(grants(customer: true)));
     await tester.pumpAndSettle();
     expect(find.text('Müşteri alanı'), findsOneWidget);
@@ -65,10 +65,26 @@ void main() {
           ),
         );
         expect(
-          find.text(role == 'Owner' ? 'İşletme sahibi alanı' : 'Çalışan alanı'),
+          find.text(role == 'Owner' ? 'İşletme sahibi' : 'Çalışan alanı'),
           findsOneWidget,
         );
         expect(find.textContaining('İşletme A'), findsOneWidget);
+        if (role == 'Owner') {
+          expect(find.text('İşletme A'), findsOneWidget);
+          expect(find.text('Oturum açıldı'), findsNothing);
+          expect(find.textContaining('Geçici ekran'), findsNothing);
+          expect(find.text('Hesap işlemleri'), findsOneWidget);
+          final logout = tester.widget<TextButton>(
+            find.widgetWithText(TextButton, 'Çıkış yap'),
+          );
+          final colors = Theme.of(tester.element(find.text('Çıkış yap')))
+              .colorScheme;
+          expect(logout.style?.foregroundColor?.resolve({}), colors.error);
+          expect(find.text('Hesap değiştir'), findsNothing);
+          expect(find.text('Planlama ve randevular'), findsNothing);
+          expect(find.text('Günlük işlemler'), findsNothing);
+          expect(find.text('İşletme yönetimi'), findsNothing);
+        }
         expect(find.byType(AuthorizedContextPicker), findsNothing);
       },
     );
@@ -93,7 +109,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(contexts.calls, 2);
       expect(find.text('Çalışan alanı'), findsOneWidget);
-      expect(find.text('İşletme sahibi alanı'), findsNothing);
+      expect(find.text('İşletme sahibi'), findsNothing);
       await tester.tap(find.text('Hesap değiştir'));
       await tester.pumpAndSettle();
       expect(contexts.calls, 3);
@@ -155,6 +171,7 @@ void main() {
       await tester.pumpAndSettle();
       final pending = Completer<AuthResult<UserContexts>>();
       contexts.handler = () => pending.future;
+      await tester.ensureVisible(find.text('Hesap değiştir'));
       await tester.tap(find.text('Hesap değiştir'));
       await tester.pump();
       expect(find.textContaining('İşletme A'), findsNothing);
@@ -178,10 +195,10 @@ void main() {
   ) async {
     final contexts = FakeContexts(grants(businesses: [businessContext()]));
     await open(tester, FakeSession(), contexts);
-    expect(find.text('İşletme sahibi alanı'), findsOneWidget);
+    expect(find.text('İşletme sahibi'), findsOneWidget);
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
     await tester.pump();
-    expect(find.text('İşletme sahibi alanı'), findsNothing);
+    expect(find.text('İşletme sahibi'), findsNothing);
     contexts.value = grants();
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
@@ -217,7 +234,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('Çalışan alanı'), findsOneWidget);
-      expect(find.text('İşletme sahibi alanı'), findsNothing);
+      expect(find.text('İşletme sahibi'), findsNothing);
       expect(find.textContaining('İşletme B'), findsNothing);
     },
   );
@@ -236,7 +253,7 @@ void main() {
     expect(find.text('Tekrar hoş geldiniz'), findsOneWidget);
     pending.complete(AuthSuccess(grants(businesses: [businessContext()])));
     await tester.pumpAndSettle();
-    expect(find.text('İşletme sahibi alanı'), findsNothing);
+    expect(find.text('İşletme sahibi'), findsNothing);
     expect(find.text('Tekrar hoş geldiniz'), findsOneWidget);
   });
 

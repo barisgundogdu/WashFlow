@@ -275,7 +275,7 @@ void main() {
     expect(find.text('Kaydedilmemiş değişiklikler'), findsOneWidget);
     await tap(t, 'Değişiklikleri sil');
     await t.pumpAndSettle();
-    expect(find.text('İşletme sahibi alanı'), findsOneWidget);
+    expect(find.text('İşletme sahibi'), findsOneWidget);
     expect(s.calls.where((c) => c.startsWith('save')), isEmpty);
   });
   testWidgets('pending write cannot overwrite business B after switching', (
@@ -330,7 +330,7 @@ void main() {
     p.complete(AuthSuccess(settings(name: 'Suspended response')));
     await t.pumpAndSettle();
     expect(find.text('Suspended response'), findsNothing);
-    expect(find.text('İşletme sahibi alanı'), findsOneWidget);
+    expect(find.text('İşletme sahibi'), findsOneWidget);
   });
   testWidgets(
     'settings remain usable with compact screen large text and keyboard',

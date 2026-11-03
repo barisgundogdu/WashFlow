@@ -267,7 +267,7 @@ void main() {
         ),
       );
       await t.pumpAndSettle();
-      await tap(t, 'Hizmetler ve Fiyatlar');
+      await tap(t, 'Hizmetler ve fiyatlar');
       expect(s.lists, 1);
       expect(contexts.calls, greaterThanOrEqualTo(2));
       await tap(t, 'Çıkış yap');
@@ -294,7 +294,7 @@ void main() {
         ),
       );
       await t.pumpAndSettle();
-      expect(find.text('Hizmetler ve Fiyatlar'), findsNothing);
+      expect(find.text('Hizmetler ve fiyatlar'), findsNothing);
       await t.pumpWidget(
         WashFlowApp(
           initialRoute: '/service-catalog',
@@ -321,7 +321,7 @@ void main() {
         ),
       );
       await t.pumpAndSettle();
-      await tap(t, 'Hizmetler ve Fiyatlar');
+      await tap(t, 'Hizmetler ve fiyatlar');
       contexts.value = grants();
       service.listHandler = () async =>
           AuthFailure(AuthError(code: AuthErrorCode.forbidden));
@@ -348,7 +348,7 @@ void main() {
         ),
       );
       await t.pumpAndSettle();
-      await tap(t, 'Hizmetler ve Fiyatlar');
+      await tap(t, 'Hizmetler ve fiyatlar');
       await tap(t, 'Hizmet ekle');
       await t.enterText(
         find.widgetWithText(TextFormField, 'Hizmet adı'),
@@ -366,7 +366,7 @@ void main() {
       await t.pumpAndSettle();
       expect(find.text('Private draft'), findsNothing);
       expect(find.text('Onayla'), findsNothing);
-      await tap(t, 'Hizmetler ve Fiyatlar');
+      await tap(t, 'Hizmetler ve fiyatlar');
       expect(service.lastBusiness, businessB);
       expect(find.text('İşletme A'), findsNothing);
     },

@@ -126,7 +126,7 @@ void main() {
       await tap(tester, 'Kabul etmeyi onayla');
       await tap(tester, 'Hesabıma devam et');
       expect(find.text('Çalışan alanı'), findsOneWidget);
-      expect(find.text('İşletme sahibi alanı'), findsNothing);
+      expect(find.text('İşletme sahibi'), findsNothing);
       expect(paths, [
         '/api/v1/employee-invitations/register',
         '/api/v1/auth/email/verify',

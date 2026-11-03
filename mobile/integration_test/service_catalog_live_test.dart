@@ -67,7 +67,7 @@ void main() {
         ),
       );
       await t.pumpAndSettle();
-      await live.tap(t, 'Hizmetler ve Fiyatlar');
+      await live.tap(t, 'Hizmetler ve fiyatlar');
       await live.visible(t, find.text('Gösterilecek hizmet bulunamadı.'));
       await live.tap(t, 'Hizmet ekle');
       await field(t, 'Hizmet adı', 'Yıkama 🚗');
