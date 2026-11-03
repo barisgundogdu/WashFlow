@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/theme/washflow_theme.dart';
+
 class AuthLayout extends StatelessWidget {
   const AuthLayout({
     super.key,
@@ -27,7 +29,12 @@ class AuthLayout extends StatelessWidget {
         child: Center(
           child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+            padding: const EdgeInsets.fromLTRB(
+              WashFlowSpacing.xl,
+              WashFlowSpacing.lg,
+              WashFlowSpacing.xl,
+              WashFlowSpacing.xxl,
+            ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 440),
               child: Column(
@@ -36,10 +43,10 @@ class AuthLayout extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Container(
-                      padding: const EdgeInsets.all(14),
+                      padding: const EdgeInsets.all(WashFlowSpacing.lg),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: WashFlowTheme.cardRadius,
                       ),
                       child: Icon(
                         Icons.local_car_wash_outlined,
@@ -48,11 +55,11 @@ class AuthLayout extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: WashFlowSpacing.xl),
                   Text(title, style: theme.textTheme.headlineLarge),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: WashFlowSpacing.sm),
                   Text(subtitle, style: theme.textTheme.bodyLarge),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: WashFlowSpacing.xl),
                   child,
                 ],
               ),

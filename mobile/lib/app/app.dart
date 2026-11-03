@@ -13,6 +13,7 @@ import '../features/business_settings/domain/business_settings.dart';
 import '../features/invitations/domain/invitation_redemption_service.dart';
 import '../features/invitations/domain/owner_invitation_service.dart';
 import 'routing/app_router.dart';
+import 'theme/washflow_theme.dart';
 
 class WashFlowApp extends StatelessWidget {
   const WashFlowApp({
@@ -63,7 +64,7 @@ class WashFlowApp extends StatelessWidget {
               bottom: false,
               child: Material(
                 child: Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(WashFlowSpacing.md),
                   child: Text(startupMessage!),
                 ),
               ),
@@ -75,42 +76,7 @@ class WashFlowApp extends StatelessWidget {
       locale: const Locale('tr'),
       supportedLocales: const [Locale('tr')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF006B75)),
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFF6F9F9),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFF6F9F9),
-          surfaceTintColor: Colors.transparent,
-          centerTitle: true,
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 18,
-          ),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Color(0xFFCFDDDF)),
-          ),
-          errorMaxLines: 3,
-        ),
-        filledButtonTheme: FilledButtonThemeData(
-          style: FilledButton.styleFrom(
-            minimumSize: const Size(0, 56),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-        ),
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-        ),
-      ),
+      theme: WashFlowTheme.light,
       onGenerateRoute: (settings) => AppRouter.onGenerateRoute(
         settings,
         submission: ServiceAuthSubmission(authService),

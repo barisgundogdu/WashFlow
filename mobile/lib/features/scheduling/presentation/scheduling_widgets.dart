@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/theme/washflow_theme.dart';
+import '../../../app/widgets/inline_error.dart';
 import '../domain/scheduling.dart';
 import 'scheduling_controller.dart';
 
@@ -21,25 +23,19 @@ class SchedulePage extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 720),
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(WashFlowSpacing.lg),
             children: [
               if (controller.busy) const LinearProgressIndicator(),
               if (controller.message case final text?)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Semantics(
-                    liveRegion: true,
-                    child: Text(
-                      text,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: WashFlowSpacing.md,
                   ),
+                  child: InlineError(text),
                 ),
               ...children.map(
                 (v) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: WashFlowSpacing.md),
                   child: v,
                 ),
               ),

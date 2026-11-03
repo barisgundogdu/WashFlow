@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/routing/app_router.dart';
+import '../../../app/widgets/inline_error.dart';
 import '../domain/auth_submission.dart';
 import '../domain/session_service.dart';
 import 'widgets/auth_layout.dart';
@@ -269,22 +270,7 @@ class _AuthFormScreenState extends State<AuthFormScreen> {
                 ),
               const SizedBox(height: 20),
               if (_error != null) ...[
-                Semantics(
-                  liveRegion: true,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.errorContainer,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      _error!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onErrorContainer,
-                      ),
-                    ),
-                  ),
-                ),
+                InlineError(_error!),
                 const SizedBox(height: 20),
               ],
               FilledButton(
