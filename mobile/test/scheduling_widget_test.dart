@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:washflow/app/app.dart';
 import 'package:washflow/app/routing/app_router.dart';
+import 'package:washflow/app/theme/washflow_theme.dart';
 import 'package:washflow/features/auth/domain/auth_service.dart';
 import 'package:washflow/features/customer_vehicles/domain/customer_vehicles.dart';
 import 'package:washflow/features/scheduling/domain/scheduling.dart';
@@ -60,6 +61,7 @@ Future<void> openPage(WidgetTester tester, Widget page) async {
 Future<void> tapText(WidgetTester tester, String text) async {
   final finder = find.text(text).last;
   await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
   await tester.tap(finder);
   await tester.pumpAndSettle();
 }
@@ -109,6 +111,12 @@ void main() {
       ),
     );
     expect(find.textContaining('Sonucu doğrulanmamış'), findsOneWidget);
+    await tapText(tester, 'Önceki işlem kaydını kontrol ettim');
+    await tapText(tester, 'Vazgeç');
+    expect(
+      await SecureBookingAttemptStore(businessA, employeeId).read(),
+      jsonEncode(pending.toJson()),
+    );
     await tapText(tester, 'Yeni randevu');
     await tapText(tester, 'Takvimden sonucu kontrol et');
     await tapText(tester, 'Takvime dön');
@@ -155,7 +163,8 @@ void main() {
       expect(find.textContaining('ulaşılamadı'), findsOneWidget);
       expect(find.text('Bu tarih aralığında randevu yok.'), findsNothing);
       s.calendarHandler = null;
-      await tapText(tester, 'Takvimi yenile');
+      await tester.tap(find.byTooltip('Takvimi yenile'));
+      await tester.pumpAndSettle();
       expect(find.text('Bu tarih aralığında randevu yok.'), findsOneWidget);
       await tapText(tester, 'Hafta');
       expect(
@@ -166,8 +175,134 @@ void main() {
       await tester.tap(find.byTooltip('Sonraki dönem'));
       await tester.pumpAndSettle();
       expect(s.calendarRanges.last.$1, before.add(const Duration(days: 7)));
+      await tester.tap(find.byTooltip('Önceki dönem'));
+      await tester.pumpAndSettle();
+      expect(s.calendarRanges.last.$1, before);
+      await tapText(tester, 'Gün');
+      expect(
+        s.calendarRanges.last.$2.difference(s.calendarRanges.last.$1),
+        const Duration(days: 1),
+      );
     },
   );
+
+  testWidgets('agenda fits narrow large text and groups by business date', (
+    tester,
+  ) async {
+    final s = FakeScheduling();
+    final c = makeController(s);
+    addTearDown(c.dispose);
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final overnight = Appointment.fromJson({
+      ...appointmentJson(status: 'Cancelled'),
+      'startsAtUtc': '2030-01-02T22:00:00Z',
+      'activeEndsAtUtc': '2030-01-02T22:20:00Z',
+      'customerName': 'Ayşe Gül Yılmaz ve Otomotiv Hizmetleri',
+    });
+    s.calendarHandler = () async => AuthSuccess([overnight]);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: WashFlowTheme.light,
+        locale: const Locale('tr'),
+        supportedLocales: const [Locale('tr')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
+        home: SchedulingScreen(
+          business: businessA,
+          service: s,
+          settings: c.settings,
+          catalog: c.catalog,
+          customers: c.customers,
+          isCurrent: () => true,
+          onAuthorizationFailure: (_) async {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final dateContext = tester.element(find.byTooltip('Tarih seç'));
+    final dates = MaterialLocalizations.of(dateContext);
+    final before = s.calendarRanges.last.$1;
+    expect(find.text(dates.formatShortDate(before)), findsOneWidget);
+    expect(find.text(dateWire(before)), findsNothing);
+    expect(
+      tester.getSize(find.byTooltip('Takvimi yenile')).height,
+      greaterThanOrEqualTo(48),
+    );
+    await tester.ensureVisible(find.byTooltip('Tarih seç'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Tarih seç'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DatePickerDialog), findsOneWidget);
+    await tapText(tester, dates.okButtonLabel);
+    expect(s.calendarRanges.last.$1, before);
+
+    await tapText(tester, 'Hafta');
+    await tester.scrollUntilVisible(find.text('İptal edildi'), 180);
+    expect(
+      find.text(dates.formatFullDate(DateTime.utc(2030, 1, 3))),
+      findsOneWidget,
+    );
+    expect(find.text('01:00 – 01:20'), findsOneWidget);
+    expect(find.text(overnight.customerName), findsOneWidget);
+    expect(find.text(overnight.vehiclePlate), findsOneWidget);
+    expect(find.text(overnight.serviceName), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tapText(tester, overnight.customerName);
+    expect(find.text('Randevu ayrıntısı'), findsOneWidget);
+  });
+
+  testWidgets('settings menu opens all sections and agenda keeps pagination', (
+    tester,
+  ) async {
+    final s = FakeScheduling();
+    final c = makeController(s);
+    addTearDown(c.dispose);
+    final appointment = Appointment.fromJson(appointmentJson());
+    s.calendarHandler = () async => AuthSuccess(
+      s.calendarRanges.last.$3 == 1 ? List.filled(50, appointment) : [],
+    );
+    await openPage(
+      tester,
+      SchedulingScreen(
+        business: businessA,
+        service: s,
+        settings: c.settings,
+        catalog: c.catalog,
+        customers: c.customers,
+        isCurrent: () => true,
+        onAuthorizationFailure: (_) async {},
+      ),
+    );
+
+    for (final (label, section) in [
+      ('Çalışma alanları', SchedulingSection.areas),
+      ('Hizmet gereksinimleri', SchedulingSection.requirements),
+      ('Çalışan uygunluğu', SchedulingSection.availability),
+    ]) {
+      expect(find.text(label), findsNothing);
+      await tester.tap(find.byTooltip('Planlama ayarları'));
+      await tester.pumpAndSettle();
+      await tapText(tester, label);
+      final page = tester.widget<SchedulingConfigurationScreen>(
+        find.byType(SchedulingConfigurationScreen),
+      );
+      expect(page.section, section);
+      Navigator.of(tester.element(find.byType(SchedulingConfigurationScreen)))
+          .pop();
+      await tester.pumpAndSettle();
+    }
+
+    await tester.scrollUntilVisible(find.text('Sonraki sayfa'), 900);
+    await tapText(tester, 'Sonraki sayfa');
+    expect(s.calendarRanges.last.$3, 2);
+    expect(find.text('Sayfa 2'), findsOneWidget);
+    await tapText(tester, 'Önceki sayfa');
+    expect(s.calendarRanges.last.$3, 1);
+  });
 
   testWidgets(
     'booking validates then selects customer vehicle offering employee and previews',
@@ -640,7 +775,7 @@ void main() {
         expect(find.text('Planlama ve randevular'), findsOneWidget);
         await tapText(tester, 'Planlama ve randevular');
         expect(contexts.calls, 2);
-        expect(find.text('Planlama'), findsOneWidget);
+        expect(find.text('Randevu ajandası'), findsOneWidget);
         expect(s.calendars, 1);
       } else {
         expect(find.text('Planlama ve randevular'), findsNothing);

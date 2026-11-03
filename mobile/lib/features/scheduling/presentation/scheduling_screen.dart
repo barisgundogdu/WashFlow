@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../app/theme/washflow_theme.dart';
 import '../../auth/domain/auth_service.dart';
 import '../../business_settings/domain/business_settings.dart';
 import '../../customer_vehicles/domain/customer_vehicles.dart';
@@ -86,193 +87,302 @@ class _SchedulingScreenState extends State<SchedulingScreen> {
     await c.loadCalendar();
   }
 
+  void _movePeriod(int direction) {
+    c.date = c.date!.add(Duration(days: direction * (c.week ? 7 : 1)));
+    unawaited(c.loadCalendar());
+  }
+
+  Future<void> _resolvePendingAttempt() async {
+    if (!await schedulingConfirm(
+          context,
+          'İşlem kaydı temizlensin mi?',
+          'Önce takvimde önceki randevunun oluşup oluşmadığını kontrol edin. Kayıt temizlendikten sonra eski işlem anahtarı geri alınamaz.',
+          action: 'Kontrol ettim, kaydı temizle',
+        ) ||
+        !mounted ||
+        !c.active) {
+      return;
+    }
+    if (await c.abandonAttempt() && mounted && c.active) {
+      await c.loadCalendar();
+    }
+  }
+
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: c,
-    builder: (context, _) => SchedulePage(
-      controller: c,
-      title: 'Planlama',
-      children: [
-        if (c.recoveryBlocked || c.uncertainBooking)
-          OutlinedButton(
-            onPressed: c.busy
-                ? null
-                : () async {
-                    if (!await schedulingConfirm(
-                          context,
-                          'İşlem kaydı temizlensin mi?',
-                          'Önce takvimde önceki randevunun oluşup oluşmadığını kontrol edin. Kayıt temizlendikten sonra eski işlem anahtarı geri alınamaz.',
-                          action: 'Kontrol ettim, kaydı temizle',
-                        ) ||
-                        !context.mounted ||
-                        !c.active) {
-                      return;
-                    }
-                    if (await c.abandonAttempt() && mounted && c.active) {
-                      await c.loadCalendar();
-                    }
-                  },
-            child: const Text('Önceki işlem kaydını kontrol ettim'),
+    builder: (context, _) {
+      final dates = MaterialLocalizations.of(context);
+      final theme = Theme.of(context);
+      final date = c.date;
+      final clock = c.clock;
+      final groups = <DateTime, List<Appointment>>{};
+      if (clock != null) {
+        for (final appointment in c.appointments) {
+          final local = clock.local(appointment.startsAtUtc);
+          final day = DateTime.utc(local.year, local.month, local.day);
+          (groups[day] ??= []).add(appointment);
+        }
+      }
+
+      return SchedulePage(
+        controller: c,
+        title: null,
+        actions: [
+          IconButton(
+            tooltip: 'Takvimi yenile',
+            style: IconButton.styleFrom(minimumSize: const Size.square(48)),
+            onPressed: c.busy ? null : () => c.loadCalendar(),
+            icon: const Icon(Icons.refresh),
           ),
-        if (c.uncertainBooking)
-          const Text(
-            'Sonucu doğrulanmamış bir kayıt isteği var. Yeni randevu ekranından aynı isteği tekrar deneyin veya takvimi kontrol edin.',
-          ),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            FilledButton.icon(
-              onPressed: c.busy || c.clock == null || c.recoveryBlocked
-                  ? null
-                  : () => _open(BookingScreen(controller: c)),
-              icon: const Icon(Icons.add),
-              label: const Text('Yeni randevu'),
+          PopupMenuButton<SchedulingSection>(
+            tooltip: 'Planlama ayarları',
+            icon: const Icon(Icons.settings_outlined),
+            style: IconButton.styleFrom(minimumSize: const Size.square(48)),
+            enabled: !c.busy,
+            onSelected: (section) => _open(
+              SchedulingConfigurationScreen(controller: c, section: section),
             ),
-            OutlinedButton(
-              onPressed: c.busy
-                  ? null
-                  : () => _open(
-                      SchedulingConfigurationScreen(
-                        controller: c,
-                        section: SchedulingSection.areas,
-                      ),
-                    ),
-              child: const Text('Çalışma alanları'),
-            ),
-            OutlinedButton(
-              onPressed: c.busy
-                  ? null
-                  : () => _open(
-                      SchedulingConfigurationScreen(
-                        controller: c,
-                        section: SchedulingSection.requirements,
-                      ),
-                    ),
-              child: const Text('Hizmet gereksinimleri'),
-            ),
-            OutlinedButton(
-              onPressed: c.busy || c.clock == null
-                  ? null
-                  : () => _open(
-                      SchedulingConfigurationScreen(
-                        controller: c,
-                        section: SchedulingSection.availability,
-                      ),
-                    ),
-              child: const Text('Çalışan uygunluğu'),
-            ),
-          ],
-        ),
-        if (c.clock != null) ...[
-          Text(
-            'Randevu takvimi • ${c.clock!.zoneId}',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          SegmentedButton<bool>(
-            segments: const [
-              ButtonSegment(value: false, label: Text('Gün')),
-              ButtonSegment(value: true, label: Text('Hafta')),
-            ],
-            selected: {c.week},
-            onSelectionChanged: c.busy
-                ? null
-                : (v) {
-                    c.week = v.single;
-                    unawaited(c.loadCalendar());
-                  },
-          ),
-          Row(
-            children: [
-              IconButton(
-                tooltip: 'Önceki dönem',
-                onPressed: c.busy
-                    ? null
-                    : () {
-                        c.date = c.date!.subtract(
-                          Duration(days: c.week ? 7 : 1),
-                        );
-                        unawaited(c.loadCalendar());
-                      },
-                icon: const Icon(Icons.chevron_left),
+            itemBuilder: (_) => [
+              const PopupMenuItem(
+                value: SchedulingSection.areas,
+                child: Text('Çalışma alanları'),
               ),
-              Expanded(
-                child: TextButton(
-                  onPressed: c.busy ? null : _date,
-                  child: Text(
-                    '${dateWire(c.date!)}${c.week ? ' — ${dateWire(c.date!.add(const Duration(days: 6)))}' : ''}',
-                  ),
-                ),
+              const PopupMenuItem(
+                value: SchedulingSection.requirements,
+                child: Text('Hizmet gereksinimleri'),
               ),
-              IconButton(
-                tooltip: 'Sonraki dönem',
-                onPressed: c.busy
-                    ? null
-                    : () {
-                        c.date = c.date!.add(Duration(days: c.week ? 7 : 1));
-                        unawaited(c.loadCalendar());
-                      },
-                icon: const Icon(Icons.chevron_right),
+              PopupMenuItem(
+                value: SchedulingSection.availability,
+                enabled: clock != null,
+                child: const Text('Çalışan uygunluğu'),
               ),
             ],
           ),
         ],
-        OutlinedButton.icon(
-          onPressed: c.busy ? null : () => c.loadCalendar(),
-          icon: const Icon(Icons.refresh),
-          label: const Text('Takvimi yenile'),
-        ),
-        if (c.loaded && c.appointments.isEmpty)
-          const Card(
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('Bu tarih aralığında randevu yok.'),
+        children: [
+          Semantics(
+            header: true,
+            child: Text(
+              'Randevu ajandası',
+              style: theme.textTheme.headlineLarge,
             ),
           ),
-        for (final a in c.appointments)
-          Card(
-            child: ListTile(
-              contentPadding: const EdgeInsets.all(16),
-              leading: Icon(
-                a.cancelled ? Icons.event_busy : Icons.event_available,
-                color: a.cancelled
-                    ? Theme.of(context).colorScheme.error
-                    : Theme.of(context).colorScheme.primary,
+          if (c.recoveryBlocked || c.uncertainBooking)
+            Card(
+              margin: EdgeInsets.zero,
+              color: theme.colorScheme.secondaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(WashFlowSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: WashFlowSpacing.sm,
+                  children: [
+                    Text(
+                      'Önceki kayıt isteği',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    Text(
+                      c.uncertainBooking
+                          ? 'Sonucu doğrulanmamış bir kayıt isteği var. Yeni randevu ekranından aynı isteği tekrar deneyin veya takvimi kontrol edin.'
+                          : 'Önceki işlem kaydı okunamadı. Devam etmeden önce takvimi kontrol edin.',
+                    ),
+                    OutlinedButton(
+                      onPressed: c.busy ? null : _resolvePendingAttempt,
+                      child: const Text(
+                        'Önceki işlem kaydını kontrol ettim',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              title: Text(
-                '${localDisplay(c.clock!.local(a.startsAtUtc))} – ${timeWire(c.clock!.local(a.activeEndsAtUtc))}',
-              ),
-              subtitle: Text(
-                '${a.customerName} • ${a.vehiclePlate}\n${a.serviceName}\n${a.cancelled ? 'İptal edildi' : 'Onaylandı'}',
-              ),
-              isThreeLine: true,
-              onTap: c.busy
-                  ? null
-                  : () =>
-                        _open(AppointmentDetailScreen(controller: c, id: a.id)),
             ),
+          FilledButton.icon(
+            onPressed: c.busy || clock == null || c.recoveryBlocked
+                ? null
+                : () => _open(BookingScreen(controller: c)),
+            icon: const Icon(Icons.add),
+            label: const Text('Yeni randevu'),
           ),
-        if (c.loaded)
-          Wrap(
-            spacing: 8,
+          if (clock != null && date != null)
+            Card(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(WashFlowSpacing.sm),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SegmentedButton<bool>(
+                      segments: const [
+                        ButtonSegment(value: false, label: Text('Gün')),
+                        ButtonSegment(value: true, label: Text('Hafta')),
+                      ],
+                      selected: {c.week},
+                      onSelectionChanged: c.busy
+                          ? null
+                          : (value) {
+                              c.week = value.single;
+                              unawaited(c.loadCalendar());
+                            },
+                    ),
+                    Row(
+                      children: [
+                        IconButton(
+                          tooltip: 'Önceki dönem',
+                          onPressed: c.busy ? null : () => _movePeriod(-1),
+                          icon: const Icon(Icons.chevron_left),
+                        ),
+                        Expanded(
+                          child: Tooltip(
+                            message: 'Tarih seç',
+                            child: TextButton(
+                              onPressed: c.busy ? null : _date,
+                              child: Text(
+                                c.week
+                                    ? '${dates.formatShortDate(date)} – ${dates.formatShortDate(date.add(const Duration(days: 6)))}'
+                                    : dates.formatShortDate(date),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Sonraki dönem',
+                          onPressed: c.busy ? null : () => _movePeriod(1),
+                          icon: const Icon(Icons.chevron_right),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      'İşletme saat dilimi: ${clock.zoneId}',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          if (c.busy && !c.loaded) const Text('Randevular yükleniyor…'),
+          if (c.loaded && !c.busy && c.appointments.isEmpty)
+            const Card(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: EdgeInsets.all(WashFlowSpacing.xl),
+                child: Text('Bu tarih aralığında randevu yok.'),
+              ),
+            ),
+          if (clock != null)
+            for (final MapEntry(key: day, value: appointments)
+                in groups.entries) ...[
+              if (c.week || day != date)
+                Semantics(
+                  header: true,
+                  child: Text(
+                    dates.formatFullDate(day),
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+              for (final appointment in appointments)
+                _AgendaCard(
+                  appointment: appointment,
+                  clock: clock,
+                  onTap: c.busy
+                      ? null
+                      : () => _open(
+                          AppointmentDetailScreen(
+                            controller: c,
+                            id: appointment.id,
+                          ),
+                        ),
+                ),
+            ],
+          if (c.loaded)
+            Wrap(
+              spacing: WashFlowSpacing.sm,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text('Sayfa ${c.page}'),
+                TextButton(
+                  onPressed: c.busy || c.page == 1
+                      ? null
+                      : () => c.loadCalendar(nextPage: c.page - 1),
+                  child: const Text('Önceki sayfa'),
+                ),
+                TextButton(
+                  onPressed:
+                      c.busy || c.page >= 10000 || c.appointments.length < 50
+                      ? null
+                      : () => c.loadCalendar(nextPage: c.page + 1),
+                  child: const Text('Sonraki sayfa'),
+                ),
+              ],
+            ),
+        ],
+      );
+    },
+  );
+}
+
+class _AgendaCard extends StatelessWidget {
+  const _AgendaCard({
+    required this.appointment,
+    required this.clock,
+    required this.onTap,
+  });
+
+  final Appointment appointment;
+  final BusinessClock clock;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(WashFlowSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: WashFlowSpacing.xs,
             children: [
-              Text('Sayfa ${c.page}'),
-              TextButton(
-                onPressed: c.busy || c.page == 1
-                    ? null
-                    : () => c.loadCalendar(nextPage: c.page - 1),
-                child: const Text('Önceki sayfa'),
+              Text(
+                '${timeWire(clock.local(appointment.startsAtUtc))} – ${timeWire(clock.local(appointment.activeEndsAtUtc))}',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: colors.primary,
+                ),
               ),
-              TextButton(
-                onPressed:
-                    c.busy || c.page >= 10000 || c.appointments.length < 50
-                    ? null
-                    : () => c.loadCalendar(nextPage: c.page + 1),
-                child: const Text('Sonraki sayfa'),
+              Text(appointment.customerName, style: theme.textTheme.titleLarge),
+              Text(appointment.vehiclePlate),
+              Text(appointment.serviceName),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: WashFlowSpacing.sm,
+                  vertical: WashFlowSpacing.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: appointment.cancelled
+                      ? colors.errorContainer
+                      : colors.primaryContainer,
+                  borderRadius: WashFlowTheme.controlRadius,
+                ),
+                child: Text(
+                  appointment.cancelled ? 'İptal edildi' : 'Onaylandı',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: appointment.cancelled
+                        ? colors.onErrorContainer
+                        : colors.onPrimaryContainer,
+                  ),
+                ),
               ),
             ],
           ),
-      ],
-    ),
-  );
+        ),
+      ),
+    );
+  }
 }

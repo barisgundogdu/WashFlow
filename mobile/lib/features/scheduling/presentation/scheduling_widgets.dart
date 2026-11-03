@@ -11,13 +11,18 @@ class SchedulePage extends StatelessWidget {
     required this.controller,
     required this.title,
     required this.children,
+    this.actions,
   });
   final SchedulingController controller;
-  final String title;
+  final String? title;
+  final List<Widget>? actions;
   final List<Widget> children;
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(title)),
+    appBar: AppBar(
+      title: title == null ? null : Text(title!),
+      actions: actions,
+    ),
     body: SafeArea(
       child: Center(
         child: ConstrainedBox(
