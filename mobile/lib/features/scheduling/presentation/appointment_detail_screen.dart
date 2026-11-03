@@ -26,20 +26,44 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   Appointment? a;
   List<WorkArea> areas = [];
   List<SchedulingEmployee> employees = [];
+  bool _loading = true;
+  bool _waitingForLoad = false;
   @override
   void initState() {
     super.initState();
+    c.addListener(_loadWhenIdle);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && c.active) unawaited(_load());
     });
   }
 
+  void _loadWhenIdle() {
+    if (_waitingForLoad && !c.busy && c.active && mounted) {
+      unawaited(_load());
+    }
+  }
+
+  @override
+  void dispose() {
+    c.removeListener(_loadWhenIdle);
+    super.dispose();
+  }
+
   Future<void> _load() async {
+    if (!mounted || !c.active) return;
+    setState(() => _loading = true);
+    // A calendar refresh can still be running after booking replaces its route.
+    // request() rejects concurrent work, so defer instead of losing this load.
+    _waitingForLoad = c.busy;
+    if (_waitingForLoad) return;
     final value = await c.request(
       () => c.service.detail(c.business, widget.id),
     );
     if (!mounted || !c.active) return;
-    setState(() => a = value);
+    setState(() {
+      a = value;
+      _loading = false;
+    });
     if (value == null) return;
     final areaValues = await c.request(() => c.service.areas(c.business));
     if (!mounted || !c.active) return;
@@ -89,9 +113,17 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         controller: c,
         title: 'Randevu ayrıntısı',
         children: [
+          if (_loading)
+            const Text('Randevu ayrıntıları yükleniyor…')
+          else if (value == null)
+            const Text('Randevu ayrıntıları yüklenemedi. Yeniden deneyin.'),
           OutlinedButton(
-            onPressed: c.busy ? null : _load,
-            child: const Text('Güncel kaydı yükle'),
+            onPressed: c.busy || _loading ? null : _load,
+            child: Text(
+              !_loading && value == null
+                  ? 'Yeniden dene'
+                  : 'Güncel kaydı yükle',
+            ),
           ),
           if (value != null) ...[
             Text(

@@ -200,8 +200,87 @@ void main() {
       ]);
       expect(find.text('Randevu ayrıntısı'), findsOneWidget);
       expect(s.details, 1);
+      expect(find.textContaining('Ayşe Yılmaz'), findsOneWidget);
+      expect(find.textContaining('34 ABC 123'), findsOneWidget);
     },
   );
+
+  testWidgets(
+    'booking from calendar loads detail despite delayed calendar refresh',
+    (tester) async {
+      final s = FakeScheduling();
+      final refresh = Completer<AuthResult<List<Appointment>>>();
+      s.calendarHandler = () async =>
+          s.calendars == 1 ? const AuthSuccess([]) : refresh.future;
+      final c = makeController(s);
+      addTearDown(c.dispose);
+      await openPage(
+        tester,
+        SchedulingScreen(
+          business: businessA,
+          service: s,
+          settings: c.settings,
+          catalog: c.catalog,
+          customers: c.customers,
+          isCurrent: () => true,
+          onAuthorizationFailure: (_) async {},
+        ),
+      );
+      await tapText(tester, 'Yeni randevu');
+      await selectBooking(tester);
+      await tapText(tester, 'Randevuyu onayla');
+      await tester.tap(find.text('Randevuyu oluştur'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      expect(s.calendars, 2);
+      expect(s.details, 0);
+      expect(find.text('Randevu ayrıntıları yükleniyor…'), findsOneWidget);
+      refresh.complete(const AuthSuccess([]));
+      await tester.pumpAndSettle();
+      expect(s.creates, hasLength(1));
+      expect(find.text('Randevu ayrıntısı'), findsOneWidget);
+      expect(s.details, 1);
+      expect(find.textContaining('Ayşe Yılmaz'), findsOneWidget);
+      expect(find.textContaining('34 ABC 123'), findsOneWidget);
+    },
+  );
+
+  testWidgets('detail initial loading failure and retry are visible', (
+    tester,
+  ) async {
+    final s = FakeScheduling();
+    final detail = Completer<AuthResult<Appointment>>();
+    s.detailHandler = () => detail.future;
+    final c = makeController(s);
+    addTearDown(c.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AppointmentDetailScreen(controller: c, id: appointmentId),
+      ),
+    );
+    await tester.pump();
+    expect(s.details, 1);
+    expect(find.text('Randevu ayrıntıları yükleniyor…'), findsOneWidget);
+    expect(
+      tester.widget<OutlinedButton>(find.byType(OutlinedButton)).onPressed,
+      isNull,
+    );
+    detail.complete(AuthFailure(AuthError(code: AuthErrorCode.timeout)));
+    await tester.pumpAndSettle();
+    expect(find.text('Randevu ayrıntıları yükleniyor…'), findsNothing);
+    expect(
+      find.text('Randevu ayrıntıları yüklenemedi. Yeniden deneyin.'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Ayşe Yılmaz'), findsNothing);
+    s.detailHandler = null;
+    await tapText(tester, 'Yeniden dene');
+    expect(s.details, 2);
+    expect(find.textContaining('Ayşe Yılmaz'), findsOneWidget);
+    expect(find.textContaining('34 ABC 123'), findsOneWidget);
+    expect(find.text('Yeniden dene'), findsNothing);
+  });
 
   testWidgets(
     'booking timeout locks edits and retries identical key and payload',
