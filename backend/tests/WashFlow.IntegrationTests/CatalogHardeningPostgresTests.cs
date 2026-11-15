@@ -19,7 +19,10 @@ public sealed partial class CatalogPostgresTests
         using var api = Api(root);
         using var c = api.CreateClient();
         var (business, _, _) = await Seed(api, c);
-        var original = await Create(c, business);
+        var created = await Create(c, business);
+        var servicePath = $"{Path(business)}/{created.Id}";
+        // Compare persisted snapshots because PostgreSQL stores timestamps at microsecond precision.
+        var original = await Json<ServiceView>(await c.GetAsync(servicePath));
         foreach (var description in new[] { false, true })
         {
             var invalid = Input(original.Version);
@@ -28,14 +31,14 @@ public sealed partial class CatalogPostgresTests
             foreach (var update in new[] { false, true })
             {
                 using var response = update
-                    ? await c.PutAsJsonAsync($"{Path(business)}/{original.Id}", invalid)
+                    ? await c.PutAsJsonAsync(servicePath, invalid)
                     : await c.PostAsJsonAsync(Path(business), invalid);
                 Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
                 using var error = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
                 Assert.True(error.RootElement.GetProperty("errors").TryGetProperty(description ? "description" : "name", out _));
             }
         }
-        var current = await Json<ServiceView>(await c.GetAsync($"{Path(business)}/{original.Id}"));
+        var current = await Json<ServiceView>(await c.GetAsync(servicePath));
         Assert.Equal(JsonSerializer.Serialize(original), JsonSerializer.Serialize(current));
         Assert.Single((await Json<DataPage<ServiceView>>(await c.GetAsync(Path(business)))).Items);
 
@@ -136,7 +139,9 @@ public sealed partial class CatalogPostgresTests
     {
         using var root = new ApiFactory(); using var api = Api(root); using var owner = api.CreateClient();
         var (business, _, _) = await Seed(api, owner);
-        var row = await Create(owner, business);
+        var created = await Create(owner, business);
+        var servicePath = $"{Path(business)}/{created.Id}";
+        var row = await Json<ServiceView>(await owner.GetAsync(servicePath));
         foreach (var role in new MembershipRole?[] { MembershipRole.Employee, null })
         {
             using var c = api.CreateClient();
@@ -151,7 +156,7 @@ public sealed partial class CatalogPostgresTests
             }
             await AssertCatalogDenied(c, business, row, HttpStatusCode.Forbidden);
         }
-        var current = await Json<ServiceView>(await owner.GetAsync($"{Path(business)}/{row.Id}"));
+        var current = await Json<ServiceView>(await owner.GetAsync(servicePath));
         Assert.Equal(JsonSerializer.Serialize(row), JsonSerializer.Serialize(current));
     }
 
