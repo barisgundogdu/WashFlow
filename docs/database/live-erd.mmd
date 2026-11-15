@@ -1,0 +1,340 @@
+---
+title: WashFlow demo schema · washflow_phase9e_db
+config:
+  theme: neutral
+  deterministicIds: true
+  deterministicIDSeed: washflow-live-erd
+  htmlLabels: false
+---
+erDiagram
+    direction LR
+    %% Type words are separated by underscores. Numeric precision is in the column note.
+    AppointmentEvents {
+        uuid Id PK "NOT NULL"
+        uuid BusinessId FK "NOT NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+        uuid AppointmentId FK "NOT NULL"
+        uuid ActorUserId FK "NOT NULL"
+        integer Sequence "NOT NULL"
+        integer Kind "NOT NULL"
+        timestamp_with_time_zone PreviousStart "NULL"
+        timestamp_with_time_zone PreviousEnd "NULL"
+        timestamp_with_time_zone NewStart "NOT NULL"
+        timestamp_with_time_zone NewEnd "NOT NULL"
+        integer Status "NOT NULL"
+    }
+
+    AppointmentResourceReservations {
+        uuid Id PK "NOT NULL"
+        uuid BusinessId FK "NOT NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+        uuid AppointmentId FK "NOT NULL"
+        uuid WorkAreaId FK "NULL"
+        uuid EmployeeMembershipId FK "NULL"
+        timestamp_with_time_zone StartsAtUtc "NOT NULL"
+        timestamp_with_time_zone EndsAtUtc "NOT NULL"
+        timestamp_with_time_zone ReleasedAt "NULL"
+    }
+
+    Appointments {
+        uuid Id PK "NOT NULL"
+        uuid BusinessId FK "NOT NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+        uuid LocalCustomerId FK "NOT NULL"
+        uuid LocalVehicleId FK "NOT NULL"
+        uuid ServiceId FK "NOT NULL"
+        uuid WorkAreaId FK "NOT NULL"
+        uuid CreatedByUserId FK "NOT NULL"
+        uuid ClientRequestId "NOT NULL"
+        character_varying(64) RequestHash "NOT NULL"
+        integer Source "NOT NULL"
+        integer Status "NOT NULL"
+        timestamp_with_time_zone StartsAtUtc "NOT NULL"
+        timestamp_with_time_zone ActiveEndsAtUtc "NOT NULL"
+        character_varying(100) TimeZoneIdSnapshot "NOT NULL"
+        character_varying(200) ServiceName "NOT NULL"
+        character_varying(200) CustomerName "NOT NULL"
+        character_varying(32) VehiclePlate "NOT NULL"
+        character_varying(32) Category "NOT NULL"
+        numeric Price "NOT NULL · numeric(9,2)"
+        character_varying(3) Currency "NOT NULL"
+        integer ActiveMinutes "NOT NULL"
+        integer WaitingMinutes "NULL"
+        integer Employees "NOT NULL"
+    }
+
+    BusinessMembershipRoles {
+        uuid BusinessMembershipId PK, FK "NOT NULL"
+        integer Role PK "NOT NULL"
+    }
+
+    BusinessMemberships {
+        uuid Id PK "NOT NULL"
+        uuid BusinessId FK "NOT NULL"
+        uuid UserId FK "NOT NULL"
+        timestamp_with_time_zone RevokedAt "NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+    }
+
+    BusinessServices {
+        uuid Id PK "NOT NULL"
+        uuid BusinessId FK "NOT NULL"
+        character_varying(200) Name "NOT NULL"
+        character_varying(200) SearchName "NOT NULL"
+        character_varying(2000) Description "NULL"
+        boolean Enabled "NOT NULL"
+        boolean Published "NOT NULL"
+        timestamp_with_time_zone ArchivedAt "NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+    }
+
+    Businesses {
+        uuid Id PK "NOT NULL"
+        character_varying(200) Name "NOT NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+        character_varying(250) AddressLine1 "NULL"
+        character_varying(250) AddressLine2 "NULL"
+        character_varying(100) City "NULL"
+        character_varying(320) ContactEmail "NULL"
+        character_varying(2) CountryCode "NULL"
+        character_varying(2000) Description "NULL"
+        character_varying(100) District "NULL"
+        boolean HoursConfigured "NOT NULL"
+        character_varying(40) Phone "NULL"
+        character_varying(32) PostalCode "NULL"
+        character_varying(100) Region "NULL"
+        character_varying(100) TimeZoneId "NULL"
+    }
+
+    CustomerProfiles {
+        uuid Id PK "NOT NULL"
+        uuid UserId FK, UK "NOT NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+    }
+
+    DeviceSessions {
+        uuid Id PK "NOT NULL"
+        uuid UserId FK "NOT NULL"
+        uuid SecurityStamp "NOT NULL"
+        character_varying(200) DeviceName "NOT NULL"
+        timestamp_with_time_zone ExpiresAt "NOT NULL"
+        timestamp_with_time_zone RevokedAt "NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+    }
+
+    EmailVerificationTokens {
+        uuid Id PK "NOT NULL"
+        uuid UserId FK "NOT NULL"
+        character_varying(320) NormalizedEmail "NOT NULL"
+        uuid SecurityStamp "NOT NULL"
+        character_varying(64) TokenHash UK "NOT NULL"
+        timestamp_with_time_zone ExpiresAt "NOT NULL"
+        timestamp_with_time_zone ConsumedAt "NULL"
+        timestamp_with_time_zone RevokedAt "NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+    }
+
+    EmployeeAvailabilities {
+        uuid Id PK "NOT NULL"
+        uuid BusinessId FK "NOT NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+        uuid MembershipId FK "NOT NULL"
+        timestamp_with_time_zone StartsAtUtc "NOT NULL"
+        timestamp_with_time_zone EndsAtUtc "NOT NULL"
+        timestamp_with_time_zone ArchivedAt "NULL"
+    }
+
+    EmployeeInvitations {
+        uuid Id PK "NOT NULL"
+        uuid BusinessId FK "NOT NULL"
+        uuid InvitedByMembershipId FK "NOT NULL"
+        character_varying(320) NormalizedEmail "NOT NULL"
+        character_varying(64) TokenHash UK "NOT NULL"
+        timestamp_with_time_zone ExpiresAt "NOT NULL"
+        timestamp_with_time_zone AcceptedAt "NULL"
+        uuid AcceptedByUserId FK "NULL"
+        timestamp_with_time_zone RevokedAt "NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+    }
+
+    LocalCustomers {
+        uuid Id PK "NOT NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+        uuid BusinessId FK "NOT NULL"
+        character_varying(200) FullName "NOT NULL"
+        character_varying(200) NormalizedName "NOT NULL"
+        character_varying(40) Phone "NULL"
+        character_varying(40) NormalizedPhone "NULL"
+        character_varying(320) Email "NULL"
+        character_varying(2000) Notes "NULL"
+    }
+
+    LocalVehicles {
+        uuid Id PK "NOT NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+        uuid BusinessId FK "NOT NULL"
+        uuid LocalCustomerId FK "NOT NULL"
+        character_varying(32) Plate "NOT NULL"
+        character_varying(64) NormalizedPlate "NOT NULL"
+        character_varying(80) Brand "NOT NULL"
+        character_varying(100) Model "NOT NULL"
+        character_varying(32) Category "NOT NULL"
+        integer ModelYear "NULL"
+        character_varying(60) Color "NULL"
+        character_varying(2000) Notes "NULL"
+        timestamp_with_time_zone ArchivedAt "NULL"
+    }
+
+    OwnedVehicles {
+        uuid Id PK "NOT NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+        uuid CustomerProfileId FK "NOT NULL"
+        character_varying(32) Plate "NOT NULL"
+        character_varying(64) NormalizedPlate "NOT NULL"
+        character_varying(80) Brand "NOT NULL"
+        character_varying(100) Model "NOT NULL"
+        character_varying(32) Category "NOT NULL"
+        integer ModelYear "NULL"
+        character_varying(60) Color "NULL"
+        character_varying(2000) Notes "NULL"
+        timestamp_with_time_zone ArchivedAt "NULL"
+    }
+
+    PasswordResetTokens {
+        uuid Id PK "NOT NULL"
+        uuid UserId FK "NOT NULL"
+        uuid SecurityStamp "NOT NULL"
+        character_varying(64) TokenHash UK "NOT NULL"
+        timestamp_with_time_zone ExpiresAt "NOT NULL"
+        timestamp_with_time_zone ConsumedAt "NULL"
+        timestamp_with_time_zone RevokedAt "NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+    }
+
+    RefreshTokens {
+        uuid Id PK "NOT NULL"
+        uuid DeviceSessionId FK "NOT NULL"
+        character_varying(64) TokenHash UK "NOT NULL"
+        timestamp_with_time_zone ConsumedAt "NULL"
+        timestamp_with_time_zone RevokedAt "NULL"
+        uuid ReplacedByTokenId FK "NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+    }
+
+    SchedulingCreateReceipts {
+        uuid BusinessId PK, FK "NOT NULL"
+        uuid ClientRequestId PK "NOT NULL"
+        uuid AppointmentId FK "NOT NULL"
+        jsonb ResultJson "NOT NULL"
+    }
+
+    ServiceOfferings {
+        uuid ServiceId PK, FK "NOT NULL"
+        character_varying(32) Category PK "NOT NULL"
+        numeric Price "NOT NULL · numeric(9,2)"
+        character_varying(3) Currency "NOT NULL"
+        integer ActiveMinutes "NOT NULL"
+        integer WaitingMinutes "NULL"
+        integer Employees "NOT NULL"
+    }
+
+    ServiceSchedulingRequirements {
+        uuid Id PK "NOT NULL"
+        uuid BusinessId FK "NOT NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+        uuid ServiceId FK "NOT NULL"
+        character_varying(32) Category "NOT NULL"
+        uuid WorkAreaId FK "NOT NULL"
+        boolean SingleStageConfirmed "NOT NULL"
+    }
+
+    Users {
+        uuid Id PK "NOT NULL"
+        character_varying(200) FullName "NOT NULL"
+        character_varying(320) Email "NOT NULL"
+        character_varying(320) NormalizedEmail UK "NOT NULL"
+        character_varying(2048) PasswordHash "NOT NULL"
+        uuid SecurityStamp "NOT NULL"
+        timestamp_with_time_zone EmailVerifiedAt "NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+    }
+
+    WeeklyOpeningDays {
+        uuid BusinessId PK, FK "NOT NULL"
+        integer Day PK "NOT NULL"
+        boolean Closed "NOT NULL"
+        integer OpensAtMinute "NULL"
+        integer ClosesAtMinute "NULL"
+    }
+
+    WorkAreas {
+        uuid Id PK "NOT NULL"
+        uuid BusinessId FK "NOT NULL"
+        timestamp_with_time_zone CreatedAt "NOT NULL"
+        timestamp_with_time_zone UpdatedAt "NOT NULL"
+        character_varying(200) Name "NOT NULL"
+        integer Capacity "NOT NULL"
+        timestamp_with_time_zone ArchivedAt "NULL"
+    }
+
+    EfMigrationHistory["__EFMigrationsHistory (EF metadata)"] {
+        character_varying(150) MigrationId PK "NOT NULL"
+        character_varying(32) ProductVersion "NOT NULL"
+    }
+
+    Appointments ||..o{ AppointmentEvents : "BusinessId, AppointmentId"
+    Businesses ||..o{ AppointmentEvents : "BusinessId"
+    Users ||..o{ AppointmentEvents : "ActorUserId"
+    Appointments ||..o{ AppointmentResourceReservations : "BusinessId, AppointmentId"
+    BusinessMemberships o|..o{ AppointmentResourceReservations : "BusinessId, EmployeeMembershipId"
+    Businesses ||..o{ AppointmentResourceReservations : "BusinessId"
+    WorkAreas o|..o{ AppointmentResourceReservations : "BusinessId, WorkAreaId"
+    BusinessServices ||..o{ Appointments : "BusinessId, ServiceId"
+    Businesses ||..o{ Appointments : "BusinessId"
+    LocalCustomers ||..o{ Appointments : "BusinessId, LocalCustomerId"
+    LocalVehicles ||..o{ Appointments : "BusinessId, LocalCustomerId, LocalVehicleId"
+    Users ||..o{ Appointments : "CreatedByUserId"
+    WorkAreas ||..o{ Appointments : "BusinessId, WorkAreaId"
+    BusinessMemberships ||--o{ BusinessMembershipRoles : "BusinessMembershipId"
+    Businesses ||..o{ BusinessMemberships : "BusinessId"
+    Users ||..o{ BusinessMemberships : "UserId"
+    Businesses ||..o{ BusinessServices : "BusinessId"
+    Users ||..o| CustomerProfiles : "UserId"
+    Users ||..o{ DeviceSessions : "UserId"
+    Users ||..o{ EmailVerificationTokens : "UserId"
+    BusinessMemberships ||..o{ EmployeeAvailabilities : "BusinessId, MembershipId"
+    Businesses ||..o{ EmployeeAvailabilities : "BusinessId"
+    BusinessMemberships ||..o{ EmployeeInvitations : "BusinessId, InvitedByMembershipId"
+    Businesses ||..o{ EmployeeInvitations : "BusinessId"
+    Users o|..o{ EmployeeInvitations : "AcceptedByUserId"
+    Businesses ||..o{ LocalCustomers : "BusinessId"
+    LocalCustomers ||..o{ LocalVehicles : "BusinessId, LocalCustomerId"
+    CustomerProfiles ||..o{ OwnedVehicles : "CustomerProfileId"
+    Users ||..o{ PasswordResetTokens : "UserId"
+    DeviceSessions ||..o{ RefreshTokens : "DeviceSessionId"
+    RefreshTokens o|..o| RefreshTokens : "DeviceSessionId, ReplacedByTokenId"
+    Appointments ||..o| SchedulingCreateReceipts : "BusinessId, AppointmentId"
+    BusinessServices ||--o{ ServiceOfferings : "ServiceId"
+    BusinessServices ||..o{ ServiceSchedulingRequirements : "BusinessId, ServiceId"
+    Businesses ||..o{ ServiceSchedulingRequirements : "BusinessId"
+    WorkAreas ||..o{ ServiceSchedulingRequirements : "BusinessId, WorkAreaId"
+    Businesses ||--o{ WeeklyOpeningDays : "BusinessId"
+    Businesses ||..o{ WorkAreas : "BusinessId"
