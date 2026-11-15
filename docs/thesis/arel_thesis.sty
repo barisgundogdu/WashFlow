@@ -1,0 +1,181 @@
+%%
+%% Arel_tez.sty
+%% A LaTeX style file for thesis formatting at Istanbul Arel University
+%%
+%% Prepared by Asst. Prof. Tuğberk Kocatekin
+%% Computer Engineering Department
+%% Istanbul Arel University
+%%
+%% Version: 1.1
+%% Date: 2023
+%% Changelog
+%% ----------
+%% v1.1 (2026)
+%% - Fixed section/subsection font-size inconsistency.
+%%
+%% v1.0 (2023)
+%% - Initial release
+
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{arel_thesis}
+
+%\RequirePackage[a4paper]{geometry}
+
+\RequirePackage{graphicx}
+\RequirePackage{fancyhdr}
+\RequirePackage{titlesec}
+\RequirePackage{setspace}
+
+
+\titleformat{\chapter}
+{\Large\bfseries\centering}{\thechapter.}{14pt}{}
+
+\titleformat{\section}[block]{\large\bfseries}{\thesection}{1em}{}
+
+\titleformat{\subsection}
+{\normalsize\bfseries}
+{\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+{\normalsize\bfseries}
+{\thesubsubsection}{1em}{}
+
+
+%
+%\ExecuteOptions{letterpaper,oneside,openright}
+%\ExecuteOptions{normalmargins,onehalfspaced,singlespacednotes}
+%%
+
+
+
+
+\newcommand\ozetname{\"OZET}
+\renewcommand\contentsname{Table of Contents}
+
+%%add list of figures and tables to toc
+%\addcontentsline{toc}{chapter}{\listfigurename}%
+%\addcontentsline{toc}{chapter}{\listtablename}%
+
+
+
+
+%%
+
+
+
+%prelim - in order to show roman in the first pages
+
+\newenvironment*{preliminary}%
+{\pagestyle{plain}\pagenumbering{roman}}%
+{\cleardoublepage\pagenumbering{arabic}}
+
+%%%
+
+
+\newcommand*{\degree}[1]%
+{\ifx\empty#1\empty\else\gdef\@degree{#1}\fi}
+
+\newcommand*{\department}[1]%
+{\ifx\empty#1\empty\else\gdef\@department{#1}\fi}
+
+\newcommand*{\gradyear}[1]%
+{\ifx\empty#1\empty\else\gdef\@gradyear{#1}\fi}
+
+\newcommand*{\studentname}[1]%
+{\ifx\empty#1\empty\else\gdef\@studentname{#1}\fi}
+
+\newcommand*{\studentid}[1]%
+{\ifx\empty#1\empty\else\gdef\@studentid{#1}\fi}
+
+\renewcommand*{\title}[1]%
+{\ifx\empty#1\empty\else\gdef\@title{#1}\fi}
+
+\newcommand*{\trtitle}[1]%
+{\ifx\empty#1\empty\else\gdef\@trtitle{#1}\fi}
+
+\newcommand*{\supervisor}[1]%
+{\ifx\empty#1\empty\else\gdef\@supervisor{#1}\fi}
+
+
+\renewcommand*{\maketitle}%
+{
+			\begin{titlepage}
+
+			\begin{center}
+			\mbox{}
+			\vfill
+			\begin{figure}[h]
+				\centering
+				\includegraphics[width=0.1\linewidth]{logo}
+			\end{figure}
+			{\bf \Large \@title}\\
+			\vfill
+			\textbf{Written by:} \\
+%			\vfill
+			{\@studentname \hspace{0.1cm} (\@studentid})\\
+			\vfill
+			\textbf{Supervised by:} \\
+			%\vfill
+			{\@supervisor}\\
+			\vfill
+			\textit{
+			A thesis submitted in partial fulfillment of the requirements\\
+			for the degree of\\ {\@degree} in
+			{\@department}\\
+			T.C. Istanbul Arel University\\
+		}
+			\vfill
+			{İstanbul, \@gradyear} \\
+			\vspace{.01\textheight}
+			\mbox{}
+		\end{center}
+		\setcounter{page}{1}
+		\end{titlepage}
+		\setcounter{page}{2}
+			
+	}
+		
+		
+\renewenvironment*{abstract}
+{
+	%	\clearpage
+%	\addcontentsline{toc}{chapter}{\uppercase{\abstractname}}
+	\begin{center}
+		{\@title} \\
+		\vspace{1cm}
+		{\centering \large \bfseries Abstract}
+		\vspace{9pt}
+	\end{center}
+	%writes here
+	\begingroup
+}
+	{\par\endgroup\newpage}
+
+
+
+
+\newenvironment*{ozet}%
+{
+%	\clearpage
+%\addcontentsline{toc}{chapter}{\uppercase{\ozetname}}
+	\begin{center}
+		{\@trtitle} \\
+		\vspace{1cm}
+		{\centering \large \bfseries Özet}
+		\vspace{9pt}
+	\end{center}
+	\begingroup		
+}
+{\par\endgroup\newpage}
+
+%\renewcommand{\tableofcontents}{
+%	\begin{center}
+%		\vspace{2cm}
+%		\large \bfseries  \contentsname\par\nobreak
+%	\end{center}
+%	\@afterheading
+%	\@starttoc{toc}%
+%}
+
+
