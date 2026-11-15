@@ -1,6 +1,6 @@
 # WashFlow midterm thesis progress report
 
-The [compiled report](washflow-midterm-progress-report.pdf) is in English, with the Turkish abstract required by the template. The source adapts [Istanbul Arel University's thesis template](https://github.com/kocatekin/arel_thesis_latex_template/tree/866a986d808475984d49764073ad7f862fa2cd31). The style and university logo are byte-for-byte copies from that revision. The report retains the template chapter structure and IEEEtran bibliography.
+The [compiled report](washflow-midterm-progress-report.pdf) is in English, with the Turkish abstract required by the template. The source adapts [Istanbul Arel University's thesis template](https://github.com/kocatekin/arel_thesis_latex_template/tree/866a986d808475984d49764073ad7f862fa2cd31). The university logo is from that revision. The only change to the style file corrects the spelling of “partial fulfillment” on the cover. The report retains the template chapter structure and IEEEtran bibliography.
 
 ## Build
 
@@ -40,4 +40,4 @@ Review each image for visible personal data, passwords, invitation or verificati
 
 ## Before submission
 
-The official template includes a page for acknowledging assistance and an undertaking about originality and prior submission. The student should complete the acknowledgement and review, complete and sign the official undertaking according to the university's instructions.
+The Undertaking reproduces the two paragraphs in the original template, with `WashFlow` substituted for `Project Title`. Before submission, the student must confirm that the declaration applies and follow any separate institutional requirements for a signature or date.

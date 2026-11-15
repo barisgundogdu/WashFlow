@@ -14,7 +14,7 @@
 \gradyear{November 2026}
 \studentname{Barış Gündoğdu}
 \studentid{230303912}
-\supervisor{Asst. Prof. Dr. Tuğberk Kocatekin}
+\supervisor{Dr. Tuğberk Kocatekin}
 \title{WashFlow\\Midterm Thesis Progress Report}
 \trtitle{WashFlow\\Mezuniyet Projesi Ara Raporu}
 \renewcommand{\bibname}{References}
@@ -40,10 +40,16 @@
 
 \begin{preliminary}
 \chapter*{Acknowledgement}
-[The student will supply any acknowledgement of assistance received before submission.]
+I would like to express my sincere gratitude to my supervisor, Dr. Tuğberk Kocatekin, for his guidance and valuable feedback throughout the development of this graduation project.
+
+I would also like to thank the faculty members of the Computer Engineering Department at Istanbul Arel University for the knowledge and support they have provided during my undergraduate education.
+
+Finally, I am grateful to my family for their continuous encouragement and support throughout my studies.
 
 \chapter*{Undertaking}
-[The student must review and complete the undertaking in the official Arel template before submission. Any declaration, date or signature must be supplied by the student.]
+This is to declare that the project entitled ``WashFlow'' is an original work done by undersigned, in partial fulfillment of the requirements for the degree ``Bachelor of Science in Computer Engineering'' at Computer Engineering Department, Faculty of Engineering, Istanbul Arel University.
+
+All the analysis, design and system development have been accomplished by the undersigned. Moreover, this project has not been submitted to any other college or university.
 
 \newpage
 \begin{abstract}
@@ -72,7 +78,7 @@ The pilot business observations recorded in the requirements specification descr
 The midterm objectives are to deliver one working owner workflow from the mobile interface to persistent storage, verify tenant isolation and scheduling rules in automated tests, and make the work reproducible through tracked migrations and CI. Later objectives include customer self-service booking and operational workflows beyond the appointment calendar.
 
 \chapter{Background and Requirements Analysis}
-The functional baseline is version 0.2 of the Software Requirements Specification \cite{srs}. It distinguishes business staff who act within a tenant from customers who own platform records. An owner can administer the business and its local customers, vehicles, catalogue and appointments. Employees enter through an invitation process and receive a restricted context. The customer context currently supports personally owned vehicles. This separation informs both route selection in Flutter and authorization decisions in the API.
+The functional baseline is version 0.2 of the Software Requirements Specification \cite{srs}. It distinguishes business staff who act within a tenant from customers who own platform records. An owner can administer the business and its local customers, vehicles, service catalog and appointments. Employees enter through an invitation process and receive a restricted context. The customer context currently supports personally owned vehicles. This separation informs both route selection in Flutter and authorization decisions in the API.
 
 The midterm vertical slice targets the owner-side milestone in the SRS. It requires identifying the current owner and business, creating a local customer, adding a vehicle under that customer and retrieving the saved records. Verification includes rejecting access by another business or an actor without the required role. Independently, a customer may manage their own vehicles. The SRS reserves verified linking of a local customer to a registered account for later work. Similar names or plates are insufficient evidence of identity.
 
@@ -99,7 +105,7 @@ For protected operations, the API validates the JWT and evaluates the active ses
 \section{Database Design and ER Diagram}
 The schema separates \texttt{LocalCustomers} and \texttt{LocalVehicles}, which belong to a business, from \texttt{CustomerProfiles} and \texttt{OwnedVehicles}, which are associated with platform identities. Composite foreign keys in scheduling preserve tenant and ownership paths when an appointment references local customer, vehicle or resource records. PostgreSQL's \texttt{xmin} system column provides the row version used for optimistic concurrency on mutable records. The column inventory counts user-defined columns.
 
-Figure~\ref{fig:erd-overview} shows selected physical relationships used by the owner workflow. Appendix~\ref{app:erd} presents the complete verified schema. The audit confirmed the API connection target and extracted the live \path{washflow_phase9e_db} schema in a read-only transaction. The inventory contains 23 application tables and one EF migration history table, 219 columns including metadata, 38 foreign keys and seven applied migrations. The catalog matched the reference database built from the seven migrations. EF Core found no model changes relative to the latest migration snapshot. The separate \path{washflow_db} database had only the first two migrations \cite{schemaaudit,pgcatalogs}.
+Figure~\ref{fig:erd-overview} shows selected physical relationships used by the owner workflow. Figure~\ref{fig:erd} in Appendix~\ref{app:erd} presents the complete verified schema. The audit confirmed the API connection target and extracted the live \path{washflow_phase9e_db} schema in a read-only transaction. The inventory contains 23 application tables and one EF migration history table, 219 columns including metadata, 38 foreign keys and seven applied migrations. The catalog matched the reference database built from the seven migrations. EF Core found no model changes relative to the latest migration snapshot. The separate \path{washflow_db} database had only the first two migrations \cite{schemaaudit,pgcatalogs}.
 
 \begin{figure}[htbp]
 \centering
@@ -121,7 +127,7 @@ Figure~\ref{fig:erd-overview} shows selected physical relationships used by the 
   \draw[relationship] (services) -- (appointments);
   \draw[relationship] (areas.south) -- (appointments.north east);
 \end{tikzpicture}
-\caption{Selected foreign-key relationships for the owner workflow. Each arrow points from the referenced row to the referencing table. A parent can have zero or more children along each displayed relationship, and each such child has one parent.}
+\caption[Selected foreign-key relationships for the owner workflow]{Selected foreign-key relationships for the owner workflow. Each arrow points from the referenced table to the referencing table. In each relationship shown, a parent row can have zero or more child rows, and each child row references one parent.}
 \label{fig:erd-overview}
 \end{figure}
 
@@ -150,15 +156,15 @@ Planned & Public business discovery, customer self-service booking, walk-in queu
 \subsection{Integrated owner vertical slice}
 The owner selects the business context, enters customer details and submits them from Flutter. The client sends an authenticated request to the tenant-scoped customer endpoint. The API verifies the owner role, validates the input and calls the EF-backed store. The owner adds a vehicle through the nested customer endpoint, and the client retrieves the saved vehicle from the API. Database constraints and store queries enforce the relationship between business, customer and vehicle. The integration suite checks persistence and rejects foreign tenant identifiers and unauthorized actors \cite{repo,phase7}.
 
-The Phase 7 record documents a Flutter test on an iOS simulator against Kestrel and PostgreSQL in an isolated environment. In that run, the owner created, searched and edited customers and managed local vehicles. Authentication setup in the relevant harness used the API adapter. The report therefore treats this result as historical end-to-end evidence for the customer and vehicle screens, and does not infer a fresh sign-up-to-database rehearsal on the merged commit from those results \cite{phase7}.
+The Phase 7 record documents an isolated iOS simulator run against Kestrel and PostgreSQL. The owner created, searched and edited customer records and managed local vehicles. The harness established its authenticated session through the API adapter. The documented end-to-end run covers the customer and vehicle screens, with a sign-up rehearsal on the current build still pending \cite{phase7}.
 
 \subsection{Scheduling decisions}
 The owner can configure work areas, service requirements and employee availability. The scheduling API supports preview, creation, rescheduling and cancellation for owner-entered appointments. The preview gives the operator feedback before submission. The write path locks the business row in a PostgreSQL transaction and checks resource availability again because a competing request may have reserved the same resource in the meantime. This serializes scheduling writes within a business while allowing unrelated businesses to proceed independently. Availability and capacity checks use the active service interval, and the appointment keeps relevant price and duration values from the time of booking. Integration tests exercise simultaneous competing requests, version conflicts and repeated submissions \cite{phase9}. The repository evidence does not establish current on-device validation of the full scheduling flow.
 
 \section{Testing and Continuous Integration}
-CI triggers on pushes and pull requests. The backend job pins .NET SDK 10.0.402, builds the solution in Release and runs tests with a disposable PostgreSQL 17 service. The integration fixture creates and migrates isolated schemas in that service. The Flutter job pins Flutter 3.47.7, resolves dependencies from the lockfile, runs static analysis and executes automated tests. Flutter distinguishes unit, widget and integration testing \cite{fluttertesting}. The CI Flutter total is evidence for its automated suite. The separate Phase 7 record is the evidence for the simulator-to-database flow.
+CI runs on pushes and pull requests. The backend job uses .NET SDK 10.0.402, builds the solution in Release configuration and runs tests against a disposable PostgreSQL 17 service. The integration fixture creates and migrates isolated schemas in that service. The Flutter job uses Flutter 3.47.7, resolves dependencies from the lockfile, runs static analysis and executes the unit and widget test suite. Separate simulator tests provide evidence for the end-to-end database workflow \cite{fluttertesting,phase7}.
 
-Table~\ref{tab:ci} records the counts read from the PR \#15 job logs. Test totals count test cases, not requirements or user journeys. The backend integration count includes HTTP and PostgreSQL scenarios. The checks establish build and automated test outcomes for the recorded run \cite{ciBackendLog,ciFlutterLog}.
+Table~\ref{tab:ci} reports the test counts from the PR \#15 job logs. The backend build passed, and the 398 backend tests include HTTP and PostgreSQL integration cases. Flutter static analysis reported no issues \cite{ciBackendLog,ciFlutterLog}.
 
 \begin{table}[htbp]
 \centering
@@ -182,7 +188,7 @@ The work progressed from authentication and authorization to business settings, 
 \section{Current Limitations and Remaining Work}
 The assessed deliverable is the owner customer and vehicle slice. Customer booking, walk-in queue management, employee execution of multi-stage jobs and financial reporting remain to be implemented. The current scheduler covers owner-entered appointments for a single service stage. Profile editing and verified linking between a business-local customer and a platform account also remain open. Pilot performance, usability and deployment have not been evaluated in this report.
 
-Appendix~\ref{app:screens} identifies the six application screens used to document the demonstration.
+Appendix~\ref{app:screens} documents the six application screens. The appointment image shows the empty agenda and provides evidence that the screen loads.
 
 \chapter{Conclusion}
 WashFlow has an implemented owner workflow that crosses Flutter, the ASP.NET Core API and PostgreSQL. The isolated simulator evidence demonstrates the customer and vehicle data flow, while the live catalog audit establishes the physical schema of the current demo database. Automated checks support reproducible verification of backend and Flutter changes. The next milestone extends this foundation to customer booking and operational workflows. Before the midterm demonstration, the current device build should be rehearsed from sign-up and email verification through customer and vehicle creation and retrieval after restart.
@@ -211,13 +217,14 @@ WashFlow has an implemented owner workflow that crosses Flutter, the ASP.NET Cor
 
 \chapter{Application Screenshot Evidence}
 \label{app:screens}
-The captures show the Flutter app on an iPhone 18 Pro simulator. The owner workflow used the ASP.NET Core API and a disposable PostgreSQL instance populated with synthetic records.
+The captures show the Flutter app on an iPhone 18 Pro simulator. The owner workflow used the ASP.NET Core API and a disposable PostgreSQL instance populated with synthetic records. Figures~\ref{fig:auth-captures}, \ref{fig:owner-captures}, and~\ref{fig:vehicle-schedule-captures} show the captured screens.
 \begin{figure}[h!]
 \centering
 \capturepanel{01-sign-in}{Sign in}{Open \emph{Giriş yap} from the welcome screen.}
 \hfill
 \capturepanel{02-sign-up}{Owner sign-up}{Open \emph{Kayıt ol} and choose \emph{İşletme kaydı}.}
 \caption{Authentication screens.}
+\label{fig:auth-captures}
 \end{figure}
 \clearpage
 \begin{figure}[h!]
@@ -226,6 +233,7 @@ The captures show the Flutter app on an iPhone 18 Pro simulator. The owner workf
 \hfill
 \capturepanel{04-customer-management}{Customer management}{Open \emph{Müşteriler ve araçlar} and show the synthetic customer list.}
 \caption{Owner navigation and business-local customer management.}
+\label{fig:owner-captures}
 \end{figure}
 \clearpage
 \begin{figure}[h!]
@@ -234,5 +242,6 @@ The captures show the Flutter app on an iPhone 18 Pro simulator. The owner workf
 \hfill
 \capturepanel{06-appointment-scheduling}{Appointment scheduling}{Open \emph{Planlama ve randevular} and show the calendar.}
 \caption{A saved synthetic vehicle and the owner appointment calendar in its empty state.}
+\label{fig:vehicle-schedule-captures}
 \end{figure}
 \end{document}
