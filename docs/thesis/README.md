@@ -1,21 +1,43 @@
 # WashFlow midterm thesis progress report
 
-The [compiled report](washflow-midterm-progress-report.pdf) is in English, with the Turkish abstract required by the template. The source adapts [Istanbul Arel University's thesis template](https://github.com/kocatekin/arel_thesis_latex_template/tree/866a986d808475984d49764073ad7f862fa2cd31). The included style and university logo are copied from that revision without modification. The body uses the template's Introduction, Background, Method, Results and Evaluation, and Conclusion chapters, with IEEEtran bibliography formatting.
+The [compiled report](washflow-midterm-progress-report.pdf) is in English, with the Turkish abstract required by the template. The source adapts [Istanbul Arel University's thesis template](https://github.com/kocatekin/arel_thesis_latex_template/tree/866a986d808475984d49764073ad7f862fa2cd31). The style and university logo are byte-for-byte copies from that revision. The report retains the template chapter structure and IEEEtran bibliography.
 
 ## Build
 
-From this directory, run either:
+From this directory, run:
 
-\`\`\`sh
+```sh
 tectonic --reruns 3 --outdir /tmp thesis.tex
-\`\`\`
+```
 
-or
+Alternatively, run `latexmk -pdf thesis.tex` from this directory.
 
-\`\`\`sh
-latexmk -pdf thesis.tex
-\`\`\`
+The architecture and business relationship overview are drawn in `thesis.tex`. The landscape appendix uses `figures/live-erd.pdf`, a vector export of the verified [Mermaid source](../database/live-erd.mmd) with its layout direction changed from `LR` to `TB`. The layout preserves the 24 tables, 219 columns and 38 foreign keys captured in the [live schema inventory](../database/live-schema.json). Open the [original SVG](../database/live-erd.svg) or zoom into the PDF for individual column labels.
 
-The checked-in figure at \`figures/live-erd.pdf\` is the vector print conversion of [the repository's verified ER SVG](../database/live-erd.svg). It uses the SVG view box and carries the entire diagram. The architecture figure is drawn in \`thesis.tex\`. The build does not contact either local database.
+## Screenshot capture
 
-Before university submission, replace the student name, student number, and supervisor placeholders in \`thesis.tex\`. The student must also complete the acknowledgement and review, complete, and sign the undertaking according to the university's instructions. No tracked screenshots of the assessed application flow were present at the report baseline. Add verified UI captures with synthetic data if required for the submission.
+The six included captures were taken from the actual Flutter app on an iPhone 18 Pro simulator. The capture harness used the app's real API adapters, a local ASP.NET Core process, and a disposable PostgreSQL instance. The customer and vehicle records were synthetic. The calendar capture shows the empty agenda. The harness completed successfully.
+
+Use the actual Flutter app against a separate local API and disposable PostgreSQL instance seeded only with synthetic records. Follow the [backend setup](../../backend/README.md), with a dedicated database and the Development memory email provider. From `mobile/`, run:
+
+```sh
+flutter devices
+flutter run -d <simulator-id> --dart-define=API_BASE_URL=http://127.0.0.1:5197
+```
+
+Use `127.0.0.1:5197` for an iOS simulator if the isolated API listens on that port. On the default Android emulator, use `10.0.2.2:5197`. Capture on iOS using `xcrun simctl io <simulator-id> screenshot <png-path>`. Save each PNG under `docs/thesis/screenshots/` and rebuild the report. The appendix shows a labeled placeholder for each missing PNG.
+
+| PNG filename | Screen and capture steps |
+| --- | --- |
+| `01-sign-in.png` | From the welcome screen, select **Giriş yap**. Capture the blank sign-in form with the keyboard hidden. |
+| `02-sign-up.png` | Return to the welcome screen. Select **Kayıt ol**, then **İşletme kaydı**. Capture the blank owner registration form. |
+| `03-owner-dashboard.png` | Verify and sign in with a synthetic owner for **WashFlow Demo**. Open its owner context and capture the dashboard. |
+| `04-customer-management.png` | Open **Müşteriler ve araçlar**, create **Demo Müşteri** with **Müşteri ekle**, and capture the customer list. |
+| `05-vehicle-management.png` | Open **Demo Müşteri**, select **Araç ekle**, and save a synthetic vehicle such as **34 WFL 26**. Capture the customer details and saved vehicle. |
+| `06-appointment-scheduling.png` | Configure business hours and the **Europe/Istanbul** time zone, return to the dashboard, select **Planlama ve randevular**, and capture **Randevu ajandası**. For an occupied agenda, add a synthetic service, work area, and staff availability, then create a test appointment. |
+
+Review each image for visible personal data, passwords, invitation or verification codes, and tokens before adding it to the report.
+
+## Before submission
+
+The official template includes a page for acknowledging assistance and an undertaking about originality and prior submission. The student should complete the acknowledgement and review, complete and sign the official undertaking according to the university's instructions.

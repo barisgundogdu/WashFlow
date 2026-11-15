@@ -3,19 +3,34 @@
 \usepackage{arel_thesis}
 \usepackage[top=1cm,bottom=2.54cm,left=3.17cm,right=3.17cm]{geometry}
 \usepackage{booktabs}
+\usepackage{pdflscape}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
 \usepackage[hidelinks]{hyperref}
 \hypersetup{pdftitle={WashFlow Midterm Thesis Progress Report}}
 
 \degree{Bachelor of Science}
 \department{Computer Engineering}
 \gradyear{November 2026}
-\studentname{[Student full name]}
-\studentid{[Student number]}
-\supervisor{[Supervisor title and full name]}
+\studentname{Barış Gündoğdu}
+\studentid{230303912}
+\supervisor{Asst. Prof. Dr. Tuğberk Kocatekin}
 \title{WashFlow\\Midterm Thesis Progress Report}
 \trtitle{WashFlow\\Mezuniyet Projesi Ara Raporu}
 \renewcommand{\bibname}{References}
 \setlength{\emergencystretch}{2em}
+
+\newcommand{\capturepanel}[3]{%
+  \begin{minipage}[t]{.47\linewidth}\centering
+    \textbf{#2}\par\medskip
+    \IfFileExists{screenshots/#1.png}{%
+      \includegraphics[width=.96\linewidth,height=.52\textheight,keepaspectratio]{screenshots/#1.png}\par
+    }{%
+      \fbox{\parbox[c][.26\textheight][c]{.86\linewidth}{\centering
+        \textit{Screenshot pending}\par\smallskip\small #3}}\par
+    }%
+  \end{minipage}%
+}
 
 \begin{document}
 \setstretch{1.5}
@@ -25,10 +40,10 @@
 
 \begin{preliminary}
 \chapter*{Acknowledgement}
-[Acknowledgement to be completed by the student before submission.]
+[The student will supply any acknowledgement of assistance received before submission.]
 
 \chapter*{Undertaking}
-[The student must review and complete the university's undertaking before submission. Signature and date to be supplied by the student.]
+[The student must review and complete the undertaking in the official Arel template before submission. Any declaration, date or signature must be supplied by the student.]
 
 \newpage
 \begin{abstract}
@@ -84,16 +99,31 @@ For protected operations, the API validates the JWT and evaluates the active ses
 \section{Database Design and ER Diagram}
 The schema separates \texttt{LocalCustomers} and \texttt{LocalVehicles}, which belong to a business, from \texttt{CustomerProfiles} and \texttt{OwnedVehicles}, which are associated with platform identities. Composite foreign keys in scheduling preserve tenant and ownership paths when an appointment references local customer, vehicle or resource records. PostgreSQL's \texttt{xmin} system column provides the row version used for optimistic concurrency on mutable records. The column inventory counts user-defined columns.
 
-Figure~\ref{fig:erd} reproduces the verified ER diagram from the repository's \path{docs/database/live-erd.svg}. The audit confirmed the API connection target and extracted the live \path{washflow_phase9e_db} schema in a read-only transaction. The inventory contains 23 application tables and one EF migration history table, 219 columns including metadata, 38 foreign keys and seven applied migrations. The catalog matched the reference database built from the seven migrations. EF Core found no model changes relative to the latest migration snapshot. A separate local database, \path{washflow_db}, had only the first two migrations and was excluded from the demo diagram \cite{schemaaudit,pgcatalogs}. The figure is vector based and can be enlarged to inspect table and key labels.
+Figure~\ref{fig:erd-overview} shows selected physical relationships used by the owner workflow. Appendix~\ref{app:erd} presents the complete verified schema. The audit confirmed the API connection target and extracted the live \path{washflow_phase9e_db} schema in a read-only transaction. The inventory contains 23 application tables and one EF migration history table, 219 columns including metadata, 38 foreign keys and seven applied migrations. The catalog matched the reference database built from the seven migrations. EF Core found no model changes relative to the latest migration snapshot. The separate \path{washflow_db} database had only the first two migrations \cite{schemaaudit,pgcatalogs}.
 
-\clearpage
-\begin{figure}[p]
+\begin{figure}[htbp]
 \centering
-\includegraphics[width=\linewidth,height=.84\textheight,keepaspectratio]{figures/live-erd.pdf}
-\caption{Verified PostgreSQL ER diagram of the WashFlow demo database. The separately labelled EF migration history table is metadata.}
-\label{fig:erd}
+\begin{tikzpicture}[
+  entity/.style={draw=black!65,fill=black!4,rounded corners=2pt,
+    minimum width=3.45cm,minimum height=8mm,font=\small\ttfamily},
+  relationship/.style={-{Stealth[length=2.2mm]},draw=black!75,semithick}]
+  \node[entity] (business) at (0,2.8) {Businesses};
+  \node[entity] (customers) at (-4.1,1.4) {LocalCustomers};
+  \node[entity] (services) at (0,1.4) {BusinessServices};
+  \node[entity] (areas) at (4.1,1.4) {WorkAreas};
+  \node[entity] (vehicles) at (-4.1,0) {LocalVehicles};
+  \node[entity] (appointments) at (0,0) {Appointments};
+  \draw[relationship] (business.south west) -- (customers.north);
+  \draw[relationship] (business.south) -- (services.north);
+  \draw[relationship] (business.south east) -- (areas.north);
+  \draw[relationship] (customers) -- (vehicles);
+  \draw[relationship] (vehicles) -- (appointments);
+  \draw[relationship] (services) -- (appointments);
+  \draw[relationship] (areas.south) -- (appointments.north east);
+\end{tikzpicture}
+\caption{Selected foreign-key relationships for the owner workflow. Each arrow points from the referenced row to the referencing table. A parent can have zero or more children along each displayed relationship, and each such child has one parent.}
+\label{fig:erd-overview}
 \end{figure}
-\clearpage
 
 \chapter{Results and Evaluation}
 \section{Implementation Progress}
@@ -152,7 +182,7 @@ The work progressed from authentication and authorization to business settings, 
 \section{Current Limitations and Remaining Work}
 The assessed deliverable is the owner customer and vehicle slice. Customer booking, walk-in queue management, employee execution of multi-stage jobs and financial reporting remain to be implemented. The current scheduler covers owner-entered appointments for a single service stage. Profile editing and verified linking between a business-local customer and a platform account also remain open. Pilot performance, usability and deployment have not been evaluated in this report.
 
-The repository contained no UI screenshots of sign-in, sign-up or the owner workflow. Verified captures with synthetic data remain to be collected for the demonstration.
+Appendix~\ref{app:screens} identifies the six application screens used to document the demonstration.
 
 \chapter{Conclusion}
 WashFlow has an implemented owner workflow that crosses Flutter, the ASP.NET Core API and PostgreSQL. The isolated simulator evidence demonstrates the customer and vehicle data flow, while the live catalog audit establishes the physical schema of the current demo database. Automated checks support reproducible verification of backend and Flutter changes. The next milestone extends this foundation to customer booking and operational workflows. Before the midterm demonstration, the current device build should be rehearsed from sign-up and email verification through customer and vehicle creation and retrieval after restart.
@@ -162,4 +192,47 @@ WashFlow has an implemented owner workflow that crosses Flutter, the ASP.NET Cor
 \addcontentsline{toc}{chapter}{\bibname}
 \bibliographystyle{IEEEtran}
 {\raggedright\bibliography{references}}
+
+\appendix
+\clearpage
+\newgeometry{margin=1.35cm}
+\begin{landscape}
+\chapter{Complete Verified PostgreSQL ER Diagram}
+\label{app:erd}
+\vspace{-0.65cm}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=\linewidth,height=.70\textwidth,keepaspectratio]{figures/live-erd.pdf}
+\caption[Complete verified PostgreSQL ER diagram]{Complete schema of \texttt{washflow\_phase9e\_db}. The diagram distinguishes EF migration history from application tables. The vector drawing can be enlarged for column and key labels.}
+\label{fig:erd}
+\end{figure}
+\end{landscape}
+\restoregeometry
+
+\chapter{Application Screenshot Evidence}
+\label{app:screens}
+The captures show the Flutter app on an iPhone 18 Pro simulator. The owner workflow used the ASP.NET Core API and a disposable PostgreSQL instance populated with synthetic records.
+\begin{figure}[h!]
+\centering
+\capturepanel{01-sign-in}{Sign in}{Open \emph{Giriş yap} from the welcome screen.}
+\hfill
+\capturepanel{02-sign-up}{Owner sign-up}{Open \emph{Kayıt ol} and choose \emph{İşletme kaydı}.}
+\caption{Authentication screens.}
+\end{figure}
+\clearpage
+\begin{figure}[h!]
+\centering
+\capturepanel{03-owner-dashboard}{Owner dashboard}{Sign in with a synthetic owner account and open its business context.}
+\hfill
+\capturepanel{04-customer-management}{Customer management}{Open \emph{Müşteriler ve araçlar} and show the synthetic customer list.}
+\caption{Owner navigation and business-local customer management.}
+\end{figure}
+\clearpage
+\begin{figure}[h!]
+\centering
+\capturepanel{05-vehicle-management}{Vehicle management}{Open the synthetic customer record and show its saved vehicle.}
+\hfill
+\capturepanel{06-appointment-scheduling}{Appointment scheduling}{Open \emph{Planlama ve randevular} and show the calendar.}
+\caption{A saved synthetic vehicle and the owner appointment calendar in its empty state.}
+\end{figure}
 \end{document}
