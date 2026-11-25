@@ -23,6 +23,7 @@ public static class BusinessSettingsEndpoints
     {
         SettingsStatus.Success => Results.Ok(r.Value),
         SettingsStatus.Conflict => Results.Problem(statusCode: 409, extensions: new Dictionary<string, object?> { ["code"] = "settingsConflict" }),
+        SettingsStatus.AppointmentsConflict => Results.Problem(statusCode: 409, extensions: new Dictionary<string, object?> { ["code"] = "appointmentsOutsideHours" }),
         _ => Results.Problem(statusCode: 403)
     };
 }

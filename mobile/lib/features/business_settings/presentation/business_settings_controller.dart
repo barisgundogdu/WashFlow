@@ -141,7 +141,10 @@ class BusinessSettingsController extends ChangeNotifier {
           AuthErrorCode.unexpected,
           AuthErrorCode.unavailable,
         }.contains(error.code);
-        requiresReload = uncertain || error.code == AuthErrorCode.conflict;
+        requiresReload =
+            uncertain ||
+            (error.code == AuthErrorCode.conflict &&
+                error is! SettingsAppointmentsConflict);
         message = uncertain
             ? 'Kaydetme sonucu doğrulanamadı; sunucuda tamamlanmış olabilir. İşlem tekrarlanmadı. Güncel kaydı yükleyin.'
             : settingsError(error);

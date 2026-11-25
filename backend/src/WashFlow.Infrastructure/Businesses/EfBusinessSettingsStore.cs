@@ -1,13 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using WashFlow.Application.Businesses;
 using WashFlow.Domain.Businesses;
+using WashFlow.Domain.Scheduling;
+using WashFlow.Application.Scheduling;
 using WashFlow.Infrastructure.Persistence;
 
 namespace WashFlow.Infrastructure.Businesses;
 
 // Same business -> membership -> grant lock order as employee invitations.
-public sealed class EfBusinessSettingsStore(WashFlowDbContext db) : IBusinessSettingsStore
+public sealed class EfBusinessSettingsStore(WashFlowDbContext db, TimeProvider clock) : IBusinessSettingsStore
 {
+    private void FreshUnitOfWork()
+    {
+        if (db.Database.CurrentTransaction != null || db.ChangeTracker.HasChanges())
+            throw new InvalidOperationException("İşletme ayarları bağımsız bir çalışma birimi gerektirir.");
+        db.ChangeTracker.Clear();
+    }
     private async Task<Business?> Authorized(Guid actor, Guid id, CancellationToken ct)
     {
         var business = await db.Businesses.FromSqlInterpolated($"SELECT *, xmin FROM \"Businesses\" WHERE \"Id\" = {id} FOR UPDATE").SingleOrDefaultAsync(ct);
@@ -37,16 +45,32 @@ public sealed class EfBusinessSettingsStore(WashFlowDbContext db) : IBusinessSet
     };
     public async Task<SettingsResult> ReadAsync(Guid actor, Guid business, CancellationToken ct)
     {
+        FreshUnitOfWork();
         await using var tx = await db.Database.BeginTransactionAsync(ct);
         var b = await Authorized(actor, business, ct);
         return b is null ? new(SettingsStatus.Forbidden) : new(SettingsStatus.Success, await View(b, ct));
     }
     public async Task<SettingsResult> UpdateAsync(Guid actor, Guid business, BusinessSettingsInput input, CancellationToken ct)
     {
+        FreshUnitOfWork();
         await using var tx = await db.Database.BeginTransactionAsync(ct);
         var b = await Authorized(actor, business, ct);
         if (b is null) return new(SettingsStatus.Forbidden);
         if (db.Entry(b).Property<uint>("Version").CurrentValue != input.Version) return new(SettingsStatus.Conflict);
+        // The business lock serializes this check with booking/rescheduling and shift edits.
+        // Validate proposed hours before changing any profile fields or replacing stored hours.
+        var now = clock.GetUtcNow();
+        var appointments = await db.Appointments.AsNoTracking()
+            .Where(x => x.BusinessId == business && x.Status == AppointmentStatus.Confirmed && x.ActiveEndsAtUtc > now)
+            .Select(x => new { x.StartsAtUtc, x.ActiveEndsAtUtc }).ToListAsync(ct);
+        if (appointments.Count != 0)
+        {
+            if (input.WeeklyHours == null || string.IsNullOrWhiteSpace(input.TimeZoneId))
+                return new(SettingsStatus.AppointmentsConflict);
+            var zone = SchedulingRules.Zone(input.TimeZoneId.Trim());
+            if (appointments.Any(x => !SchedulingRules.WithinHours(new(x.StartsAtUtc, x.ActiveEndsAtUtc), zone, input.WeeklyHours)))
+                return new(SettingsStatus.AppointmentsConflict);
+        }
         static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
         b.Name = input.Name!.Trim();
         b.Phone = Clean(input.Phone);

@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
 using WashFlow.Application.Authentication;
+using WashFlow.Application.Businesses;
 using WashFlow.Application.Authorization;
 using WashFlow.Application.Scheduling;
 using WashFlow.Domain.Businesses;
@@ -49,7 +50,7 @@ public sealed class SchedulingHttpPostgresTests(PostgresModelFixture fixture) : 
         Assert.Equal(17, (await db.Database.SqlQueryRaw<int>("SELECT current_setting('server_version_num')::int AS \"Value\"").SingleAsync()) / 10000);
         var now = DateTimeOffset.UtcNow;
         var u = new User("Sahip", $"{Guid.NewGuid():N}@example.test", "hash") { EmailVerifiedAt = DateTimeOffset.UtcNow };
-        var b = new Business { Name = "Planlama", TimeZoneId = zone };
+        var b = new Business { Name = "Planlama", TimeZoneId = zone, HoursConfigured = true };
         var m = new BusinessMembership { BusinessId = b.Id, UserId = u.Id };
         var session = new DeviceSession { UserId = u.Id, SecurityStamp = u.SecurityStamp, DeviceName = "Test", ExpiresAt = now.AddHours(1) };
         db.AddRange(u, b, session);
@@ -371,6 +372,24 @@ public sealed class SchedulingHttpPostgresTests(PostgresModelFixture fixture) : 
             var vehicle = await db.LocalVehicles.SingleAsync(x => x.Id == d.Vehicle); var version = db.Entry(vehicle).Property<uint>("Version").CurrentValue;
             await Problem(await c.PostAsJsonAsync(d.Appointments, d.Booking(employee: 1) with { ExpectedVehicleVersion = version }), 409, "serviceUnavailable");
         }
+    }
+
+    [PostgresFact]
+    public async Task HoursConflictHasDistinctSafeHttpCodeAndNeverChangesTheAppointment()
+    {
+        using var root = new ApiFactory(); using var api = Api(root); using var client = api.CreateClient();
+        var d = await Seed(api, client); var booked = await Book(client, d);
+        var path = d.Root + "/settings";
+        var input = await Json<BusinessSettingsView>(await client.GetAsync(path));
+        input.Name = "Must not persist";
+        input.WeeklyHours = Enumerable.Range(1, 7).Select(day => new OpeningDay(day, false, 660, 1200)).ToArray();
+        await Problem(await client.PostAsJsonAsync(path, input), 409, "appointmentsOutsideHours");
+        var after = await Json<BusinessSettingsView>(await client.GetAsync(path));
+        Assert.Equal("Planlama", after.Name); Assert.Equal(input.Version, after.Version);
+        var actual = await Json<AppointmentView>(await client.GetAsync(d.Appointments + "/" + booked.Id));
+        Assert.Equal(booked.Version, actual.Version); Assert.Equal(booked.StartsAtUtc, actual.StartsAtUtc);
+        Assert.Equal(AppointmentStatus.Confirmed, actual.Status); Assert.Single(actual.Events);
+        Assert.All(actual.Reservations, r => Assert.Null(r.ReleasedAt));
     }
 
 }

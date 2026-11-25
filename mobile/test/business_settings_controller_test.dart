@@ -84,6 +84,23 @@ void main() {
       expect(c.requiresReload, isFalse);
     });
   }
+  test(
+    'hours conflict retains editable draft and gives explicit resolution',
+    () async {
+      await c.load();
+      c.field('name', 'Changed');
+      service.onSave = (_) async => AuthFailure(SettingsAppointmentsConflict());
+      await c.save();
+      expect(c.requiresReload, isFalse);
+      expect(c.draft!.fields['name'], 'Changed');
+      expect(c.persisted!.fields['name'], isNot('Changed'));
+      expect(c.dirty, isTrue);
+      expect(c.message, contains('Önce ajandadan'));
+      expect(c.message, isNot(contains('kaydedildi')));
+      c.field('name', 'Corrected');
+      expect(c.draft!.fields['name'], 'Corrected');
+    },
+  );
   test('confirmed save with failed GET permits GET recovery only', () async {
     await c.load();
     c.field('name', 'Changed');

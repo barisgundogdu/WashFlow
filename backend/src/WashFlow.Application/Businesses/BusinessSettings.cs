@@ -21,7 +21,7 @@ public class BusinessSettingsInput
     public uint? Version { get; set; }
 }
 public sealed class BusinessSettingsView : BusinessSettingsInput { public Guid BusinessId { get; set; } }
-public enum SettingsStatus { Success, Forbidden, Conflict }
+public enum SettingsStatus { Success, Forbidden, Conflict, AppointmentsConflict }
 public sealed record SettingsResult(SettingsStatus Status, BusinessSettingsView? Value = null);
 public interface IBusinessSettingsStore
 {

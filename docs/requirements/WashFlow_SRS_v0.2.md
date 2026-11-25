@@ -320,3 +320,16 @@ catalog provides part of FR-22; full discovery, booking, work areas, sequential 
 work-order price snapshots remain future work. Pilot values in §6.4 are preserved as historical
 elicitation evidence; newer Phase 8 examples are optional inputs, never global seeded defaults.
 See [Phase 8 evidence](../features/service-catalog-phase8.md) for contracts, safety and measured results.
+
+
+### Confirmed final sprint decisions — 25 November 2026
+
+Explicit user decisions supersede conflicting open questions about booking confirmation and cancellation/rescheduling:
+
+- Customer bookings are automatically confirmed only after authoritative capacity validation.
+- Customers may cancel or reschedule until two hours before the current appointment start, inclusive at the cutoff. Use server UTC instants and an initial 120-minute default, structured for future business-specific configuration. Owner operations remain separately authorized.
+- Actual execution overruns must show overdue time and warn the business owner of potential conflicts. Do not automatically move later appointments or complete work at countdown zero.
+- Changes to business hours, timezone or employee availability must detect conflicts with confirmed work and require explicit resolution. Preserve existing appointments unless an authorized user explicitly reschedules/cancels them.
+- Employee overlap checks remain mandatory even when business hours and area capacity permit parallel work.
+
+The final sprint request explicitly includes employee operational metrics and supported operational notifications after core scheduling, employee execution, customer booking and finance. Optional analytics must not delay the working demonstration. This is approved scope, not a claim of implementation. See `docs/final-sprint/IMPLEMENTATION_AUDIT.md`, `FINAL_BACKLOG.md` and `TEST_MATRIX.md` for actual evidence and remaining gaps.

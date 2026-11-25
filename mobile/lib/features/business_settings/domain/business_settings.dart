@@ -172,16 +172,23 @@ abstract interface class BusinessSettingsService {
   Future<AuthResult<BusinessSettings>> save(BusinessSettings settings);
 }
 
-String settingsError(AuthError error) => switch (error.code) {
-  AuthErrorCode.conflict => 'Başka bir oturum kaydı değiştirdi. Güncel kaydı yükleyin; değişiklikleriniz otomatik uygulanmadı.',
-  AuthErrorCode.validation =>
-    'Alanları, IANA saat dilimini ve çalışma saatlerini kontrol edin.',
-  AuthErrorCode.forbidden => 'Bu işletmenin ayarlarını yönetme yetkiniz yok.',
-  AuthErrorCode.unauthenticated || AuthErrorCode.invalidCredentials =>
-    'Oturumunuz geçersiz. Yeniden giriş yapın.',
-  AuthErrorCode.network || AuthErrorCode.timeout =>
-    'Sunucuya ulaşılamadı veya istek zaman aşımına uğradı.',
-  AuthErrorCode.rateLimited =>
-    'Çok fazla istek gönderildi. Bir süre sonra tekrar deneyin.',
-  _ => 'İşlem tamamlanamadı. Daha sonra yeniden deneyin.',
-};
+class SettingsAppointmentsConflict extends AuthError {
+  SettingsAppointmentsConflict() : super(code: AuthErrorCode.conflict);
+}
+
+String settingsError(AuthError error) => error is SettingsAppointmentsConflict
+    ? 'Çalışma saatleri mevcut onaylı randevularla çakışıyor. Önce ajandadan bu randevuları yeniden planlayın veya iptal edin. Ayarlar ve randevular değiştirilmedi.'
+    : switch (error.code) {
+        AuthErrorCode.conflict => 'Başka bir oturum kaydı değiştirdi. Güncel kaydı yükleyin; değişiklikleriniz otomatik uygulanmadı.',
+        AuthErrorCode.validation =>
+          'Alanları, IANA saat dilimini ve çalışma saatlerini kontrol edin.',
+        AuthErrorCode.forbidden =>
+          'Bu işletmenin ayarlarını yönetme yetkiniz yok.',
+        AuthErrorCode.unauthenticated || AuthErrorCode.invalidCredentials =>
+          'Oturumunuz geçersiz. Yeniden giriş yapın.',
+        AuthErrorCode.network || AuthErrorCode.timeout =>
+          'Sunucuya ulaşılamadı veya istek zaman aşımına uğradı.',
+        AuthErrorCode.rateLimited =>
+          'Çok fazla istek gönderildi. Bir süre sonra tekrar deneyin.',
+        _ => 'İşlem tamamlanamadı. Daha sonra yeniden deneyin.',
+      };

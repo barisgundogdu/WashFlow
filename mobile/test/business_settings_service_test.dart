@@ -14,6 +14,37 @@ import 'support/session_fakes.dart';
 import 'support/redemption_fakes.dart';
 
 void main() {
+  test(
+    'hours conflict explains explicit resolution without exposing server text',
+    () async {
+      final service = ApiBusinessSettingsService(
+        session: RedemptionSession()..signedIn = true,
+        apiClient: ApiClient(
+          baseUrl: Uri.parse('https://example.test'),
+          client: MockClient(
+            (_) async => http.Response(
+              jsonEncode({
+                'code': 'appointmentsOutsideHours',
+                'detail': 'private server text',
+              }),
+              409,
+              headers: {'content-type': 'application/problem+json'},
+            ),
+          ),
+        ),
+      );
+      final result =
+          await service.save(settings()) as AuthFailure<BusinessSettings>;
+      expect(result.error, isA<SettingsAppointmentsConflict>());
+      expect(
+        settingsError(result.error),
+        contains('onaylı randevularla çakışıyor'),
+      );
+      expect(settingsError(result.error), contains('değiştirilmedi'));
+      expect(settingsError(result.error), isNot(contains('private')));
+    },
+  );
+
   test('parse valid persisted baseline', () {
     expect(
       BusinessSettings.fromJson({

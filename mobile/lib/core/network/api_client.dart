@@ -164,6 +164,7 @@ class ApiClient {
                 'areaUnavailable',
                 'employeeUnavailable',
                 'outsideHours',
+                'appointmentsOutsideHours',
                 'hoursUnconfigured',
                 'requirementChanged',
                 'invalidLocalTime',
