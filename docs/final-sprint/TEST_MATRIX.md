@@ -78,3 +78,8 @@ Idempotent upgrade scripts generated offline for review: /tmp/washflow-work-orde
 - Seven PostgreSQL customer regressions cover safe discovery/own vehicle/create/replay/current state, owner agenda source/nullable references, cross-customer privacy and revoked sessions, exact cutoff/late preservation, cross-source last-employee race despite spare area, failed-move/prepared-order rollback/history, configurable cutoff and fail-closed hours, populated schema-9 upgrade and guarded downgrade.
 - Flutter exercises scoped adapters, malformed foreign payload rejection, explicit price confirmation, immutable retry key across uncertain outcomes, hidden mutations at cutoff and account-switch late-response disposal. Existing scheduling/work-order suites remain green.
 - Offline migration10 SQL inspected: no deletion/reset/backfill of appointments. Disposable upgrade retains owner appointment and two active reservations. No demo migration applied.
+
+
+## Owner finance increment — 25 November 2026
+
+All suites passed with no failures/skips: **444 backend** (254 unit + 190 integration), **370 Flutter**. Analysis clean and `git diff --check` passed. See FINANCE_INCREMENT.md for precise ledger/report semantics and coverage. Logs `/tmp/washflow-finance-backend5.log`, `/tmp/washflow-finance-flutter-final2.log`, `/tmp/washflow-finance-analyze-final2.log`. Migration 11 verified only on disposable PostgreSQL; existing demo untouched. Customer PR #20 push and pull_request CI also passed on `945848e`: runs [45621726933](https://github.com/barisgundogdu/WashFlow/actions/runs/45621726933) and [45621797579](https://github.com/barisgundogdu/WashFlow/actions/runs/45621797579).

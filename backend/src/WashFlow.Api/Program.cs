@@ -1,3 +1,4 @@
+using WashFlow.Api.Features.Finance;
 using WashFlow.Api.Features.Scheduling;
 using Microsoft.OpenApi;
 using WashFlow.Api.Features.Catalog;
@@ -66,6 +67,7 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapSchedulingEndpoints();
+app.MapFinanceEndpoints();
 WashFlow.Api.Features.CustomerBooking.CustomerBookingEndpoints.MapCustomerBookingEndpoints(app);
 WashFlow.Api.Features.WorkOrders.WorkOrderEndpoints.MapWorkOrderEndpoints(app);
 WashFlow.Api.Features.WorkOrders.StageSchedulingEndpoints.MapStageSchedulingEndpoints(app);

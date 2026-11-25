@@ -91,3 +91,8 @@ Ordered-stage final evidence: 429 backend and 351 Flutter passed, no failures/sk
 ## Customer booking checkpoint — 25 November 2026
 
 Customer self-service now uses the existing calendar and shared resource allocator, with profile-owned vehicles, safe public discovery, server-selected employees, two-hour default policy, own history and connected Turkish Flutter screens. See CUSTOMER_BOOKING_INCREMENT.md for migration 10 and verification. Existing demo schema remains untouched. PR #17/#18/#19 push and PR workflows were rechecked successful; no PR merged. The initial untracked `.DS_Store` remains preserved.
+
+
+## Finance checkpoint — 25 November 2026
+
+Owner finance is implemented in its approved additive ledger model and connected Flutter screens. See FINANCE_INCREMENT.md for exact revenue/collection distinction, audited reversals, date boundaries and migration 11. 444 backend/370 Flutter passed; analysis clean. Final native/live rehearsal remains a separate requirement. Demo database remains unchanged.

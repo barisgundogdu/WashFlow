@@ -343,3 +343,8 @@ The final sprint request explicitly includes employee operational metrics and su
 ### Final sprint customer self-service implementation evidence (25 November 2026)
 
 The approved customer booking flow is now implemented on the existing appointment calendar: published database business discovery, own-vehicle ownership checks, advisory slots and authoritative shared capacity allocation, immediate confirmation, upcoming/history, and cancellation/rescheduling up to the stored business cutoff (initial 120 minutes, equality allowed). No platform profile is inferred from tenant names/plates. Failed moves preserve the original booking; started work prevents customer changes. See `docs/final-sprint/CUSTOMER_BOOKING_INCREMENT.md` and `TEST_MATRIX.md` for actual test evidence and migration/deployment limits. This describes verified source behavior, not migration of the preserved demo database.
+
+
+### Final sprint owner finance implementation evidence (25 November 2026)
+
+Approved increment 3 is implemented: owner-only completed-work partial payments, configurable methods, categorized manual income/expenses, append-only correction/reversal history, and business-local daily/weekly/monthly/custom reports. Completed snapshot prices measure earned service revenue; payments measure collections and never count twice. Cash operating balance is collections plus manual income minus expenses, distinct from accounting profit. Audited expense correction uses atomic reversal/replacement instead of deleting history. See `docs/final-sprint/FINANCE_INCREMENT.md` and `TEST_MATRIX.md` for verified source behavior and deployment limits; no existing demo migration is implied.
