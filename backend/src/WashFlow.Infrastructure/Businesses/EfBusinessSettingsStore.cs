@@ -59,6 +59,13 @@ public sealed class EfBusinessSettingsStore(WashFlowDbContext db, TimeProvider c
         if (db.Entry(b).Property<uint>("Version").CurrentValue != input.Version) return new(SettingsStatus.Conflict);
         // The business lock serializes this check with booking/rescheduling and shift edits.
         // Validate proposed hours before changing any profile fields or replacing stored hours.
+        var currentHours = await db.WeeklyOpeningDays.AsNoTracking().Where(x => x.BusinessId == business).OrderBy(x => x.Day)
+            .Select(x => new OpeningDay(x.Day, x.Closed, x.OpensAtMinute, x.ClosesAtMinute)).ToListAsync(ct);
+        var sameHours = b.HoursConfigured == (input.WeeklyHours != null) && b.TimeZoneId == input.TimeZoneId?.Trim() &&
+            (input.WeeklyHours == null || currentHours.SequenceEqual(input.WeeklyHours.OrderBy(x => x.Day)));
+        if (!sameHours && await db.WorkOrderStages.AnyAsync(x => x.BusinessId == business &&
+            (x.Status == WashFlow.Domain.WorkOrders.WorkStageStatus.InProgress || x.Status == WashFlow.Domain.WorkOrders.WorkStageStatus.Paused), ct))
+            return new(SettingsStatus.AppointmentsConflict);
         var now = clock.GetUtcNow();
         var appointments = await db.Appointments.AsNoTracking()
             .Where(x => x.BusinessId == business && x.Status == AppointmentStatus.Confirmed && x.ActiveEndsAtUtc > now)

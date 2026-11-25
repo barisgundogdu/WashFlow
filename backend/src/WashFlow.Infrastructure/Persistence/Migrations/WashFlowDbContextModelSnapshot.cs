@@ -1476,6 +1476,187 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("WashFlow.Domain.WorkOrders.WorkOrder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("CancelledAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreationHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId", "AppointmentId")
+                        .IsUnique()
+                        .HasFilter("\"CancelledAtUtc\" IS NULL");
+
+                    b.ToTable("WorkOrders", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_WorkOrders_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_WorkOrders_Lifecycle", "NOT (\"CompletedAtUtc\" IS NOT NULL AND \"CancelledAtUtc\" IS NOT NULL) AND (\"CompletedAtUtc\" IS NULL OR \"CompletedAtUtc\" >= \"CreatedAt\") AND (\"CancelledAtUtc\" IS NULL OR \"CancelledAtUtc\" >= \"CreatedAt\")");
+
+                            t.HasCheckConstraint("CK_WorkOrders_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.WorkOrders.WorkOrderEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("StageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("WorkOrderId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("BusinessId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("BusinessId", "WorkOrderId", "StageId");
+
+                    b.HasIndex("BusinessId", "WorkOrderId");
+
+                    b.ToTable("WorkOrderEvents", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_WorkOrderEvents_Action", "\"RequestId\" <> '00000000-0000-0000-0000-000000000000'::uuid AND \"Action\" IN ('create','start','pause','resume','complete','cancel')");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.WorkOrders.WorkOrderStage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("EstimatedMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("PausedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("PausedMilliseconds")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("StartedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("WorkOrderId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId", "WorkOrderId", "Sequence")
+                        .IsUnique();
+
+                    b.ToTable("WorkOrderStages", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_WorkOrderStages_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_WorkOrderStages_State", "\"Sequence\" > 0 AND length(btrim(\"Name\")) > 0 AND \"EstimatedMinutes\" BETWEEN 1 AND 10080 AND \"Status\" BETWEEN 1 AND 6 AND \"PausedMilliseconds\" >= 0 AND ((\"Status\" IN (1,2) AND \"StartedAtUtc\" IS NULL AND \"CompletedAtUtc\" IS NULL AND \"PausedAtUtc\" IS NULL) OR (\"Status\" = 6 AND \"CompletedAtUtc\" IS NULL AND \"PausedAtUtc\" IS NULL) OR (\"Status\" = 3 AND \"StartedAtUtc\" IS NOT NULL AND \"CompletedAtUtc\" IS NULL AND \"PausedAtUtc\" IS NULL) OR (\"Status\" = 4 AND \"StartedAtUtc\" IS NOT NULL AND \"PausedAtUtc\" IS NOT NULL AND \"PausedAtUtc\" >= \"StartedAtUtc\" AND \"CompletedAtUtc\" IS NULL) OR (\"Status\" = 5 AND \"StartedAtUtc\" IS NOT NULL AND \"CompletedAtUtc\" IS NOT NULL AND \"CompletedAtUtc\" >= \"StartedAtUtc\" AND \"PausedAtUtc\" IS NULL))");
+
+                            t.HasCheckConstraint("CK_WorkOrderStages_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.WorkOrders.WorkStageAssignment", b =>
+                {
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("StageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EmployeeMembershipId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AssignedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("BusinessId", "StageId", "EmployeeMembershipId");
+
+                    b.HasIndex("BusinessId", "EmployeeMembershipId", "StageId");
+
+                    b.ToTable("WorkStageAssignments", (string)null);
+                });
+
             modelBuilder.Entity("WashFlow.Infrastructure.Scheduling.SchedulingCreateReceipt", b =>
                 {
                     b.Property<Guid>("BusinessId")
@@ -1791,6 +1972,65 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WashFlow.Domain.WorkOrders.WorkOrder", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Scheduling.Appointment", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "AppointmentId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.WorkOrders.WorkOrderEvent", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.WorkOrders.WorkOrderStage", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "WorkOrderId", "StageId")
+                        .HasPrincipalKey("BusinessId", "WorkOrderId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WashFlow.Domain.WorkOrders.WorkOrder", null)
+                        .WithMany("Events")
+                        .HasForeignKey("BusinessId", "WorkOrderId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.WorkOrders.WorkOrderStage", b =>
+                {
+                    b.HasOne("WashFlow.Domain.WorkOrders.WorkOrder", null)
+                        .WithMany("Stages")
+                        .HasForeignKey("BusinessId", "WorkOrderId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.WorkOrders.WorkStageAssignment", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Businesses.BusinessMembership", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "EmployeeMembershipId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.WorkOrders.WorkOrderStage", null)
+                        .WithMany("Assignments")
+                        .HasForeignKey("BusinessId", "StageId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("WashFlow.Infrastructure.Scheduling.SchedulingCreateReceipt", b =>
                 {
                     b.HasOne("WashFlow.Domain.Scheduling.Appointment", null)
@@ -1806,6 +2046,18 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                     b.Navigation("Events");
 
                     b.Navigation("Reservations");
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.WorkOrders.WorkOrder", b =>
+                {
+                    b.Navigation("Events");
+
+                    b.Navigation("Stages");
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.WorkOrders.WorkOrderStage", b =>
+                {
+                    b.Navigation("Assignments");
                 });
 #pragma warning restore 612, 618
         }

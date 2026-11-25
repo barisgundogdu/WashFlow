@@ -1,6 +1,6 @@
-# P1 architecture proposal — approval required before implementation
+# P1 architecture proposal — approved 25 November 2026
 
-25 November 2026. Proposed, not implemented. Extends the existing modular monolith, Flutter application, PostgreSQL and EF Core. No service split or replacement of functioning modules.
+25 November 2026. User approved all three increments; implementation is progressing incrementally. This document describes the target design, not a completion claim. Extends the existing modular monolith, Flutter application, PostgreSQL and EF Core. No service split or replacement of functioning modules.
 
 Repository rule: AGENTS.md, Development Workflow: **“Explain significant architectural changes and request user approval before implementing them.”** The changes below introduce persisted aggregates and expand scheduling/privacy boundaries; the P0 hours fix does not require them.
 

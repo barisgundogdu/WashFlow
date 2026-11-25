@@ -52,3 +52,10 @@ Backend has 17 additional test cases over the 398-test baseline; Flutter has two
 - An initial new Flutter adapter test exposed the shared ApiClient semantic-code allowlist; added only the trusted appointmentsOutsideHours code. Raw server error details remain discarded.
 
 - An intermediate scheduling run exposed inconsistent test fixtures: weekly rows existed but Business.HoursConfigured was false. Both scheduling seed helpers now set the flag to true, matching real settings data. No production validation was weakened.
+
+
+## Employee execution increment — final verification
+
+25 November 2026: `dotnet test backend/WashFlow.sln --no-restore -m:1 -nr:false` with dedicated PostgreSQL 17: **422 passed, 0 failed/skipped** (254 unit + 168 integration). Integration 1m41s, unit 3s. `flutter test --no-pub --reporter compact`: **348 passed**, 0 failures, 1m57s. `flutter analyze --no-pub`: no issues (5.3s). `git diff --check`: passed. Migration `20261125082321_WorkOrderExecution` applied only inside dedicated disposable test schemas. No demo migration or live simulator rehearsal.
+
+Intermediate test-only failures were corrected: test-clock initialization now captures one UTC instant before truncation; synthetic verified-user timestamps respect existing identity constraints; HTTP mock JSON uses UTF-8; overdue display rounds elapsed seconds down while positive remaining seconds round up. Existing validation was retained. Final suites contain all prior tests.

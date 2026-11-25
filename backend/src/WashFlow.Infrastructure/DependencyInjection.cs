@@ -20,6 +20,7 @@ public static class DependencyInjection
         }
 
         services.TryAddSingleton(TimeProvider.System);
+        services.AddScoped<WashFlow.Application.WorkOrders.IWorkOrderService, WorkOrders.EfWorkOrderService>();
         services.AddScoped<WashFlow.Application.Scheduling.ISchedulingService, Scheduling.EfSchedulingService>();
         services.AddScoped<WashFlow.Application.Catalog.ICatalogStore, Catalog.EfCatalogStore>();
         services.AddScoped<WashFlow.Application.Businesses.IBusinessSettingsStore, Businesses.EfBusinessSettingsStore>();

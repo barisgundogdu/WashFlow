@@ -1,3 +1,5 @@
+import '../../work_orders/work_orders.dart';
+import '../../work_orders/work_order_screen.dart';
 import '../../scheduling/presentation/scheduling_screen.dart';
 import '../../scheduling/domain/scheduling.dart';
 import '../../service_catalog/domain/service_catalog.dart';
@@ -34,6 +36,7 @@ class SessionScreen extends StatefulWidget {
     this.customerVehicleService,
     this.catalogService,
     this.schedulingService,
+    this.workOrderService,
     this.redemptionEnabled = false,
   });
   final SessionService? service;
@@ -42,6 +45,7 @@ class SessionScreen extends StatefulWidget {
   final BusinessSettingsService? settingsService;
   final CatalogService? catalogService;
   final SchedulingService? schedulingService;
+  final WorkOrderService? workOrderService;
   final CustomerVehicleService? customerVehicleService;
   final bool redemptionEnabled;
   @override
@@ -93,6 +97,7 @@ class _SessionScreenState extends State<SessionScreen>
         !identical(oldWidget.settingsService, widget.settingsService) ||
         !identical(oldWidget.catalogService, widget.catalogService) ||
         !identical(oldWidget.schedulingService, widget.schedulingService) ||
+        !identical(oldWidget.workOrderService, widget.workOrderService) ||
         !identical(
           oldWidget.customerVehicleService,
           widget.customerVehicleService,
@@ -205,6 +210,9 @@ class _SessionScreenState extends State<SessionScreen>
             child: const Text('Çıkış yap'),
           ),
         ],
+        onWorkOrders: widget.workOrderService == null
+            ? null
+            : () => _openOwner('/work-orders'),
         onScheduling:
             widget.schedulingService == null ||
                 widget.catalogService == null ||
@@ -245,7 +253,15 @@ class _SessionScreenState extends State<SessionScreen>
                       : () => _openDirectory(false),
                 ),
                 ExperienceRole.owner => const SizedBox.shrink(),
-                ExperienceRole.employee => const EmployeeHomeScreen(),
+                ExperienceRole.employee => EmployeeHomeScreen(
+                  onWorkOrders: widget.workOrderService == null
+                      ? null
+                      : () {
+                          _tenantNavigator?.currentState?.pushNamed<void>(
+                            '/work-orders',
+                          );
+                        },
+                ),
               }
             else if (controller.options.isEmpty)
               const Text(
@@ -308,6 +324,7 @@ class _SessionScreenState extends State<SessionScreen>
     final selected = controller.selected;
     if (selected?.role != ExperienceRole.owner ||
         (switch (route) {
+          '/work-orders' => widget.workOrderService == null,
           '/employee-invitations' => widget.invitationService == null,
           '/business-settings' => widget.settingsService == null,
           '/service-catalog' => widget.catalogService == null,
@@ -387,6 +404,26 @@ class _SessionScreenState extends State<SessionScreen>
                 settings: settings,
                 builder: (_) {
                   if (settings.name == '/') return _layout();
+                  if (settings.name == '/work-orders' &&
+                      widget.workOrderService != null &&
+                      (currentOwner() ||
+                          currentScope(ExperienceRole.employee))) {
+                    final owner = currentOwner();
+                    return WorkOrderScreen(
+                      service: widget.workOrderService!,
+                      scheduling: owner ? widget.schedulingService : null,
+                      business: selected.business!.businessId,
+                      owner: owner,
+                      isCurrent: () => currentScope(
+                        owner ? ExperienceRole.owner : ExperienceRole.employee,
+                      ),
+                      onAuthorizationFailure: (error) =>
+                          controller.handleAuthorizationFailure(
+                            error,
+                            generation: generation,
+                          ),
+                    );
+                  }
                   if ((settings.name == '/local-customers' && currentOwner() ||
                           settings.name == '/my-vehicles' &&
                               currentScope(ExperienceRole.customer)) &&
