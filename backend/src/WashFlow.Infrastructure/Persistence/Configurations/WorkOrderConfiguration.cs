@@ -24,8 +24,10 @@ public sealed class WorkOrderConfiguration : IEntityTypeConfiguration<WorkOrder>
     {
         b.ConfigureEntity("WorkOrderStages"); b.HasAlternateKey(x => new { x.BusinessId, x.Id });
         b.HasAlternateKey(x => new { x.BusinessId, x.WorkOrderId, x.Id });
+        b.HasOne<WorkArea>().WithMany().HasForeignKey(x=>new{x.BusinessId,x.WorkAreaId}).HasPrincipalKey(x=>new{x.BusinessId,x.Id}).OnDelete(DeleteBehavior.Restrict);
         b.Property(x => x.Name).HasMaxLength(100).IsRequired(); b.Property(x => x.Status).HasConversion<int>();
         b.HasIndex(x => new { x.BusinessId, x.WorkOrderId, x.Sequence }).IsUnique();
+        b.HasIndex(x=>new{x.BusinessId,x.WorkOrderId}).IsUnique().HasFilter("\"Status\" IN (3,4)");
         b.HasMany(x => x.Assignments).WithOne().HasForeignKey(x => new { x.BusinessId, x.StageId }).HasPrincipalKey(x => new { x.BusinessId, x.Id }).OnDelete(DeleteBehavior.Restrict);
         b.Navigation(x => x.Assignments).HasField("assignments").UsePropertyAccessMode(PropertyAccessMode.Field);
         b.ToTable("WorkOrderStages", t => t.HasCheckConstraint("CK_WorkOrderStages_State", "\"Sequence\" > 0 AND length(btrim(\"Name\")) > 0 AND \"EstimatedMinutes\" BETWEEN 1 AND 10080 AND \"Status\" BETWEEN 1 AND 6 AND \"PausedMilliseconds\" >= 0 AND ((\"Status\" IN (1,2) AND \"StartedAtUtc\" IS NULL AND \"CompletedAtUtc\" IS NULL AND \"PausedAtUtc\" IS NULL) OR (\"Status\" = 6 AND \"CompletedAtUtc\" IS NULL AND \"PausedAtUtc\" IS NULL) OR (\"Status\" = 3 AND \"StartedAtUtc\" IS NOT NULL AND \"CompletedAtUtc\" IS NULL AND \"PausedAtUtc\" IS NULL) OR (\"Status\" = 4 AND \"StartedAtUtc\" IS NOT NULL AND \"PausedAtUtc\" IS NOT NULL AND \"PausedAtUtc\" >= \"StartedAtUtc\" AND \"CompletedAtUtc\" IS NULL) OR (\"Status\" = 5 AND \"StartedAtUtc\" IS NOT NULL AND \"CompletedAtUtc\" IS NOT NULL AND \"CompletedAtUtc\" >= \"StartedAtUtc\" AND \"PausedAtUtc\" IS NULL))"));

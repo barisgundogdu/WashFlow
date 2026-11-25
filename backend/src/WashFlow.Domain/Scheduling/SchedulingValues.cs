@@ -77,6 +77,12 @@ internal static class SchedulingInvariant
         Require(now >= previous, "Değişiklik zamanı önceki kayıttan önce olamaz.");
         return now;
     }
+    public static Guid[] EmployeePool(IEnumerable<Guid> employees, int required)
+    {
+        ArgumentNullException.ThrowIfNull(employees); var ids = employees.Take(101).ToArray();
+        Require(required is >=1 and <=100 && ids.Length >= required && ids.Length <=100 && ids.All(x=>x!=Guid.Empty) && ids.Distinct().Count()==ids.Length,"Geçerli çalışan havuzu gereklidir.");
+        return ids.OrderBy(x=>x).ToArray();
+    }
     public static Guid[] Employees(IEnumerable<Guid> employees, int required)
     {
         ArgumentNullException.ThrowIfNull(employees);

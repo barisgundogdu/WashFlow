@@ -144,8 +144,9 @@ public static class SchedulingValidation
             CatalogValidation.Money(appointment.Price), appointment.Currency, appointment.ActiveMinutes, appointment.WaitingMinutes,
             appointment.Employees, appointment.TimeZoneIdSnapshot, appointment.StartsAtUtc, appointment.ActiveEndsAtUtc,
             Array.AsReadOnly(appointment.Reservations.Select(x => new ReservationView(x.Id, x.WorkAreaId, x.EmployeeMembershipId,
-                x.StartsAtUtc, x.EndsAtUtc, x.ReleasedAt)).ToArray()),
+                x.StartsAtUtc, x.EndsAtUtc, x.ReleasedAt, x.StageId)).ToArray()),
             Array.AsReadOnly(appointment.Events.Select(x => new EventView(x.Sequence, x.Kind, x.Status, x.PreviousStart,
-                x.PreviousEnd, x.NewStart, x.NewEnd, x.CreatedAt)).ToArray()));
+                x.PreviousEnd, x.NewStart, x.NewEnd, x.CreatedAt)).ToArray()),
+            Array.AsReadOnly(appointment.Stages.Select(x => new AppointmentStageView(x.Id,x.Sequence,x.Name,x.OffsetMinutes,x.Minutes,x.WorkAreaId,x.Employees)).ToArray()));
     }
 }

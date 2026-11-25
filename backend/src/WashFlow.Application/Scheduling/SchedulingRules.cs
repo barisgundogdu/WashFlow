@@ -105,9 +105,9 @@ public static class SchedulingRules
         }
         catch (ArgumentException) { return false; }
     }
-    public static Guid[] Employees(IReadOnlyList<Guid>? ids, int count)
+    public static Guid[] Employees(IReadOnlyList<Guid>? ids, int count, bool pool = false)
     {
-        if (count is < 1 or > 100 || ids == null || ids.Count != count || ids.Any(x => x == Guid.Empty) || ids.Distinct().Count() != ids.Count)
+        if (count is < 1 or > 100 || ids == null || (pool ? ids.Count < count || ids.Count > 100 : ids.Count != count) || ids.Any(x => x == Guid.Empty) || ids.Distinct().Count() != ids.Count)
             Fail("invalidEmployees", "Gerekli sayıda farklı çalışan seçin.", 400);
         return ids.OrderBy(x => x).ToArray();
     }
@@ -123,7 +123,7 @@ public static class SchedulingRules
         if (businessId == Guid.Empty || requirement.BusinessId != businessId || area.BusinessId != businessId ||
             requirement.ServiceId != serviceId || requirement.Category != category || requirement.WorkAreaId != area.Id)
             Fail("resourceNotFound", "Hizmet ve çalışma alanı yapılandırması bulunamadı.", 404);
-        RequireSingleStage(requirement);
+        if (!requirement.StagePlanEnabled) RequireSingleStage(requirement);
         if (area.ArchivedAt != null) Fail("areaUnavailable", "Çalışma alanı arşivlenmiş.");
     }
     public static void RequireVersion(uint actual, uint expected)

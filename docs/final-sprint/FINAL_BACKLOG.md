@@ -36,3 +36,9 @@ Existing project: https://github.com/users/barisgundogdu/projects/1 . Read-only 
 ## Remote synchronization performed
 
 Issue descriptions #4, #6 and #11 were updated on 25 November 2026 to preserve the original acceptance criteria while adding P0 verification scope and explicit customer/overrun policies. All remain open. No Kanban mutation occurred; #4 → DOING remains the exact pending update. No milestone exists in the repository. Available labels were inventoried; no new label was created or blindly assigned.
+
+
+Employee execution core verified in local commit `40d4c9c` (422 backend/348 Flutter passed). Ordered per-stage resource allocation is being finalized on `codex/staged-scheduling`; its full acceptance and latest test evidence are tracked separately. Customer booking and finance have not started implementation yet. Both available browser surfaces are signed out, confirming the Kanban write limitation.
+
+
+Ordered area/staff scheduling and employee execution are now verified together: 429 backend / 351 Flutter tests passed; analysis clean. The approved one-booked-service/multiple-ordered-stages flow is working in source and API/widget tests. Keep broad #4/#6 open while customer history, final live rehearsal and GitHub publication are pending. Next implementation: #11 customer self-service on the same scheduling engine, with approved 120-minute cancellation/rescheduling default.

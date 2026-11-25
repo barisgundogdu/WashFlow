@@ -67,6 +67,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapSchedulingEndpoints();
 WashFlow.Api.Features.WorkOrders.WorkOrderEndpoints.MapWorkOrderEndpoints(app);
+WashFlow.Api.Features.WorkOrders.StageSchedulingEndpoints.MapStageSchedulingEndpoints(app);
 app.MapOpenApi().RequireAuthorization();
 app.MapAuthEndpoints();
 app.MapInvitationEndpoints();

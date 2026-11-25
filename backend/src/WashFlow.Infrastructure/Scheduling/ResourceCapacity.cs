@@ -11,6 +11,12 @@ internal static class ResourceCapacity
 {
     public static async Task<bool> Available(WashFlowDbContext db, Guid business, WorkArea area, Occupancy interval,
         Guid[] employees, Guid? excluding, DateTimeOffset now, CancellationToken ct)
+    { var result = await Check(db,business,area,interval,employees,excluding,now,ct); return result.Area && result.Eligible.Length == employees.Length; }
+    public static async Task<Guid[]?> Choose(WashFlowDbContext db, Guid business, WorkArea area, Occupancy interval,
+        Guid[] candidates, int required, Guid? excluding, DateTimeOffset now, CancellationToken ct)
+    { var result = await Check(db,business,area,interval,candidates,excluding,now,ct); return result.Area && result.Eligible.Length >= required ? result.Eligible.Take(required).ToArray() : null; }
+    private static async Task<(bool Area, Guid[] Eligible)> Check(WashFlowDbContext db, Guid business, WorkArea area, Occupancy interval,
+        Guid[] employees, Guid? excluding, DateTimeOffset now, CancellationToken ct)
     {
         var reservations = await db.AppointmentResourceReservations.AsNoTracking().Where(x => x.BusinessId == business && x.ReleasedAt == null && x.AppointmentId != excluding &&
             x.StartsAtUtc < interval.End && interval.Start < x.EndsAtUtc && (x.WorkAreaId == area.Id || (x.EmployeeMembershipId != null && employees.Contains(x.EmployeeMembershipId.Value)))).ToListAsync(ct);
@@ -34,15 +40,15 @@ internal static class ResourceCapacity
             var endTicks = until.UtcTicks;
             if (endTicks % TimeSpan.TicksPerMinute != 0) endTicks += TimeSpan.TicksPerMinute - endTicks % TimeSpan.TicksPerMinute;
             var occupied = new Occupancy(start, new(endTicks, TimeSpan.Zero));
-            if (SchedulingRules.Overlaps(occupied, interval)) actual.Add((row.AppointmentId, row.WorkAreaId, stage.Assignments.Select(x => x.EmployeeMembershipId).ToArray(), occupied));
+            if (SchedulingRules.Overlaps(occupied, interval)) actual.Add((row.AppointmentId, stage.WorkAreaId ?? row.WorkAreaId, stage.Assignments.Select(x => x.EmployeeMembershipId).ToArray(), occupied));
         }
         var areaUses = reservations.Where(x => x.WorkAreaId == area.Id).Select(x => (Appointment: x.AppointmentId, Interval: new Occupancy(x.StartsAtUtc, x.EndsAtUtc)))
             .Concat(actual.Where(x => x.Area == area.Id).Select(x => (x.Appointment, x.Interval)))
             .GroupBy(x => x.Appointment).SelectMany(g => Merge(g.Select(x => x.Interval)));
-        if (!SchedulingRules.HasCapacity(areaUses, interval, area.Capacity)) return false;
+        if (!SchedulingRules.HasCapacity(areaUses, interval, area.Capacity)) return (false, []);
         var windows = await db.EmployeeAvailabilities.AsNoTracking().Where(x => x.BusinessId == business && x.ArchivedAt == null && employees.Contains(x.MembershipId) && x.StartsAtUtc < interval.End && interval.Start < x.EndsAtUtc).ToListAsync(ct);
-        return employees.All(e => SchedulingRules.EmployeeAvailable(windows.Where(x => x.MembershipId == e).Select(x => new Occupancy(x.StartsAtUtc, x.EndsAtUtc)),
-            reservations.Where(x => x.EmployeeMembershipId == e).Select(x => new Occupancy(x.StartsAtUtc, x.EndsAtUtc)).Concat(actual.Where(x => x.Employees.Contains(e)).Select(x => x.Interval)), interval));
+        return (true, employees.Where(e => SchedulingRules.EmployeeAvailable(windows.Where(x => x.MembershipId == e).Select(x => new Occupancy(x.StartsAtUtc, x.EndsAtUtc)),
+            reservations.Where(x => x.EmployeeMembershipId == e).Select(x => new Occupancy(x.StartsAtUtc, x.EndsAtUtc)).Concat(actual.Where(x => x.Employees.Contains(e)).Select(x => x.Interval)), interval)).ToArray());
     }
     private static IEnumerable<Occupancy> Merge(IEnumerable<Occupancy> source)
     {

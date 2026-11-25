@@ -33,6 +33,7 @@ public sealed class WorkOrderHttpPostgresTests(PostgresModelFixture fixture) : I
     private WebApplicationFactory<Program> Api(ApiFactory root, Clock clock) => root.WithWebHostBuilder(b => b.ConfigureServices(s =>
     {
         s.RemoveAll<WashFlowDbContext>(); s.AddScoped(_ => Db());
+        s.RemoveAll<IStageSchedulingService>(); s.AddScoped<IStageSchedulingService>(sp => new WashFlow.Infrastructure.Scheduling.EfSchedulingService(sp.GetRequiredService<WashFlowDbContext>(), clock));
         s.RemoveAll<ISchedulingService>(); s.AddScoped<ISchedulingService>(sp => new WashFlow.Infrastructure.Scheduling.EfSchedulingService(sp.GetRequiredService<WashFlowDbContext>(), clock));
         s.RemoveAll<IWorkOrderService>(); s.AddScoped<IWorkOrderService>(sp => new EfWorkOrderService(sp.GetRequiredService<WashFlowDbContext>(), clock));
     }));
@@ -199,6 +200,61 @@ public sealed class WorkOrderHttpPostgresTests(PostgresModelFixture fixture) : I
         }
         finally { await using var db=Db();await db.Database.ExecuteSqlRawAsync("DROP TRIGGER reject_work_event ON \"WorkOrderEvents\"; DROP FUNCTION reject_work_event()"); }
         var actual=await Json<WorkOrderView>(await owner.GetAsync(d.Owner+"/"+order.Id));Assert.Equal(order.Version,actual.Version);Assert.Equal("Ready",actual.Stages[0].Status);Assert.Single(actual.Events);
+    }
+
+    [PostgresFact]
+    public async Task StagedWorkOrderKeepsDistinctAreasAndStaffAndDeniesUnassignedStageActions()
+    {
+        var clock=new Clock();using var root=new ApiFactory();using var api=Api(root,clock);var d=await Seed(clock);
+        using var owner=Client(api,d.OwnerSession);using var employee=Client(api,d.EmployeeSession);using var other=Client(api,d.OtherSession);
+        await Json<AppointmentView>(await owner.PostAsJsonAsync($"{d.Root}/appointments/{d.Appointment}/cancel",new VersionInput(d.Version)));
+        Guid service,customer,vehicle,primary,secondEmployee;uint serviceVersion,vehicleVersion;
+        WorkArea secondArea;
+        await using(var db=Db())
+        {
+            var original=await db.Appointments.SingleAsync(x=>x.Id==d.Appointment);service=original.ServiceId;customer=original.LocalCustomerId;vehicle=original.LocalVehicleId;primary=original.WorkAreaId;
+            await db.ServiceOfferings.Where(x=>x.ServiceId==service).ExecuteUpdateAsync(x=>x.SetProperty(o=>o.Employees,2));
+            var s=await db.BusinessServices.SingleAsync(x=>x.Id==service);serviceVersion=db.Entry(s).Property<uint>("Version").CurrentValue;
+            var v=await db.LocalVehicles.SingleAsync(x=>x.Id==vehicle);vehicleVersion=db.Entry(v).Property<uint>("Version").CurrentValue;
+            secondEmployee=await db.BusinessMemberships.Where(x=>x.BusinessId==d.Business&&x.UserId==d.OtherSession.UserId).Select(x=>x.Id).SingleAsync();
+            secondArea=WorkArea.Create(d.Business,"İç alan",1,clock.Now);db.Add(secondArea);await db.SaveChangesAsync();
+        }
+        var path=$"{d.Root}/services/{service}/offerings/Car/stages";
+        var current=await Json<StageTemplatesView>(await owner.GetAsync(path));
+        await Fault(await employee.GetAsync(path),HttpStatusCode.Forbidden);
+        await Json<StageTemplatesView>(await owner.PutAsJsonAsync(path,new SaveStageTemplatesInput(current.Requirement!.Version,[new("Dış yıkama",10,primary,1),new("İç temizlik",20,secondArea.Id,2)])));
+        var staff=new[]{d.Employee,secondEmployee}.Order().ToArray();
+        var appointment=await owner.PostAsJsonAsync(d.Root+"/appointments",new BookingInput(Guid.NewGuid(),customer,vehicle,service,serviceVersion,vehicleVersion,clock.Now.ToString("yyyy-MM-dd'T'HH:mm"),null,staff));
+        Assert.Equal(HttpStatusCode.Created,appointment.StatusCode);var booked=(await appointment.Content.ReadFromJsonAsync<AppointmentView>())!;appointment.Dispose();
+        var create=d.Root+$"/appointments/{booked.Id}/work-order";
+        await Fault(await owner.PostAsJsonAsync(create,new CreateWorkOrderInput(Guid.NewGuid(),booked.Version,[new("Değişmiş",10),new("İç temizlik",20)])),HttpStatusCode.BadRequest,"validation");
+        var order=await Json<WorkOrderView>(await owner.PostAsJsonAsync(create,new CreateWorkOrderInput(Guid.NewGuid(),booked.Version,[new("Dış yıkama",10),new("İç temizlik",20)])));
+        Assert.Equal(primary,order.Stages[0].WorkAreaId);Assert.Equal(secondArea.Id,order.Stages[1].WorkAreaId);Assert.Equal("İç alan",order.Stages[1].WorkAreaName);
+        var firstClient=staff[0]==d.Employee?employee:other;var secondClient=staff[1]==d.Employee?employee:other;
+        var assigned=await Json<WorkOrderView>(await secondClient.GetAsync($"{d.EmployeePath}/{order.Id}"));Assert.Single(assigned.Stages);Assert.Equal(2,assigned.Stages[0].Sequence);
+        await Fault(await secondClient.PostAsJsonAsync($"{d.EmployeePath}/{order.Id}/stages/{order.Stages[0].Id}/start",new WorkActionInput(Guid.NewGuid(),order.Version)),HttpStatusCode.Forbidden);
+        var first=await Act(firstClient,d,order,0,"start");clock.Now=clock.Now.AddMinutes(10);var next=await Act(firstClient,d,first,0,"complete");
+        var second=await Json<WorkOrderView>(await secondClient.PostAsJsonAsync($"{d.EmployeePath}/{order.Id}/stages/{order.Stages[1].Id}/start",new WorkActionInput(Guid.NewGuid(),next.Version)));
+        Assert.Single(second.Stages);Assert.Equal("InProgress",second.Stages[0].Status);
+        clock.Now=clock.Now.AddMinutes(21);
+        await using(var db=Db())
+        {
+            var area=await db.WorkAreas.SingleAsync(x=>x.Id==secondArea.Id);var version=db.Entry(area).Property<uint>("Version").CurrentValue;db.ChangeTracker.Clear();
+            var scheduling=new WashFlow.Infrastructure.Scheduling.EfSchedulingService(db,clock);
+            var error=await Assert.ThrowsAsync<SchedulingFault>(()=>scheduling.ArchiveWorkArea(new(d.OwnerSession.UserId,d.OwnerSession.Id),d.Business,secondArea.Id,new(version)));
+            Assert.Equal("areaInUse",error.Code);
+        }
+    }
+
+    [PostgresFact]
+    public async Task CancelledOrderRetainsItsPlannedTimeAfterExplicitAppointmentRescheduling()
+    {
+        var clock=new Clock();using var root=new ApiFactory();using var api=Api(root,clock);var d=await Seed(clock);using var owner=Client(api,d.OwnerSession);
+        var order=await Json<WorkOrderView>(await owner.PostAsJsonAsync(d.Create,d.Input()));
+        await Json<WorkOrderView>(await owner.PostAsJsonAsync($"{d.Owner}/{order.Id}/cancel",new WorkActionInput(Guid.NewGuid(),order.Version)));
+        var moved=await Json<AppointmentView>(await owner.PostAsJsonAsync($"{d.Root}/appointments/{d.Appointment}/reschedule",new RescheduleInput(d.Version,clock.Now.AddHours(1).ToString("yyyy-MM-dd'T'HH:mm"),null,[d.Employee])));
+        Assert.NotEqual(order.PlannedStartUtc,moved.StartsAtUtc);
+        var history=await Json<WorkOrderView>(await owner.GetAsync($"{d.Owner}/{order.Id}"));Assert.Equal(order.PlannedStartUtc,history.PlannedStartUtc);Assert.Equal("Cancelled",history.Status);Assert.Equal(2,history.Events.Count);
     }
 
 }

@@ -48,14 +48,17 @@ public sealed class EfWorkOrderService(WashFlowDbContext db, TimeProvider clock)
         var now = clock.GetUtcNow();
         var currentZone = db.Businesses.Local.Single(x => x.Id == order.BusinessId).TimeZoneId;
         var displayZone = Zone(string.IsNullOrWhiteSpace(currentZone) ? a.TimeZoneIdSnapshot : currentZone);
+        var areaIds = order.Stages.Select(x=>x.WorkAreaId ?? a.WorkAreaId).Distinct().ToArray();
+        var areaNames = await db.WorkAreas.AsNoTracking().Where(x=>x.BusinessId==order.BusinessId&&areaIds.Contains(x.Id)).ToDictionaryAsync(x=>x.Id,x=>x.Name,ct);
         var stages = order.Stages.Where(x => owner || x.Assignments.Any(y => y.EmployeeMembershipId == member)).Select(x => new WorkStageView(x.Id, x.Sequence, x.Name, x.EstimatedMinutes, x.Status.ToString(),
-            x.StartedAtUtc, x.CompletedAtUtc, x.PausedAtUtc, x.PausedMilliseconds, x.Assignments.Select(y => y.EmployeeMembershipId).ToArray())).ToArray();
+            x.StartedAtUtc, x.CompletedAtUtc, x.PausedAtUtc, x.PausedMilliseconds, x.Assignments.Select(y => y.EmployeeMembershipId).ToArray(),x.WorkAreaId ?? a.WorkAreaId,areaNames[x.WorkAreaId ?? a.WorkAreaId])).ToArray();
         var overdue = stages.Any(x => x.StartedAtUtc != null && x.Status is "InProgress" or "Paused" &&
             ((x.PausedAtUtc ?? now) - x.StartedAtUtc.Value).TotalMilliseconds - x.PausedMilliseconds > x.EstimatedMinutes * 60000L);
+        var plannedStart = order.PlannedStartUtc ?? a.StartsAtUtc;
         var status = order.CancelledAtUtc != null ? "Cancelled" : order.CompletedAtUtc != null ? "Completed" :
             order.Stages.Any(x => x.Status == WorkStageStatus.Paused) ? "Paused" : order.Stages.Any(x => x.Status == WorkStageStatus.InProgress) ? "InProgress" : "Scheduled";
-        return new(order.Id, order.BusinessId, order.AppointmentId, Version(order), a.VehiclePlate, a.ServiceName, status, a.StartsAtUtc, now, order.CompletedAtUtc,
-            stages, owner ? order.Events.Select(x => new WorkEventView(x.RequestId, x.StageId, x.ActorUserId, x.Action, x.AtUtc)).ToArray() : [], overdue, displayZone.Id, TimeZoneInfo.ConvertTime(a.StartsAtUtc, displayZone).ToString("dd.MM.yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture),
+        return new(order.Id, order.BusinessId, order.AppointmentId, Version(order), a.VehiclePlate, a.ServiceName, status, plannedStart, now, order.CompletedAtUtc,
+            stages, owner ? order.Events.Select(x => new WorkEventView(x.RequestId, x.StageId, x.ActorUserId, x.Action, x.AtUtc)).ToArray() : [], overdue, displayZone.Id, TimeZoneInfo.ConvertTime(plannedStart, displayZone).ToString("dd.MM.yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture),
             TimeZoneInfo.ConvertTime(now, displayZone).ToString("dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture));
     }
     private async Task<WorkOrder> Load(Guid business, Guid id, bool owner, Guid member, CancellationToken ct)
@@ -88,15 +91,23 @@ public sealed class EfWorkOrderService(WashFlowDbContext db, TimeProvider clock)
                 Fail("idempotencyConflict", "İstek anahtarı farklı işlem için kullanılmış.");
             return await View(replay, true, member, ct);
         }
-        var a = await db.Appointments.Include(x => x.Reservations).SingleOrDefaultAsync(x => x.BusinessId == business && x.Id == appointment, ct)
+        var a = await db.Appointments.Include(x => x.Reservations).Include(x=>x.Stages.OrderBy(s=>s.Sequence)).SingleOrDefaultAsync(x => x.BusinessId == business && x.Id == appointment, ct)
             ?? throw new SchedulingFault(404, "resourceNotFound", "Randevu bulunamadı.");
         RequireVersion(Version(a), input.AppointmentVersion);
         if (a.Status != AppointmentStatus.Confirmed) Fail("invalidStatus", "İptal edilmiş randevuya iş emri açılamaz.");
         if (await db.WorkOrders.AnyAsync(x => x.BusinessId == business && x.AppointmentId == appointment && x.CancelledAtUtc == null, ct))
             Fail("workOrderInUse", "Bu randevunun iş emri zaten var.");
         if (input.Stages.Sum(x => (long)x.Minutes) != a.ActiveMinutes) Fail("validation", "Aşama süreleri toplamı randevunun etkin süresine eşit olmalıdır.", 400);
-        var employees = a.Reservations.Where(x => x.ReleasedAt == null && x.EmployeeMembershipId != null).Select(x => x.EmployeeMembershipId!.Value).ToArray();
-        var order = WorkOrder.Create(business, appointment, input.Stages.Select(x => (x.Name, x.Minutes)).ToArray(), employees, actor.UserId, input.RequestId, clock.GetUtcNow(), hash);
+        var employees = a.Reservations.Where(x => x.ReleasedAt == null && x.EmployeeMembershipId != null).Select(x => x.EmployeeMembershipId!.Value).Distinct().ToArray();
+        IReadOnlyList<WorkStageResources> resources;
+        if (a.Stages.Count != 0)
+        {
+            if (a.Stages.Count != input.Stages.Count || a.Stages.Where((stage,i)=>stage.Name != input.Stages[i].Name.Trim() || stage.Minutes != input.Stages[i].Minutes).Any())
+                Fail("validation","Randevuya ayrılmış aşamalar değiştirilemez. Önce randevuyu açıkça çözümleyin.",400);
+            resources = a.Stages.Select(stage=>new WorkStageResources(stage.WorkAreaId,a.Reservations.Where(r=>r.StageId==stage.Id&&r.ReleasedAt==null&&r.EmployeeMembershipId!=null).Select(r=>r.EmployeeMembershipId!.Value).ToArray())).ToArray();
+        }
+        else resources = input.Stages.Select(_=>new WorkStageResources(a.WorkAreaId,employees)).ToArray();
+        var order = WorkOrder.Create(business, appointment, input.Stages.Select(x => (x.Name, x.Minutes)).ToArray(), employees, actor.UserId, input.RequestId, clock.GetUtcNow(), hash,resources,a.StartsAtUtc);
         db.Add(order); await db.SaveChangesAsync(ct); return await View(order, true, member, ct);
     }, ct);
     private async Task CanStart(Business b, WorkOrder order, WorkOrderStage stage, CancellationToken ct)
@@ -119,7 +130,7 @@ public sealed class EfWorkOrderService(WashFlowDbContext db, TimeProvider clock)
             if (m == null || m.RevokedAt != null || !await db.BusinessMembershipRoles.AnyAsync(x => x.BusinessMembershipId == employee && x.Role == MembershipRole.Employee, ct))
                 Fail("employeeUnavailable", "Etkin çalışan gerekli.");
         }
-        var area = await db.WorkAreas.AsNoTracking().SingleAsync(x => x.BusinessId == b.Id && x.Id == a.WorkAreaId, ct);
+        var area = await db.WorkAreas.AsNoTracking().SingleAsync(x => x.BusinessId == b.Id && x.Id == (stage.WorkAreaId ?? a.WorkAreaId), ct);
         if (area.ArchivedAt != null) Fail("areaUnavailable", "Çalışma alanı arşivlenmiş.");
         if (!await WashFlow.Infrastructure.Scheduling.ResourceCapacity.Available(db, b.Id, area, interval, employees, a.Id, now, ct))
             Fail("resourceConflict", "Çalışan uygunluğu veya alan kapasitesi yetersiz.");

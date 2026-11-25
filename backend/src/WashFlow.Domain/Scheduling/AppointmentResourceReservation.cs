@@ -8,6 +8,7 @@ public sealed class AppointmentResourceReservation : IEntity
     public DateTimeOffset CreatedAt { get; private init; }
     public DateTimeOffset UpdatedAt { get; set; }
     public Guid AppointmentId { get; private init; }
+    public Guid? StageId { get; private init; }
     public Guid? WorkAreaId { get; private init; }
     public Guid? EmployeeMembershipId { get; private init; }
     public DateTimeOffset StartsAtUtc { get; private init; }
@@ -15,12 +16,13 @@ public sealed class AppointmentResourceReservation : IEntity
     public DateTimeOffset? ReleasedAt { get; private set; }
     private AppointmentResourceReservation() { }
     public static AppointmentResourceReservation Create(Guid businessId, Guid appointmentId, Guid? workAreaId,
-        Guid? employeeMembershipId, Occupancy interval, DateTimeOffset now)
+        Guid? employeeMembershipId, Occupancy interval, DateTimeOffset now, Guid? stageId = null)
     {
         SchedulingInvariant.Id(businessId); SchedulingInvariant.Id(appointmentId); interval.Validate();
         SchedulingInvariant.Require(workAreaId.HasValue != employeeMembershipId.HasValue, "Rezervasyon tam olarak bir kaynak türüne ait olmalıdır.");
         SchedulingInvariant.Id((workAreaId ?? employeeMembershipId)!.Value);
-        return new() { BusinessId = businessId, AppointmentId = appointmentId, WorkAreaId = workAreaId,
+        if (stageId is { } stage) SchedulingInvariant.Id(stage);
+        return new() { BusinessId = businessId, AppointmentId = appointmentId, StageId = stageId, WorkAreaId = workAreaId,
             EmployeeMembershipId = employeeMembershipId, StartsAtUtc = interval.Start, EndsAtUtc = interval.End,
             CreatedAt = now.ToUniversalTime(), UpdatedAt = now.ToUniversalTime() };
     }

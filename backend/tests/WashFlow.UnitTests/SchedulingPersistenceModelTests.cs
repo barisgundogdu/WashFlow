@@ -48,7 +48,7 @@ public sealed class SchedulingPersistenceModelTests
     {
         using var db = new WashFlowDbContextFactory().CreateDbContext([]);
         var r = db.GetService<IDesignTimeModel>().Model.FindEntityType(typeof(AppointmentResourceReservation))!;
-        Assert.Equal(2, r.GetIndexes().Count(i => i.IsUnique && i.GetFilter()!.Contains("ReleasedAt")));
+        Assert.Equal(4, r.GetIndexes().Count(i => i.IsUnique && i.GetFilter()!.Contains("ReleasedAt")));
         Assert.Equal(2, r.GetIndexes().Count(i => !i.IsUnique && i.Properties.Any(p => p.Name == "EndsAtUtc") && i.GetFilter()!.Contains("ReleasedAt")));
         Assert.Contains(r.GetCheckConstraints(), c => c.Name!.EndsWith("_Resource", StringComparison.Ordinal));
         Assert.Contains(r.GetCheckConstraints(), c => c.Name!.EndsWith("_Interval", StringComparison.Ordinal));

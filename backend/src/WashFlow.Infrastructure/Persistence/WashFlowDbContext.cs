@@ -15,6 +15,8 @@ public sealed class WashFlowDbContext(DbContextOptions<WashFlowDbContext> option
     public DbSet<LocalCustomer> LocalCustomers => Set<LocalCustomer>();
     public DbSet<LocalVehicle> LocalVehicles => Set<LocalVehicle>();
     public DbSet<OwnedVehicle> OwnedVehicles => Set<OwnedVehicle>();
+    public DbSet<WashFlow.Domain.Scheduling.ServiceStageTemplate> ServiceStageTemplates => Set<WashFlow.Domain.Scheduling.ServiceStageTemplate>();
+    public DbSet<WashFlow.Domain.Scheduling.AppointmentStage> AppointmentStages => Set<WashFlow.Domain.Scheduling.AppointmentStage>();
     public DbSet<WashFlow.Domain.Scheduling.WorkArea> WorkAreas => Set<WashFlow.Domain.Scheduling.WorkArea>();
     public DbSet<WashFlow.Domain.Scheduling.ServiceSchedulingRequirement> ServiceSchedulingRequirements => Set<WashFlow.Domain.Scheduling.ServiceSchedulingRequirement>();
     public DbSet<WashFlow.Domain.Scheduling.EmployeeAvailability> EmployeeAvailabilities => Set<WashFlow.Domain.Scheduling.EmployeeAvailability>();
