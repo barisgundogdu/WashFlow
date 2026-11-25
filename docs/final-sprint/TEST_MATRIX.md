@@ -68,3 +68,13 @@ Intermediate test-only failures were corrected: test-clock initialization now ca
 Seven additional PostgreSQL scenarios cover ordered resource scheduling and immutable cancelled-order planned-time history; three Flutter cases cover stage configuration and feedback. A regression specifically makes the first-sorted worker unavailable until stage two, proving selection follows actual availability rather than identifier order. The editor test revealed offscreen feedback on long forms; messages now scroll into view. No test or domain constraint was removed.
 
 Idempotent upgrade scripts generated offline for review: /tmp/washflow-work-order-upgrade.sql (migration 7→8), /tmp/washflow-ordered-stage-upgrade.sql (8→9). Both migrations were exercised only in disposable test schemas; no demo migration or live simulator rehearsal.
+
+
+## Customer self-service increment — 25 November 2026
+
+- `dotnet test backend/WashFlow.sln --no-restore -m:1 -nr:false` with dedicated PostgreSQL port 55439: **436 passed** (254 unit + 182 integration), zero failures/skips. Log `/tmp/washflow-customer-backend4.log`.
+- `flutter test --no-pub --reporter compact`: **358 passed**, zero failures/skips. Log `/tmp/washflow-customer-flutter-final.log`.
+- `flutter analyze --no-pub`: no issues. Log `/tmp/washflow-customer-analyze-final.log`. `git diff --check` passed.
+- Seven PostgreSQL customer regressions cover safe discovery/own vehicle/create/replay/current state, owner agenda source/nullable references, cross-customer privacy and revoked sessions, exact cutoff/late preservation, cross-source last-employee race despite spare area, failed-move/prepared-order rollback/history, configurable cutoff and fail-closed hours, populated schema-9 upgrade and guarded downgrade.
+- Flutter exercises scoped adapters, malformed foreign payload rejection, explicit price confirmation, immutable retry key across uncertain outcomes, hidden mutations at cutoff and account-switch late-response disposal. Existing scheduling/work-order suites remain green.
+- Offline migration10 SQL inspected: no deletion/reset/backfill of appointments. Disposable upgrade retains owner appointment and two active reservations. No demo migration applied.

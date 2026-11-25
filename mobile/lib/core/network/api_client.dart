@@ -107,6 +107,9 @@ class ApiClient {
               'fromUtc',
               'toUtcExclusive',
               'category',
+              'date',
+              'stepMinutes',
+              'appointmentId',
             }.contains(key),
           )) {
         throw const ApiException(ApiErrorCode.unexpected);
@@ -152,6 +155,9 @@ class ApiClient {
           problemCode:
               const {
                 'resourceConflict',
+                'bookingChangeCutoff',
+                'slotUnavailable',
+                'vehicleChanged',
                 'scheduleConflict',
                 'idempotencyConflict',
                 'invalidStatus',

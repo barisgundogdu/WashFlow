@@ -168,7 +168,7 @@ public sealed class WorkOrderHttpPostgresTests(PostgresModelFixture fixture) : I
         Guid customer,vehicle,service,other;uint serviceVersion,vehicleVersion;
         await using(var db=Db())
         {
-            var a=await db.Appointments.SingleAsync(x=>x.Id==d.Appointment);customer=a.LocalCustomerId;vehicle=a.LocalVehicleId;service=a.ServiceId;
+            var a=await db.Appointments.SingleAsync(x=>x.Id==d.Appointment);customer=a.LocalCustomerId!.Value;vehicle=a.LocalVehicleId!.Value;service=a.ServiceId;
             var s=await db.BusinessServices.SingleAsync(x=>x.Id==service);serviceVersion=db.Entry(s).Property<uint>("Version").CurrentValue;
             var v=await db.LocalVehicles.SingleAsync(x=>x.Id==vehicle);vehicleVersion=db.Entry(v).Property<uint>("Version").CurrentValue;
             other=await db.BusinessMemberships.Where(x=>x.BusinessId==d.Business&&x.UserId==d.OtherSession.UserId).Select(x=>x.Id).SingleAsync();
@@ -212,7 +212,7 @@ public sealed class WorkOrderHttpPostgresTests(PostgresModelFixture fixture) : I
         WorkArea secondArea;
         await using(var db=Db())
         {
-            var original=await db.Appointments.SingleAsync(x=>x.Id==d.Appointment);service=original.ServiceId;customer=original.LocalCustomerId;vehicle=original.LocalVehicleId;primary=original.WorkAreaId;
+            var original=await db.Appointments.SingleAsync(x=>x.Id==d.Appointment);service=original.ServiceId;customer=original.LocalCustomerId!.Value;vehicle=original.LocalVehicleId!.Value;primary=original.WorkAreaId;
             await db.ServiceOfferings.Where(x=>x.ServiceId==service).ExecuteUpdateAsync(x=>x.SetProperty(o=>o.Employees,2));
             var s=await db.BusinessServices.SingleAsync(x=>x.Id==service);serviceVersion=db.Entry(s).Property<uint>("Version").CurrentValue;
             var v=await db.LocalVehicles.SingleAsync(x=>x.Id==vehicle);vehicleVersion=db.Entry(v).Property<uint>("Version").CurrentValue;

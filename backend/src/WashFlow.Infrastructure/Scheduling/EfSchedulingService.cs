@@ -15,7 +15,7 @@ namespace WashFlow.Infrastructure.Scheduling;
 /// <summary>One transaction per operation; all authoritative reads follow the business lock.
 /// Lock order: business, owner membership/grant, user/session, sorted employee membership/grants.
 /// Uses READ COMMITTED so a waiter reads the winner's committed reservations after locking.</summary>
-public sealed partial class EfSchedulingService(WashFlowDbContext db, TimeProvider clock) : ISchedulingService, IStageSchedulingService
+public sealed partial class EfSchedulingService(WashFlowDbContext db, TimeProvider clock) : ISchedulingService, IStageSchedulingService, WashFlow.Application.CustomerBooking.ICustomerBookingService
 {
     private static void Validate(Dictionary<string, string[]> errors)
     {
@@ -93,24 +93,32 @@ public sealed partial class EfSchedulingService(WashFlowDbContext db, TimeProvid
     }
     private async Task<bool> Resources(Business b, WorkArea area, Occupancy interval, Guid[] employees, Guid? excluding, CancellationToken ct)
     {
+        if(!b.HoursConfigured) Fail("hoursUnconfigured","İşletmenin çalışma saatlerini yapılandırın.");
         var hours = await db.WeeklyOpeningDays.AsNoTracking().Where(x => x.BusinessId == b.Id).OrderBy(x => x.Day)
             .Select(x => new OpeningDay(x.Day, x.Closed, x.OpensAtMinute, x.ClosesAtMinute)).ToListAsync(ct);
         if (!WithinHours(interval, Zone(b.TimeZoneId), hours)) Fail("outsideHours", "Randevu işletmenin açık olduğu saatlere sığmalıdır.");
         foreach (var employee in employees) await Employee(b.Id, employee, ct);
         return await ResourceCapacity.Available(db, b.Id, area, interval, employees, excluding, clock.GetUtcNow(), ct);
     }
-    private async Task<Guid[][]?> PlanResources(Business business, WorkArea primary, Occupancy interval, Guid[] employees, IReadOnlyList<StageResourceSnapshot>? plans, Guid? excluding, CancellationToken ct)
+    private async Task<Guid[][]?> PlanResources(Business business, WorkArea primary, Occupancy interval, Guid[] employees, IReadOnlyList<StageResourceSnapshot>? plans, Guid? excluding, CancellationToken ct,
+        ResourceCapacity.Snapshot? resourceSnapshot = null, IReadOnlyList<OpeningDay>? hoursSnapshot = null, IReadOnlyDictionary<Guid,WorkArea>? areasSnapshot = null)
     {
-        if (plans == null) return await Resources(business,primary,interval,employees,excluding,ct) ? [] : null;
-        foreach (var employee in employees) await Employee(business.Id,employee,ct);
-        var hours = await db.WeeklyOpeningDays.AsNoTracking().Where(x=>x.BusinessId==business.Id).Select(x=>new OpeningDay(x.Day,x.Closed,x.OpensAtMinute,x.ClosesAtMinute)).ToListAsync(ct);
+        if(!business.HoursConfigured)Fail("hoursUnconfigured","İşletmenin çalışma saatlerini yapılandırın.");
+        if (plans == null && resourceSnapshot == null) return await Resources(business,primary,interval,employees,excluding,ct) ? [] : null;
+        if(resourceSnapshot==null)foreach (var employee in employees) await Employee(business.Id,employee,ct);
+        var hours = hoursSnapshot ?? await db.WeeklyOpeningDays.AsNoTracking().Where(x=>x.BusinessId==business.Id).Select(x=>new OpeningDay(x.Day,x.Closed,x.OpensAtMinute,x.ClosesAtMinute)).ToListAsync(ct);
+        if(plans==null)
+        {
+            if(!WithinHours(interval,Zone(business.TimeZoneId),hours))Fail("outsideHours","Randevu işletmenin açık olduğu saatlere sığmalıdır.");
+            return resourceSnapshot!.Available(primary,interval,employees,excluding)?[]:null;
+        }
         var start = interval.Start; var assignments = new List<Guid[]>();
         foreach (var plan in plans)
         {
-            var area = Found(await db.WorkAreas.SingleOrDefaultAsync(x=>x.BusinessId==business.Id&&x.Id==plan.WorkAreaId&&x.ArchivedAt==null,ct));
+            var area = areasSnapshot==null ? Found(await db.WorkAreas.SingleOrDefaultAsync(x=>x.BusinessId==business.Id&&x.Id==plan.WorkAreaId&&x.ArchivedAt==null,ct)) : areasSnapshot.GetValueOrDefault(plan.WorkAreaId) ?? throw new SchedulingFault(409,"areaUnavailable","Çalışma alanı kullanılamıyor.");
             var stage = Interval(start,plan.Minutes);
             if (!WithinHours(stage,Zone(business.TimeZoneId),hours)) Fail("outsideHours","Randevu işletmenin açık olduğu saatlere sığmalıdır.");
-            var crew = await ResourceCapacity.Choose(db,business.Id,area,stage,employees,plan.Employees,excluding,clock.GetUtcNow(),ct);
+            var crew = resourceSnapshot==null ? await ResourceCapacity.Choose(db,business.Id,area,stage,employees,plan.Employees,excluding,clock.GetUtcNow(),ct) : resourceSnapshot.Choose(area,stage,employees,plan.Employees,excluding);
             if (crew == null) return null;
             assignments.Add(crew); start = stage.End;
         }
@@ -274,8 +282,16 @@ public sealed partial class EfSchedulingService(WashFlowDbContext db, TimeProvid
             Fail("workOrderInUse", "Önce bağlı iş emrini çözümleyin. Devam eden veya tamamlanmış iş yeniden planlanamaz.");
         var config = await Configuration(business, row.ServiceId, row.Category, ct);
         if (row.Stages.Count == 0 && config.Area.Id != row.WorkAreaId) Fail("requirementChanged", "Randevunun kaynak gereksinimi değişmiş.");
-        _ = Found(await db.LocalCustomers.SingleOrDefaultAsync(x => x.BusinessId == business && x.Id == row.LocalCustomerId, ct));
-        _ = Found(await db.LocalVehicles.SingleOrDefaultAsync(x => x.BusinessId == business && x.LocalCustomerId == row.LocalCustomerId && x.Id == row.LocalVehicleId && x.ArchivedAt == null && x.Category == row.Category, ct));
+        if(row.Source==BookingSource.Customer)
+        {
+            if(!await db.OwnedVehicles.AnyAsync(x=>x.Id==row.OwnedVehicleId&&x.CustomerProfileId==row.CustomerProfileId&&x.ArchivedAt==null&&x.Category==row.Category,ct))
+                Fail("vehicleChanged","Randevuya bağlı araç kaydı değişmiş.");
+        }
+        else
+        {
+            _ = Found(await db.LocalCustomers.SingleOrDefaultAsync(x => x.BusinessId == business && x.Id == row.LocalCustomerId, ct));
+            _ = Found(await db.LocalVehicles.SingleOrDefaultAsync(x => x.BusinessId == business && x.LocalCustomerId == row.LocalCustomerId && x.Id == row.LocalVehicleId && x.ArchivedAt == null && x.Category == row.Category, ct));
+        }
         // Rescheduling preserves agreed duration/price/staff snapshots; current service must still be available.
         var start = Resolve(input.StartLocal, input.UtcOffsetMinutes, Zone(b.TimeZoneId)); var interval = Interval(start, row.ActiveMinutes);
         var employees = SchedulingRules.Employees(input.EmployeeMembershipIds, row.Employees, row.Stages.Count != 0);

@@ -1,3 +1,4 @@
+import 'features/customer_booking/customer_booking.dart';
 import 'features/work_orders/work_orders.dart';
 import 'features/scheduling/data/api_scheduling_service.dart';
 import 'features/service_catalog/data/api_catalog_service.dart';
@@ -38,6 +39,10 @@ Future<void> main() async {
       WashFlowApp(
         authService: service,
         contextService: ApiContextService(
+          apiClient: service.apiClient,
+          session: service,
+        ),
+        customerBookingService: ApiCustomerBookingService(
           apiClient: service.apiClient,
           session: service,
         ),

@@ -1,3 +1,5 @@
+import '../../customer_booking/customer_booking.dart';
+import '../../customer_booking/customer_booking_screen.dart';
 import '../../work_orders/work_orders.dart';
 import '../../work_orders/work_order_screen.dart';
 import '../../scheduling/presentation/scheduling_screen.dart';
@@ -37,6 +39,7 @@ class SessionScreen extends StatefulWidget {
     this.catalogService,
     this.schedulingService,
     this.workOrderService,
+    this.customerBookingService,
     this.redemptionEnabled = false,
   });
   final SessionService? service;
@@ -46,6 +49,7 @@ class SessionScreen extends StatefulWidget {
   final CatalogService? catalogService;
   final SchedulingService? schedulingService;
   final WorkOrderService? workOrderService;
+  final CustomerBookingService? customerBookingService;
   final CustomerVehicleService? customerVehicleService;
   final bool redemptionEnabled;
   @override
@@ -98,6 +102,10 @@ class _SessionScreenState extends State<SessionScreen>
         !identical(oldWidget.catalogService, widget.catalogService) ||
         !identical(oldWidget.schedulingService, widget.schedulingService) ||
         !identical(oldWidget.workOrderService, widget.workOrderService) ||
+        !identical(
+          oldWidget.customerBookingService,
+          widget.customerBookingService,
+        ) ||
         !identical(
           oldWidget.customerVehicleService,
           widget.customerVehicleService,
@@ -248,6 +256,15 @@ class _SessionScreenState extends State<SessionScreen>
             if (selected != null)
               switch (selected.role) {
                 ExperienceRole.customer => CustomerHomeScreen(
+                  onBookings:
+                      widget.customerBookingService == null ||
+                          widget.customerVehicleService == null
+                      ? null
+                      : () {
+                          _tenantNavigator?.currentState?.pushNamed<void>(
+                            '/customer-booking',
+                          );
+                        },
                   onVehicles: widget.customerVehicleService == null
                       ? null
                       : () => _openDirectory(false),
@@ -404,6 +421,24 @@ class _SessionScreenState extends State<SessionScreen>
                 settings: settings,
                 builder: (_) {
                   if (settings.name == '/') return _layout();
+                  if (settings.name == '/customer-booking' &&
+                      currentScope(ExperienceRole.customer) &&
+                      widget.customerBookingService != null &&
+                      widget.customerVehicleService != null) {
+                    return CustomerBookingScreen(
+                      service: widget.customerBookingService!,
+                      vehicles: widget.customerVehicleService!,
+                      store: SecureCustomerAttemptStore(
+                        selected.id.split(':').last,
+                      ),
+                      isCurrent: () => currentScope(ExperienceRole.customer),
+                      onAuthorizationFailure: (error) =>
+                          controller.handleAuthorizationFailure(
+                            error,
+                            generation: generation,
+                          ),
+                    );
+                  }
                   if (settings.name == '/work-orders' &&
                       widget.workOrderService != null &&
                       (currentOwner() ||

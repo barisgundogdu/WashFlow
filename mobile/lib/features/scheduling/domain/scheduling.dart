@@ -225,8 +225,12 @@ class Appointment {
       version = _n(j, 'version'),
       source = _s(j, 'source'),
       status = _s(j, 'status'),
-      localCustomerId = invitationId(j['localCustomerId']),
-      localVehicleId = invitationId(j['localVehicleId']),
+      localCustomerId = j['localCustomerId'] == null
+          ? null
+          : invitationId(j['localCustomerId']),
+      localVehicleId = j['localVehicleId'] == null
+          ? null
+          : invitationId(j['localVehicleId']),
       serviceId = invitationId(j['serviceId']),
       workAreaId = invitationId(j['workAreaId']),
       serviceName = _s(j, 'serviceName'),
@@ -257,21 +261,18 @@ class Appointment {
         ),
       ) {
     if (!{'Confirmed', 'Cancelled'}.contains(status) ||
-        source != 'OwnerPhone' ||
+        !{'OwnerPhone', 'Customer'}.contains(source) ||
+        (source == 'OwnerPhone'
+            ? (localCustomerId == null || localVehicleId == null)
+            : (localCustomerId != null || localVehicleId != null)) ||
         currency != 'TRY' ||
         !vehicleCategories.containsKey(category) ||
         !activeEndsAtUtc.isAfter(startsAtUtc)) {
       throw const FormatException();
     }
   }
-  final String id,
-      businessId,
-      source,
-      status,
-      localCustomerId,
-      localVehicleId,
-      serviceId,
-      workAreaId;
+  final String id, businessId, source, status, serviceId, workAreaId;
+  final String? localCustomerId, localVehicleId;
   final String serviceName,
       customerName,
       vehiclePlate,

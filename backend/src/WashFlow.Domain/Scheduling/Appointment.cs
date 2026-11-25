@@ -7,8 +7,10 @@ public sealed class Appointment : IEntity
     public Guid BusinessId { get; private init; }
     public DateTimeOffset CreatedAt { get; private init; }
     public DateTimeOffset UpdatedAt { get; set; }
-    public Guid LocalCustomerId { get; private init; }
-    public Guid LocalVehicleId { get; private init; }
+    public Guid? LocalCustomerId { get; private init; }
+    public Guid? LocalVehicleId { get; private init; }
+    public Guid? CustomerProfileId { get; private init; }
+    public Guid? OwnedVehicleId { get; private init; }
     public Guid ServiceId { get; private init; }
     public Guid WorkAreaId { get; private init; }
     public Guid CreatedByUserId { get; private init; }
@@ -39,16 +41,27 @@ public sealed class Appointment : IEntity
     /// <summary>Call only after application validation and, in a future store, locked capacity/authorization checks.</summary>
     public static Appointment Create(Guid businessId, Guid customerId, Guid vehicleId, Guid serviceId, Guid workAreaId,
         Guid actor, Guid requestId, string requestHash, BookingSource source, AppointmentSnapshot snapshot,
-        DateTimeOffset start, IEnumerable<Guid> employeeIds, DateTimeOffset now, IReadOnlyList<StageResourceSnapshot>? stagePlans = null, IReadOnlyList<Guid[]>? stageEmployees = null)
+        DateTimeOffset start, IEnumerable<Guid> employeeIds, DateTimeOffset now, IReadOnlyList<StageResourceSnapshot>? stagePlans = null, IReadOnlyList<Guid[]>? stageEmployees = null, Guid? customerProfileId = null, Guid? ownedVehicleId = null)
     {
-        foreach (var id in new[] { businessId, customerId, vehicleId, serviceId, workAreaId, actor, requestId }) SchedulingInvariant.Id(id);
+        foreach (var id in new[] { businessId, serviceId, workAreaId, actor, requestId }) SchedulingInvariant.Id(id);
         ArgumentNullException.ThrowIfNull(snapshot);
         SchedulingInvariant.Require(requestHash?.Length == 64 && requestHash.All(char.IsAsciiHexDigit), "Geçerli istek özeti gereklidir.");
         SchedulingInvariant.Require(Enum.IsDefined(source), "Geçerli rezervasyon kaynağı gereklidir.");
+        if(source == BookingSource.OwnerPhone)
+        {
+            SchedulingInvariant.Id(customerId); SchedulingInvariant.Id(vehicleId);
+            SchedulingInvariant.Require(customerProfileId == null && ownedVehicleId == null,"Yerel randevu hesap sahipliği içeremez.");
+        }
+        else
+        {
+            SchedulingInvariant.Require(customerId == Guid.Empty && vehicleId == Guid.Empty && customerProfileId.HasValue && ownedVehicleId.HasValue,"Müşteri randevusu doğrulanmış hesap ve araç sahipliği gerektirir.");
+            SchedulingInvariant.Id(customerProfileId!.Value); SchedulingInvariant.Id(ownedVehicleId!.Value);
+        }
         var employees = stagePlans == null ? SchedulingInvariant.Employees(employeeIds, snapshot.Employees) : SchedulingInvariant.EmployeePool(employeeIds, snapshot.Employees);
         var interval = Interval(start, snapshot.ActiveMinutes);
         now = now.ToUniversalTime();
-        var appointment = new Appointment { BusinessId = businessId, LocalCustomerId = customerId, LocalVehicleId = vehicleId,
+        var appointment = new Appointment { BusinessId = businessId, LocalCustomerId = source == BookingSource.Customer ? null : customerId, LocalVehicleId = source == BookingSource.Customer ? null : vehicleId,
+            CustomerProfileId = customerProfileId, OwnedVehicleId = ownedVehicleId,
             ServiceId = serviceId, WorkAreaId = workAreaId, CreatedByUserId = actor, ClientRequestId = requestId,
             RequestHash = requestHash!.ToLowerInvariant(), Source = source, StartsAtUtc = interval.Start, ActiveEndsAtUtc = interval.End,
             ServiceName = snapshot.ServiceName, CustomerName = snapshot.CustomerName, VehiclePlate = snapshot.VehiclePlate,

@@ -1,3 +1,4 @@
+import '../../features/customer_booking/customer_booking.dart';
 import '../../features/work_orders/work_orders.dart';
 import '../../features/scheduling/domain/scheduling.dart';
 import '../../features/service_catalog/domain/service_catalog.dart';
@@ -41,6 +42,7 @@ abstract final class AppRouter {
     CatalogService? catalogService,
     SchedulingService? schedulingService,
     WorkOrderService? workOrderService,
+    CustomerBookingService? customerBookingService,
     AuthSubmission submission = const UnavailableAuthSubmission(),
   }) {
     return MaterialPageRoute<void>(
@@ -74,6 +76,7 @@ abstract final class AppRouter {
           catalogService: catalogService,
           schedulingService: schedulingService,
           workOrderService: workOrderService,
+          customerBookingService: customerBookingService,
           redemptionEnabled: redemptionService != null,
         ),
         welcome => WelcomeScreen(redemptionEnabled: redemptionService != null),

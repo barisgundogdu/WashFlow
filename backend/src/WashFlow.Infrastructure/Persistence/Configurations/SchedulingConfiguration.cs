@@ -68,6 +68,9 @@ public sealed class SchedulingConfiguration : IEntityTypeConfiguration<WorkArea>
         b.HasIndex(x => new { x.BusinessId, x.ClientRequestId }).IsUnique();
         b.HasIndex(x => new { x.BusinessId, x.StartsAtUtc, x.Id });
         b.HasIndex(x => new { x.BusinessId, x.Status, x.StartsAtUtc });
+        b.HasOne<OwnedVehicle>().WithMany().HasForeignKey(x=>new{x.CustomerProfileId,x.OwnedVehicleId}).HasPrincipalKey(x=>new{x.CustomerProfileId,x.Id}).OnDelete(DeleteBehavior.Restrict);
+        b.HasOne<CustomerProfile>().WithMany().HasForeignKey(x=>x.CustomerProfileId).OnDelete(DeleteBehavior.Restrict);
+        b.HasIndex(x=>new{x.CustomerProfileId,x.StartsAtUtc,x.Id});
         b.HasOne<LocalCustomer>().WithMany().HasForeignKey(x => new { x.BusinessId, x.LocalCustomerId })
             .HasPrincipalKey(x => new { x.BusinessId, x.Id }).OnDelete(DeleteBehavior.Restrict);
         b.HasOne<LocalVehicle>().WithMany().HasForeignKey(x => new { x.BusinessId, x.LocalCustomerId, x.LocalVehicleId })
@@ -86,7 +89,7 @@ public sealed class SchedulingConfiguration : IEntityTypeConfiguration<WorkArea>
         b.Navigation(x => x.Events).HasField("events").UsePropertyAccessMode(PropertyAccessMode.Field);
         b.Navigation(x => x.Reservations).HasField("reservations").UsePropertyAccessMode(PropertyAccessMode.Field);
         b.ToTable("Appointments", t => {
-            t.HasCheckConstraint("CK_Appointments_State", "\"Status\" IN (1,2) AND \"Source\" = 1");
+            t.HasCheckConstraint("CK_Appointments_State", "\"Status\" IN (1,2) AND ((\"Source\" = 1 AND \"LocalCustomerId\" IS NOT NULL AND \"LocalVehicleId\" IS NOT NULL AND \"CustomerProfileId\" IS NULL AND \"OwnedVehicleId\" IS NULL) OR (\"Source\" = 2 AND \"LocalCustomerId\" IS NULL AND \"LocalVehicleId\" IS NULL AND \"CustomerProfileId\" IS NOT NULL AND \"OwnedVehicleId\" IS NOT NULL))");
             t.HasCheckConstraint("CK_Appointments_Hash", "\"RequestHash\" ~ '^[0-9a-f]{64}$'");
             t.HasCheckConstraint("CK_Appointments_Snapshot", "\"Price\" BETWEEN 0 AND 9999999.99 AND \"Currency\" = 'TRY' AND \"ActiveMinutes\" BETWEEN 1 AND 10080 AND (\"WaitingMinutes\" IS NULL OR \"WaitingMinutes\" BETWEEN 0 AND 43200) AND \"Employees\" BETWEEN 1 AND 100 AND \"ActiveEndsAtUtc\" = \"StartsAtUtc\" + \"ActiveMinutes\" * interval '1 minute'");
         });
