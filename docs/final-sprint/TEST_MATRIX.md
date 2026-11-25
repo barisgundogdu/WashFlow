@@ -83,3 +83,17 @@ Idempotent upgrade scripts generated offline for review: /tmp/washflow-work-orde
 ## Owner finance increment — 25 November 2026
 
 All suites passed with no failures/skips: **444 backend** (254 unit + 190 integration), **370 Flutter**. Analysis clean and `git diff --check` passed. See FINANCE_INCREMENT.md for precise ledger/report semantics and coverage. Logs `/tmp/washflow-finance-backend5.log`, `/tmp/washflow-finance-flutter-final2.log`, `/tmp/washflow-finance-analyze-final2.log`. Migration 11 verified only on disposable PostgreSQL; existing demo untouched. Customer PR #20 push and pull_request CI also passed on `945848e`: runs [45621726933](https://github.com/barisgundogdu/WashFlow/actions/runs/45621726933) and [45621797579](https://github.com/barisgundogdu/WashFlow/actions/runs/45621797579).
+
+
+## Integrated native final rehearsal — 25 November 2026
+
+**1 passed, 0 failed/skipped** in 2m25s, with real iOS UI + Kestrel HTTP + PostgreSQL, log `/tmp/washflow-live-run3.log`. This is additional to 444 backend/370 Flutter module tests, not a mocked widget run. Two earlier exploratory harness attempts failed an incorrect one-message expectation for two completed stages; final run asserts both messages and backend statuses correctly. See LIVE_REHEARSAL.md for every verified step and four visually reviewed screenshots. Existing demo database and normal token-store key untouched. Native iOS is opt-in; CI remains truthful about Linux runner coverage.
+
+Final schema artifacts were validated: 33 application table cards, 340 columns, 71 physical-FK arrows, 11 migrations; SVG XML parsed and Quick Look rendering visually reviewed. It is generated directly from the isolated catalog inventory using the standard-library renderer, with no application dependency changes. Mermaid renderer installation was unavailable due to the environment's TLS certificate-chain error; no TLS verification was disabled and no Mermaid-render claim is made.
+
+
+## Final cross-business regression and source check
+
+The same platform customer now has an explicit regression booking the same owned vehicle at two distinct businesses at different times, with both bookings visible only in that customer's history and each business's own agenda. Another customer cannot view either booking, and owners cannot read the other tenant's appointment. No tenant-local identity is created/linked. Final `dotnet test backend/WashFlow.sln --no-restore -m:1 -nr:false` on dedicated PostgreSQL: **445 passed** (254 unit + 191 integration), zero failed/skipped; `/tmp/washflow-final-backend.log`. Application code remains the verified finance commit; this adds test evidence only.
+
+Final analysis including the native harness: no issues (`/tmp/washflow-live-analyze-final2.log`); harness formatting/fixes were cosmetic only after the successful real native run. Flutter unit/widget count remains **370 passed** on the unchanged application/test-suite source. Final whitespace, catalog counts, SVG XML/arrow count and four capture checks passed.

@@ -2,7 +2,11 @@
 
 Audit date: 25 November 2026. Baseline `d3f97d6`; Issues and source inspected before implementation. SRS v0.2 remains a draft; this report distinguishes code evidence from runtime verification.
 
-## Repository and integration
+## Current delivery checkpoint
+
+Essential modules are now implemented and verified: 445 backend/370 Flutter tests passed, analysis clean, plus one real iOS/Kestrel/PostgreSQL end-to-end rehearsal. Customer PR #20 and finance PR #21 are open/unmerged with successful CI; CI Issue #12 is completed. Existing demo database remains unchanged. Read [FINAL_STATUS.md](FINAL_STATUS.md) and [LIVE_REHEARSAL.md](LIVE_REHEARSAL.md) for current readiness. The following baseline sections intentionally retain the pre-implementation findings and are not current missing-feature claims.
+
+## Initial repository and integration
 
 - Default branch verified through GitHub: `main`.
 - Active development baseline: `feature/phase10-ui-ux`, 18 commits ahead of `origin/main`, zero behind after successful `git fetch origin`.
@@ -11,7 +15,7 @@ Audit date: 25 November 2026. Baseline `d3f97d6`; Issues and source inspected be
 - Existing PRs #13 (CI), #15 (live ERD), #16 (thesis) are merged/closed. No open PR returned by the repository issue collection.
 - #9 acceptance criteria read: closed UI foundation task, already implemented. Do not restart it.
 
-## Requirements and source evidence
+## Initial requirements and source evidence
 
 | Workstream | Actual evidence | Gap / delivery priority |
 | --- | --- | --- |
@@ -28,7 +32,7 @@ Audit date: 25 November 2026. Baseline `d3f97d6`; Issues and source inspected be
 | Database / ERD (#14) | Seven additive migrations; latest `20261027125056_SchedulingPersistencePhase9B`; tenant composite FKs, xmin, snapshot/history triggers | `docs/database/live-schema.json` and ERD record 15 Nov capture (23 app tables, 38 FKs); no new live database audit claimed |
 | Academic / CI (#1, #12) | Thesis sources/PDF and screenshots; backend+PostgreSQL and Flutter CI workflow | Final thesis must describe missing features accurately and collect new CI/demo evidence |
 
-## Scheduling investigation
+## Initial scheduling investigation
 
 Existing engine correctly checks hours and employee coverage independently, combines adjacent availability windows without bridging gaps, uses half-open resource intervals, releases cancelled resources and preserves reschedule snapshots. Booking and scheduling configuration operations acquire the business row lock before authoritative reads. Settings updates use the same lock, making it possible to serialize hours edits with bookings without a new architecture.
 
@@ -36,7 +40,7 @@ Confirmed P0 defect: the settings path can close a day, shrink hours, clear hour
 
 Known limits: waiting/drying does not occupy constrained resources in the current single-stage model. No separate breaks/time-off entity; gaps in dated availability represent unavailable periods. Employee conflicts are currently tenant scoped; cross-business employment policy is unresolved. No proof of multi-stage or customer booking concurrency until those flows exist.
 
-## GitHub and Kanban audit
+## Initial GitHub and Kanban audit
 
 [WashFlow Development #1](https://github.com/users/barisgundogdu/projects/1) was read in the public browser. Views: Backlog, Priority board, Team items, Roadmap, My items. Visible Status values: TODO, DOING, DONE; Estimate displayed; DOING WIP limit 3. Priority field options not inspected.
 
@@ -96,3 +100,8 @@ Customer self-service now uses the existing calendar and shared resource allocat
 ## Finance checkpoint — 25 November 2026
 
 Owner finance is implemented in its approved additive ledger model and connected Flutter screens. See FINANCE_INCREMENT.md for exact revenue/collection distinction, audited reversals, date boundaries and migration 11. 444 backend/370 Flutter passed; analysis clean. Final native/live rehearsal remains a separate requirement. Demo database remains unchanged.
+
+
+## Final integrated evidence
+
+The native rehearsal passed in 2m25s on the isolated Report Capture iOS simulator with real HTTP/database behavior. Four reviewed screenshots and the 33-table source-schema evidence are available in this directory. No production SMTP/push delivery, Android native validation, preserved-demo migration or automatic merge is claimed. See FINAL_STATUS.md for actual remaining review/deployment actions.

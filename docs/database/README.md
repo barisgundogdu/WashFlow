@@ -43,3 +43,8 @@ Run [read-schema.sql](read-schema.sql) with `psql -X -qAt -v ON_ERROR_STOP=1 -f`
 The Mermaid source and rendered SVG were checked against the live inventory for all 24 tables, 219 columns and 38 foreign keys. The SVG was generated with Mermaid CLI 11.12.0 as scalable text and vector paths. To regenerate it from this directory, run `mmdc -i live-erd.mmd -o live-erd.svg -b white`.
 
 The push CI run after [PR #13](https://github.com/barisgundogdu/WashFlow/pull/13) merged into `feature/phase10-ui-ux` completed successfully on `ec756d7`. Both Backend (.NET and PostgreSQL) and Flutter analysis and tests passed. [GitHub Actions run](https://github.com/barisgundogdu/WashFlow/actions/runs/43708446155)
+
+
+## Final sprint source schema (25 November 2026)
+
+The preserved demo described above was **not migrated** during the final sprint. A separate new rehearsal database now verifies the eleven-migration source model: [schema evidence](../final-sprint/SCHEMA_EVIDENCE.md), [inventory](../final-sprint/schema-after-sprint.json), and [ERD](../final-sprint/schema-after-sprint.svg). It contains 33 application tables, 340 application columns and 71 foreign keys; counts exclude EF metadata/xmin. Keep the dated midterm demo evidence separate from this new isolated model.

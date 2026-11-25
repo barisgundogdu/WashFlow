@@ -1,0 +1,5618 @@
+{
+  "capturedDate": "2026-11-25",
+  "source": "New isolated rehearsal PostgreSQL 17 database; NOT the preserved demo database",
+  "applicationTableCount": 33,
+  "tables": [
+    {
+      "name": "AppointmentEvents",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "AppointmentId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ActorUserId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Sequence",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "Kind",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "PreviousStart",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "PreviousEnd",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "NewStart",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "NewEnd",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Status",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        }
+      ]
+    },
+    {
+      "name": "AppointmentResourceReservations",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "AppointmentId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "WorkAreaId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "EmployeeMembershipId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "StartsAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "EndsAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ReleasedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "StageId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "AppointmentStages",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "AppointmentId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Sequence",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "Name",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "OffsetMinutes",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "Minutes",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "WorkAreaId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Employees",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "LocalCustomerId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "LocalVehicleId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ServiceId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "WorkAreaId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedByUserId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ClientRequestId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "RequestHash",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 64,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Source",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "Status",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "StartsAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ActiveEndsAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "TimeZoneIdSnapshot",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ServiceName",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 200,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CustomerName",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 200,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "VehiclePlate",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 32,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Category",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 32,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Price",
+          "type": "numeric",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 9,
+          "numericScale": 2
+        },
+        {
+          "name": "Currency",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 3,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ActiveMinutes",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "WaitingMinutes",
+          "type": "integer",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "Employees",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "CustomerProfileId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "OwnedVehicleId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "BusinessMembershipRoles",
+      "columns": [
+        {
+          "name": "BusinessMembershipId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Role",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        }
+      ]
+    },
+    {
+      "name": "BusinessMemberships",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UserId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "RevokedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "BusinessServices",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Name",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 200,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "SearchName",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 200,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Description",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 2000,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Enabled",
+          "type": "boolean",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Published",
+          "type": "boolean",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ArchivedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "Businesses",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Name",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 200,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "AddressLine1",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 250,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "AddressLine2",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 250,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "City",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ContactEmail",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 320,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CountryCode",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 2,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Description",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 2000,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "District",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "HoursConfigured",
+          "type": "boolean",
+          "nullable": false,
+          "default": "false",
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Phone",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 40,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "PostalCode",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 32,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Region",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "TimeZoneId",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CancellationRescheduleCutoffMinutes",
+          "type": "integer",
+          "nullable": false,
+          "default": "120",
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        }
+      ]
+    },
+    {
+      "name": "CustomerProfiles",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UserId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "DeviceSessions",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UserId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "SecurityStamp",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "DeviceName",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 200,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ExpiresAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "RevokedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "EmailVerificationTokens",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UserId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "NormalizedEmail",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 320,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "SecurityStamp",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "TokenHash",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 64,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ExpiresAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ConsumedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "RevokedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "EmployeeAvailabilities",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "MembershipId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "StartsAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "EndsAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ArchivedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "EmployeeInvitations",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "InvitedByMembershipId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "NormalizedEmail",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 320,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "TokenHash",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 64,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ExpiresAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "AcceptedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "AcceptedByUserId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "RevokedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "Expenses",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "RequestId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "RequestHash",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 64,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Amount",
+          "type": "numeric",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 9,
+          "numericScale": 2
+        },
+        {
+          "name": "Currency",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 3,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "OccurredAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ActorUserId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Description",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 1000,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Reference",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 200,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CorrectsId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ReversesId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CorrectionReason",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 500,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Category",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "EmployeeMembershipId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "LocalCustomers",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "FullName",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 200,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "NormalizedName",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 200,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Phone",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 40,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "NormalizedPhone",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 40,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Email",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 320,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Notes",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 2000,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "LocalVehicles",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "LocalCustomerId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Plate",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 32,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "NormalizedPlate",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 64,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Brand",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 80,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Model",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Category",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 32,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ModelYear",
+          "type": "integer",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "Color",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 60,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Notes",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 2000,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ArchivedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "ManualIncomes",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "RequestId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "RequestHash",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 64,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Amount",
+          "type": "numeric",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 9,
+          "numericScale": 2
+        },
+        {
+          "name": "Currency",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 3,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "OccurredAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ActorUserId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Description",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 1000,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Reference",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 200,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CorrectsId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ReversesId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CorrectionReason",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 500,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Category",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "PaymentMethodId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "PaymentMethodName",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "OwnedVehicles",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CustomerProfileId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Plate",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 32,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "NormalizedPlate",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 64,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Brand",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 80,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Model",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Category",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 32,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ModelYear",
+          "type": "integer",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "Color",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 60,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Notes",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 2000,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ArchivedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "PasswordResetTokens",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UserId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "SecurityStamp",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "TokenHash",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 64,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ExpiresAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ConsumedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "RevokedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "PaymentMethods",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Name",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ArchivedAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ActorUserId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "RequestId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "RequestHash",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 64,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Amount",
+          "type": "numeric",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 9,
+          "numericScale": 2
+        },
+        {
+          "name": "Currency",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 3,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "OccurredAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ActorUserId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Description",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 1000,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Reference",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 200,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CorrectsId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ReversesId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CorrectionReason",
+          "type": "character varying",
+          "nullable": true,
+          "default": null,
+          "maxLength": 500,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "WorkOrderId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "PaymentMethodId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "PaymentMethodName",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "RefreshTokens",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "DeviceSessionId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "TokenHash",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 64,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ConsumedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "RevokedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ReplacedByTokenId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "SchedulingCreateReceipts",
+      "columns": [
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ClientRequestId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "AppointmentId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ResultJson",
+          "type": "jsonb",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "ServiceOfferings",
+      "columns": [
+        {
+          "name": "ServiceId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Category",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 32,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Price",
+          "type": "numeric",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 9,
+          "numericScale": 2
+        },
+        {
+          "name": "Currency",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 3,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ActiveMinutes",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "WaitingMinutes",
+          "type": "integer",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "Employees",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        }
+      ]
+    },
+    {
+      "name": "ServiceSchedulingRequirements",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ServiceId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Category",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 32,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "WorkAreaId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "SingleStageConfirmed",
+          "type": "boolean",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "StagePlanEnabled",
+          "type": "boolean",
+          "nullable": false,
+          "default": "false",
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "ServiceStageTemplates",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ServiceId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Category",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 32,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Sequence",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "Name",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Minutes",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "WorkAreaId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Employees",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "ArchivedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "FullName",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 200,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Email",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 320,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "NormalizedEmail",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 320,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "PasswordHash",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 2048,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "SecurityStamp",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "EmailVerifiedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "WeeklyOpeningDays",
+      "columns": [
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Day",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "Closed",
+          "type": "boolean",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "OpensAtMinute",
+          "type": "integer",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "ClosesAtMinute",
+          "type": "integer",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        }
+      ]
+    },
+    {
+      "name": "WorkAreas",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Name",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 200,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Capacity",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "ArchivedAt",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "WorkOrderEvents",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "WorkOrderId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "StageId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "ActorUserId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "RequestId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Action",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 20,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "AtUtc",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "WorkOrderStages",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "WorkOrderId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "Sequence",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "Name",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 100,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "EstimatedMinutes",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "Status",
+          "type": "integer",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 32,
+          "numericScale": 0
+        },
+        {
+          "name": "StartedAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CompletedAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "PausedAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "PausedMilliseconds",
+          "type": "bigint",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": 64,
+          "numericScale": 0
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "WorkAreaId",
+          "type": "uuid",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "WorkOrders",
+      "columns": [
+        {
+          "name": "Id",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "AppointmentId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreationHash",
+          "type": "character varying",
+          "nullable": false,
+          "default": null,
+          "maxLength": 64,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CreatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "UpdatedAt",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CompletedAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "CancelledAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "PlannedStartUtc",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    },
+    {
+      "name": "WorkStageAssignments",
+      "columns": [
+        {
+          "name": "BusinessId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "StageId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "EmployeeMembershipId",
+          "type": "uuid",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        },
+        {
+          "name": "AssignedAtUtc",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null,
+          "maxLength": null,
+          "numericPrecision": null,
+          "numericScale": null
+        }
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "table": "AppointmentEvents",
+      "name": "AK_AppointmentEvents_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "AppointmentEvents",
+      "name": "CK_AppointmentEvents_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "AppointmentEvents",
+      "name": "CK_AppointmentEvents_State",
+      "kind": "c",
+      "definition": "CHECK (((\"Sequence\" > 0) AND (\"Kind\" = ANY (ARRAY[1, 2, 3])) AND (\"Status\" = ANY (ARRAY[1, 2])) AND (\"NewStart\" < \"NewEnd\") AND (((\"PreviousStart\" IS NULL) AND (\"PreviousEnd\" IS NULL)) OR ((\"PreviousStart\" IS NOT NULL) AND (\"PreviousEnd\" IS NOT NULL) AND (\"PreviousStart\" < \"PreviousEnd\")))))"
+    },
+    {
+      "table": "AppointmentEvents",
+      "name": "CK_AppointmentEvents_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "AppointmentEvents",
+      "name": "FK_AppointmentEvents_Appointments_BusinessId_AppointmentId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"AppointmentId\") REFERENCES \"Appointments\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "AppointmentEvents",
+      "name": "FK_AppointmentEvents_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "AppointmentEvents",
+      "name": "FK_AppointmentEvents_Users_ActorUserId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"ActorUserId\") REFERENCES \"Users\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "AppointmentEvents",
+      "name": "PK_AppointmentEvents",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "AK_AppointmentResourceReservations_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "CK_AppointmentResourceReservations_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "CK_AppointmentResourceReservations_Interval",
+      "kind": "c",
+      "definition": "CHECK (((\"StartsAtUtc\" < \"EndsAtUtc\") AND (date_trunc('minute'::text, \"StartsAtUtc\") = \"StartsAtUtc\") AND (date_trunc('minute'::text, \"EndsAtUtc\") = \"EndsAtUtc\")))"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "CK_AppointmentResourceReservations_Release",
+      "kind": "c",
+      "definition": "CHECK (((\"ReleasedAt\" IS NULL) OR (\"ReleasedAt\" >= \"CreatedAt\")))"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "CK_AppointmentResourceReservations_Resource",
+      "kind": "c",
+      "definition": "CHECK (((\"WorkAreaId\" IS NULL) <> (\"EmployeeMembershipId\" IS NULL)))"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "CK_AppointmentResourceReservations_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "FK_AppointmentResourceReservations_AppointmentStages_BusinessI~",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"AppointmentId\", \"StageId\") REFERENCES \"AppointmentStages\"(\"BusinessId\", \"AppointmentId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "FK_AppointmentResourceReservations_Appointments_BusinessId_App~",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"AppointmentId\") REFERENCES \"Appointments\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "FK_AppointmentResourceReservations_BusinessMemberships_Busines~",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"EmployeeMembershipId\") REFERENCES \"BusinessMemberships\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "FK_AppointmentResourceReservations_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "FK_AppointmentResourceReservations_WorkAreas_BusinessId_WorkAr~",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"WorkAreaId\") REFERENCES \"WorkAreas\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "PK_AppointmentResourceReservations",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "AppointmentStages",
+      "name": "AK_AppointmentStages_BusinessId_AppointmentId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"AppointmentId\", \"Id\")"
+    },
+    {
+      "table": "AppointmentStages",
+      "name": "CK_AppointmentStages_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "AppointmentStages",
+      "name": "CK_AppointmentStages_Plan",
+      "kind": "c",
+      "definition": "CHECK ((((\"Sequence\" >= 1) AND (\"Sequence\" <= 20)) AND (\"OffsetMinutes\" >= 0) AND ((length(btrim((\"Name\")::text)) >= 1) AND (length(btrim((\"Name\")::text)) <= 100)) AND ((\"Minutes\" >= 1) AND (\"Minutes\" <= 10080)) AND ((\"Employees\" >= 1) AND (\"Employees\" <= 100))))"
+    },
+    {
+      "table": "AppointmentStages",
+      "name": "CK_AppointmentStages_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "AppointmentStages",
+      "name": "FK_AppointmentStages_Appointments_BusinessId_AppointmentId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"AppointmentId\") REFERENCES \"Appointments\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "AppointmentStages",
+      "name": "FK_AppointmentStages_WorkAreas_BusinessId_WorkAreaId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"WorkAreaId\") REFERENCES \"WorkAreas\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "AppointmentStages",
+      "name": "PK_AppointmentStages",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "Appointments",
+      "name": "AK_Appointments_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "Appointments",
+      "name": "CK_Appointments_Category",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Category\")::text)) > 0))"
+    },
+    {
+      "table": "Appointments",
+      "name": "CK_Appointments_Currency",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Currency\")::text)) > 0))"
+    },
+    {
+      "table": "Appointments",
+      "name": "CK_Appointments_CustomerName",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"CustomerName\")::text)) > 0))"
+    },
+    {
+      "table": "Appointments",
+      "name": "CK_Appointments_Hash",
+      "kind": "c",
+      "definition": "CHECK (((\"RequestHash\")::text ~ '^[0-9a-f]{64}$'::text))"
+    },
+    {
+      "table": "Appointments",
+      "name": "CK_Appointments_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "Appointments",
+      "name": "CK_Appointments_Interval",
+      "kind": "c",
+      "definition": "CHECK (((\"StartsAtUtc\" < \"ActiveEndsAtUtc\") AND (date_trunc('minute'::text, \"StartsAtUtc\") = \"StartsAtUtc\") AND (date_trunc('minute'::text, \"ActiveEndsAtUtc\") = \"ActiveEndsAtUtc\")))"
+    },
+    {
+      "table": "Appointments",
+      "name": "CK_Appointments_RequestHash",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"RequestHash\")::text)) > 0))"
+    },
+    {
+      "table": "Appointments",
+      "name": "CK_Appointments_ServiceName",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"ServiceName\")::text)) > 0))"
+    },
+    {
+      "table": "Appointments",
+      "name": "CK_Appointments_Snapshot",
+      "kind": "c",
+      "definition": "CHECK ((((\"Price\" >= (0)::numeric) AND (\"Price\" <= 9999999.99)) AND ((\"Currency\")::text = 'TRY'::text) AND ((\"ActiveMinutes\" >= 1) AND (\"ActiveMinutes\" <= 10080)) AND ((\"WaitingMinutes\" IS NULL) OR ((\"WaitingMinutes\" >= 0) AND (\"WaitingMinutes\" <= 43200))) AND ((\"Employees\" >= 1) AND (\"Employees\" <= 100)) AND (\"ActiveEndsAtUtc\" = (\"StartsAtUtc\" + ((\"ActiveMinutes\")::double precision * '00:01:00'::interval)))))"
+    },
+    {
+      "table": "Appointments",
+      "name": "CK_Appointments_State",
+      "kind": "c",
+      "definition": "CHECK (((\"Status\" = ANY (ARRAY[1, 2])) AND (((\"Source\" = 1) AND (\"LocalCustomerId\" IS NOT NULL) AND (\"LocalVehicleId\" IS NOT NULL) AND (\"CustomerProfileId\" IS NULL) AND (\"OwnedVehicleId\" IS NULL)) OR ((\"Source\" = 2) AND (\"LocalCustomerId\" IS NULL) AND (\"LocalVehicleId\" IS NULL) AND (\"CustomerProfileId\" IS NOT NULL) AND (\"OwnedVehicleId\" IS NOT NULL)))))"
+    },
+    {
+      "table": "Appointments",
+      "name": "CK_Appointments_TimeZoneIdSnapshot",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"TimeZoneIdSnapshot\")::text)) > 0))"
+    },
+    {
+      "table": "Appointments",
+      "name": "CK_Appointments_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "Appointments",
+      "name": "CK_Appointments_VehiclePlate",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"VehiclePlate\")::text)) > 0))"
+    },
+    {
+      "table": "Appointments",
+      "name": "FK_Appointments_BusinessServices_BusinessId_ServiceId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"ServiceId\") REFERENCES \"BusinessServices\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Appointments",
+      "name": "FK_Appointments_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Appointments",
+      "name": "FK_Appointments_CustomerProfiles_CustomerProfileId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"CustomerProfileId\") REFERENCES \"CustomerProfiles\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Appointments",
+      "name": "FK_Appointments_LocalCustomers_BusinessId_LocalCustomerId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"LocalCustomerId\") REFERENCES \"LocalCustomers\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Appointments",
+      "name": "FK_Appointments_LocalVehicles_BusinessId_LocalCustomerId_Local~",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"LocalCustomerId\", \"LocalVehicleId\") REFERENCES \"LocalVehicles\"(\"BusinessId\", \"LocalCustomerId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Appointments",
+      "name": "FK_Appointments_OwnedVehicles_CustomerProfileId_OwnedVehicleId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"CustomerProfileId\", \"OwnedVehicleId\") REFERENCES \"OwnedVehicles\"(\"CustomerProfileId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Appointments",
+      "name": "FK_Appointments_Users_CreatedByUserId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"CreatedByUserId\") REFERENCES \"Users\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Appointments",
+      "name": "FK_Appointments_WorkAreas_BusinessId_WorkAreaId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"WorkAreaId\") REFERENCES \"WorkAreas\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Appointments",
+      "name": "PK_Appointments",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "BusinessMembershipRoles",
+      "name": "CK_BusinessMembershipRoles_Role",
+      "kind": "c",
+      "definition": "CHECK ((\"Role\" = ANY (ARRAY[1, 2])))"
+    },
+    {
+      "table": "BusinessMembershipRoles",
+      "name": "FK_BusinessMembershipRoles_BusinessMemberships_BusinessMembers~",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessMembershipId\") REFERENCES \"BusinessMemberships\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "BusinessMembershipRoles",
+      "name": "PK_BusinessMembershipRoles",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"BusinessMembershipId\", \"Role\")"
+    },
+    {
+      "table": "BusinessMemberships",
+      "name": "AK_BusinessMemberships_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "BusinessMemberships",
+      "name": "CK_BusinessMemberships_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "BusinessMemberships",
+      "name": "CK_BusinessMemberships_Revocation",
+      "kind": "c",
+      "definition": "CHECK (((\"RevokedAt\" IS NULL) OR (\"RevokedAt\" >= \"CreatedAt\")))"
+    },
+    {
+      "table": "BusinessMemberships",
+      "name": "CK_BusinessMemberships_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "BusinessMemberships",
+      "name": "FK_BusinessMemberships_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "BusinessMemberships",
+      "name": "FK_BusinessMemberships_Users_UserId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"UserId\") REFERENCES \"Users\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "BusinessMemberships",
+      "name": "PK_BusinessMemberships",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "BusinessServices",
+      "name": "AK_BusinessServices_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "BusinessServices",
+      "name": "CK_BusinessServices_Archive",
+      "kind": "c",
+      "definition": "CHECK (((\"ArchivedAt\" IS NULL) OR ((\"ArchivedAt\" >= \"CreatedAt\") AND (NOT \"Enabled\") AND (NOT \"Published\"))))"
+    },
+    {
+      "table": "BusinessServices",
+      "name": "CK_BusinessServices_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "BusinessServices",
+      "name": "CK_BusinessServices_Name",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Name\")::text)) > 0))"
+    },
+    {
+      "table": "BusinessServices",
+      "name": "CK_BusinessServices_Publication",
+      "kind": "c",
+      "definition": "CHECK (((NOT \"Published\") OR \"Enabled\"))"
+    },
+    {
+      "table": "BusinessServices",
+      "name": "CK_BusinessServices_SearchName",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"SearchName\")::text)) > 0))"
+    },
+    {
+      "table": "BusinessServices",
+      "name": "CK_BusinessServices_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "BusinessServices",
+      "name": "FK_BusinessServices_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "BusinessServices",
+      "name": "PK_BusinessServices",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "Businesses",
+      "name": "CK_Businesses_BookingCutoff",
+      "kind": "c",
+      "definition": "CHECK ((\"CancellationRescheduleCutoffMinutes\" >= 0))"
+    },
+    {
+      "table": "Businesses",
+      "name": "CK_Businesses_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "Businesses",
+      "name": "CK_Businesses_Name",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Name\")::text)) > 0))"
+    },
+    {
+      "table": "Businesses",
+      "name": "CK_Businesses_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "Businesses",
+      "name": "PK_Businesses",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "CustomerProfiles",
+      "name": "CK_CustomerProfiles_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "CustomerProfiles",
+      "name": "CK_CustomerProfiles_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "CustomerProfiles",
+      "name": "FK_CustomerProfiles_Users_UserId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"UserId\") REFERENCES \"Users\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "CustomerProfiles",
+      "name": "PK_CustomerProfiles",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "DeviceSessions",
+      "name": "CK_DeviceSessions_DeviceName",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"DeviceName\")::text)) > 0))"
+    },
+    {
+      "table": "DeviceSessions",
+      "name": "CK_DeviceSessions_Expiry",
+      "kind": "c",
+      "definition": "CHECK ((\"ExpiresAt\" > \"CreatedAt\"))"
+    },
+    {
+      "table": "DeviceSessions",
+      "name": "CK_DeviceSessions_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "DeviceSessions",
+      "name": "CK_DeviceSessions_MaxLifetime",
+      "kind": "c",
+      "definition": "CHECK ((\"ExpiresAt\" <= (\"CreatedAt\" + '720:00:00'::interval)))"
+    },
+    {
+      "table": "DeviceSessions",
+      "name": "CK_DeviceSessions_Revocation",
+      "kind": "c",
+      "definition": "CHECK (((\"RevokedAt\" IS NULL) OR (\"RevokedAt\" >= \"CreatedAt\")))"
+    },
+    {
+      "table": "DeviceSessions",
+      "name": "CK_DeviceSessions_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "DeviceSessions",
+      "name": "FK_DeviceSessions_Users_UserId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"UserId\") REFERENCES \"Users\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "DeviceSessions",
+      "name": "PK_DeviceSessions",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "EmailVerificationTokens",
+      "name": "CK_EmailVerificationTokens_Consumption",
+      "kind": "c",
+      "definition": "CHECK (((\"ConsumedAt\" IS NULL) OR ((\"ConsumedAt\" >= \"CreatedAt\") AND (\"ConsumedAt\" < \"ExpiresAt\"))))"
+    },
+    {
+      "table": "EmailVerificationTokens",
+      "name": "CK_EmailVerificationTokens_Expiry",
+      "kind": "c",
+      "definition": "CHECK ((\"ExpiresAt\" > \"CreatedAt\"))"
+    },
+    {
+      "table": "EmailVerificationTokens",
+      "name": "CK_EmailVerificationTokens_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "EmailVerificationTokens",
+      "name": "CK_EmailVerificationTokens_NormalizedEmail",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"NormalizedEmail\")::text)) > 0))"
+    },
+    {
+      "table": "EmailVerificationTokens",
+      "name": "CK_EmailVerificationTokens_Revocation",
+      "kind": "c",
+      "definition": "CHECK (((\"RevokedAt\" IS NULL) OR (\"RevokedAt\" >= \"CreatedAt\")))"
+    },
+    {
+      "table": "EmailVerificationTokens",
+      "name": "CK_EmailVerificationTokens_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "EmailVerificationTokens",
+      "name": "CK_EmailVerificationTokens_TokenHash",
+      "kind": "c",
+      "definition": "CHECK (((\"TokenHash\")::text ~ '^[0-9a-f]{64}$'::text))"
+    },
+    {
+      "table": "EmailVerificationTokens",
+      "name": "FK_EmailVerificationTokens_Users_UserId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"UserId\") REFERENCES \"Users\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "EmailVerificationTokens",
+      "name": "PK_EmailVerificationTokens",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "EmployeeAvailabilities",
+      "name": "AK_EmployeeAvailabilities_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "EmployeeAvailabilities",
+      "name": "CK_EmployeeAvailabilities_Archive",
+      "kind": "c",
+      "definition": "CHECK (((\"ArchivedAt\" IS NULL) OR (\"ArchivedAt\" >= \"CreatedAt\")))"
+    },
+    {
+      "table": "EmployeeAvailabilities",
+      "name": "CK_EmployeeAvailabilities_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "EmployeeAvailabilities",
+      "name": "CK_EmployeeAvailabilities_Interval",
+      "kind": "c",
+      "definition": "CHECK (((\"StartsAtUtc\" < \"EndsAtUtc\") AND (date_trunc('minute'::text, \"StartsAtUtc\") = \"StartsAtUtc\") AND (date_trunc('minute'::text, \"EndsAtUtc\") = \"EndsAtUtc\")))"
+    },
+    {
+      "table": "EmployeeAvailabilities",
+      "name": "CK_EmployeeAvailabilities_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "EmployeeAvailabilities",
+      "name": "FK_EmployeeAvailabilities_BusinessMemberships_BusinessId_Membe~",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"MembershipId\") REFERENCES \"BusinessMemberships\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "EmployeeAvailabilities",
+      "name": "FK_EmployeeAvailabilities_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "EmployeeAvailabilities",
+      "name": "PK_EmployeeAvailabilities",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "CK_EmployeeInvitations_Acceptance",
+      "kind": "c",
+      "definition": "CHECK (((\"AcceptedAt\" IS NULL) = (\"AcceptedByUserId\" IS NULL)))"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "CK_EmployeeInvitations_Consumption",
+      "kind": "c",
+      "definition": "CHECK (((\"AcceptedAt\" IS NULL) OR ((\"AcceptedAt\" >= \"CreatedAt\") AND (\"AcceptedAt\" < \"ExpiresAt\"))))"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "CK_EmployeeInvitations_Expiry",
+      "kind": "c",
+      "definition": "CHECK ((\"ExpiresAt\" > \"CreatedAt\"))"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "CK_EmployeeInvitations_FinalState",
+      "kind": "c",
+      "definition": "CHECK (((\"AcceptedAt\" IS NULL) OR (\"RevokedAt\" IS NULL)))"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "CK_EmployeeInvitations_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "CK_EmployeeInvitations_NormalizedEmail",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"NormalizedEmail\")::text)) > 0))"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "CK_EmployeeInvitations_Revocation",
+      "kind": "c",
+      "definition": "CHECK (((\"RevokedAt\" IS NULL) OR (\"RevokedAt\" >= \"CreatedAt\")))"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "CK_EmployeeInvitations_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "CK_EmployeeInvitations_TokenHash",
+      "kind": "c",
+      "definition": "CHECK (((\"TokenHash\")::text ~ '^[0-9a-f]{64}$'::text))"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "FK_EmployeeInvitations_BusinessMemberships_BusinessId_InvitedB~",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"InvitedByMembershipId\") REFERENCES \"BusinessMemberships\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "FK_EmployeeInvitations_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "FK_EmployeeInvitations_Users_AcceptedByUserId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"AcceptedByUserId\") REFERENCES \"Users\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "PK_EmployeeInvitations",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "Expenses",
+      "name": "AK_Expenses_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "Expenses",
+      "name": "CK_Expenses_Category",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Category\")::text)) > 0))"
+    },
+    {
+      "table": "Expenses",
+      "name": "CK_Expenses_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "Expenses",
+      "name": "CK_Expenses_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "Expenses",
+      "name": "CK_Expenses_Values",
+      "kind": "c",
+      "definition": "CHECK ((((\"Amount\" >= 0.01) AND (\"Amount\" <= 9999999.99)) AND ((\"Currency\")::text = 'TRY'::text) AND ((\"RequestHash\")::text ~ '^[0-9a-f]{64}$'::text) AND (\"RequestId\" <> '00000000-0000-0000-0000-000000000000'::uuid) AND (((\"ReversesId\" IS NULL) AND (\"CorrectionReason\" IS NULL)) OR ((\"ReversesId\" IS NOT NULL) AND (\"ReversesId\" <> \"Id\") AND (length(btrim((\"CorrectionReason\")::text)) > 0)))))"
+    },
+    {
+      "table": "Expenses",
+      "name": "FK_Expenses_BusinessMemberships_BusinessId_EmployeeMembershipId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"EmployeeMembershipId\") REFERENCES \"BusinessMemberships\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Expenses",
+      "name": "FK_Expenses_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Expenses",
+      "name": "FK_Expenses_Expenses_BusinessId_CorrectsId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"CorrectsId\") REFERENCES \"Expenses\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Expenses",
+      "name": "FK_Expenses_Expenses_BusinessId_ReversesId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"ReversesId\") REFERENCES \"Expenses\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Expenses",
+      "name": "FK_Expenses_Users_ActorUserId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"ActorUserId\") REFERENCES \"Users\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Expenses",
+      "name": "PK_Expenses",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "LocalCustomers",
+      "name": "AK_LocalCustomers_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "LocalCustomers",
+      "name": "CK_LocalCustomers_FullName",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"FullName\")::text)) > 0))"
+    },
+    {
+      "table": "LocalCustomers",
+      "name": "CK_LocalCustomers_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "LocalCustomers",
+      "name": "CK_LocalCustomers_NormalizedName",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"NormalizedName\")::text)) > 0))"
+    },
+    {
+      "table": "LocalCustomers",
+      "name": "CK_LocalCustomers_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "LocalCustomers",
+      "name": "FK_LocalCustomers_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "LocalCustomers",
+      "name": "PK_LocalCustomers",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "AK_LocalVehicles_BusinessId_LocalCustomerId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"LocalCustomerId\", \"Id\")"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "CK_LocalVehicles_Archive",
+      "kind": "c",
+      "definition": "CHECK (((\"ArchivedAt\" IS NULL) OR (\"ArchivedAt\" >= \"CreatedAt\")))"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "CK_LocalVehicles_Brand",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Brand\")::text)) > 0))"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "CK_LocalVehicles_Category",
+      "kind": "c",
+      "definition": "CHECK (((\"Category\")::text = ANY ((ARRAY['Car'::character varying, 'Suv'::character varying, 'Van'::character varying, 'Pickup'::character varying, 'Motorcycle'::character varying, 'Other'::character varying])::text[])))"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "CK_LocalVehicles_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "CK_LocalVehicles_Model",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Model\")::text)) > 0))"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "CK_LocalVehicles_NormalizedPlate",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"NormalizedPlate\")::text)) > 0))"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "CK_LocalVehicles_Plate",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Plate\")::text)) > 0))"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "CK_LocalVehicles_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "CK_LocalVehicles_Year",
+      "kind": "c",
+      "definition": "CHECK (((\"ModelYear\" IS NULL) OR ((\"ModelYear\" >= 1886) AND (\"ModelYear\" <= 2100))))"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "FK_LocalVehicles_LocalCustomers_BusinessId_LocalCustomerId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"LocalCustomerId\") REFERENCES \"LocalCustomers\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "PK_LocalVehicles",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "AK_ManualIncomes_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "CK_ManualIncomes_Category",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Category\")::text)) > 0))"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "CK_ManualIncomes_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "CK_ManualIncomes_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "CK_ManualIncomes_Values",
+      "kind": "c",
+      "definition": "CHECK ((((\"Amount\" >= 0.01) AND (\"Amount\" <= 9999999.99)) AND ((\"Currency\")::text = 'TRY'::text) AND ((\"RequestHash\")::text ~ '^[0-9a-f]{64}$'::text) AND (\"RequestId\" <> '00000000-0000-0000-0000-000000000000'::uuid) AND (((\"ReversesId\" IS NULL) AND (\"CorrectionReason\" IS NULL)) OR ((\"ReversesId\" IS NOT NULL) AND (\"ReversesId\" <> \"Id\") AND (length(btrim((\"CorrectionReason\")::text)) > 0)))))"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "FK_ManualIncomes_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "FK_ManualIncomes_ManualIncomes_BusinessId_CorrectsId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"CorrectsId\") REFERENCES \"ManualIncomes\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "FK_ManualIncomes_ManualIncomes_BusinessId_ReversesId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"ReversesId\") REFERENCES \"ManualIncomes\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "FK_ManualIncomes_PaymentMethods_BusinessId_PaymentMethodId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"PaymentMethodId\") REFERENCES \"PaymentMethods\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "FK_ManualIncomes_Users_ActorUserId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"ActorUserId\") REFERENCES \"Users\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "PK_ManualIncomes",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "AK_OwnedVehicles_CustomerProfileId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"CustomerProfileId\", \"Id\")"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "CK_OwnedVehicles_Archive",
+      "kind": "c",
+      "definition": "CHECK (((\"ArchivedAt\" IS NULL) OR (\"ArchivedAt\" >= \"CreatedAt\")))"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "CK_OwnedVehicles_Brand",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Brand\")::text)) > 0))"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "CK_OwnedVehicles_Category",
+      "kind": "c",
+      "definition": "CHECK (((\"Category\")::text = ANY ((ARRAY['Car'::character varying, 'Suv'::character varying, 'Van'::character varying, 'Pickup'::character varying, 'Motorcycle'::character varying, 'Other'::character varying])::text[])))"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "CK_OwnedVehicles_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "CK_OwnedVehicles_Model",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Model\")::text)) > 0))"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "CK_OwnedVehicles_NormalizedPlate",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"NormalizedPlate\")::text)) > 0))"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "CK_OwnedVehicles_Plate",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Plate\")::text)) > 0))"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "CK_OwnedVehicles_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "CK_OwnedVehicles_Year",
+      "kind": "c",
+      "definition": "CHECK (((\"ModelYear\" IS NULL) OR ((\"ModelYear\" >= 1886) AND (\"ModelYear\" <= 2100))))"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "FK_OwnedVehicles_CustomerProfiles_CustomerProfileId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"CustomerProfileId\") REFERENCES \"CustomerProfiles\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "PK_OwnedVehicles",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "PasswordResetTokens",
+      "name": "CK_PasswordResetTokens_Consumption",
+      "kind": "c",
+      "definition": "CHECK (((\"ConsumedAt\" IS NULL) OR ((\"ConsumedAt\" >= \"CreatedAt\") AND (\"ConsumedAt\" < \"ExpiresAt\"))))"
+    },
+    {
+      "table": "PasswordResetTokens",
+      "name": "CK_PasswordResetTokens_Expiry",
+      "kind": "c",
+      "definition": "CHECK ((\"ExpiresAt\" > \"CreatedAt\"))"
+    },
+    {
+      "table": "PasswordResetTokens",
+      "name": "CK_PasswordResetTokens_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "PasswordResetTokens",
+      "name": "CK_PasswordResetTokens_Revocation",
+      "kind": "c",
+      "definition": "CHECK (((\"RevokedAt\" IS NULL) OR (\"RevokedAt\" >= \"CreatedAt\")))"
+    },
+    {
+      "table": "PasswordResetTokens",
+      "name": "CK_PasswordResetTokens_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "PasswordResetTokens",
+      "name": "CK_PasswordResetTokens_TokenHash",
+      "kind": "c",
+      "definition": "CHECK (((\"TokenHash\")::text ~ '^[0-9a-f]{64}$'::text))"
+    },
+    {
+      "table": "PasswordResetTokens",
+      "name": "FK_PasswordResetTokens_Users_UserId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"UserId\") REFERENCES \"Users\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "PasswordResetTokens",
+      "name": "PK_PasswordResetTokens",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "PaymentMethods",
+      "name": "AK_PaymentMethods_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "PaymentMethods",
+      "name": "CK_PaymentMethods_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "PaymentMethods",
+      "name": "CK_PaymentMethods_Name",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Name\")::text)) > 0))"
+    },
+    {
+      "table": "PaymentMethods",
+      "name": "CK_PaymentMethods_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "PaymentMethods",
+      "name": "FK_PaymentMethods_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "PaymentMethods",
+      "name": "FK_PaymentMethods_Users_ActorUserId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"ActorUserId\") REFERENCES \"Users\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "PaymentMethods",
+      "name": "PK_PaymentMethods",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "Payments",
+      "name": "AK_Payments_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "Payments",
+      "name": "CK_Payments_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "Payments",
+      "name": "CK_Payments_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "Payments",
+      "name": "CK_Payments_Values",
+      "kind": "c",
+      "definition": "CHECK ((((\"Amount\" >= 0.01) AND (\"Amount\" <= 9999999.99)) AND ((\"Currency\")::text = 'TRY'::text) AND ((\"RequestHash\")::text ~ '^[0-9a-f]{64}$'::text) AND (\"RequestId\" <> '00000000-0000-0000-0000-000000000000'::uuid) AND (((\"ReversesId\" IS NULL) AND (\"CorrectionReason\" IS NULL)) OR ((\"ReversesId\" IS NOT NULL) AND (\"ReversesId\" <> \"Id\") AND (length(btrim((\"CorrectionReason\")::text)) > 0)))))"
+    },
+    {
+      "table": "Payments",
+      "name": "FK_Payments_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Payments",
+      "name": "FK_Payments_PaymentMethods_BusinessId_PaymentMethodId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"PaymentMethodId\") REFERENCES \"PaymentMethods\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Payments",
+      "name": "FK_Payments_Payments_BusinessId_CorrectsId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"CorrectsId\") REFERENCES \"Payments\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Payments",
+      "name": "FK_Payments_Payments_BusinessId_ReversesId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"ReversesId\") REFERENCES \"Payments\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Payments",
+      "name": "FK_Payments_Users_ActorUserId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"ActorUserId\") REFERENCES \"Users\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Payments",
+      "name": "FK_Payments_WorkOrders_BusinessId_WorkOrderId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"WorkOrderId\") REFERENCES \"WorkOrders\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "Payments",
+      "name": "PK_Payments",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "AK_RefreshTokens_DeviceSessionId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"DeviceSessionId\", \"Id\")"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "CK_RefreshTokens_Consumption",
+      "kind": "c",
+      "definition": "CHECK (((\"ConsumedAt\" IS NULL) OR (\"ConsumedAt\" >= \"CreatedAt\")))"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "CK_RefreshTokens_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "CK_RefreshTokens_Replacement",
+      "kind": "c",
+      "definition": "CHECK (((\"ReplacedByTokenId\" IS NULL) OR ((\"ReplacedByTokenId\" <> \"Id\") AND (\"ConsumedAt\" IS NOT NULL))))"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "CK_RefreshTokens_Revocation",
+      "kind": "c",
+      "definition": "CHECK (((\"RevokedAt\" IS NULL) OR (\"RevokedAt\" >= \"CreatedAt\")))"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "CK_RefreshTokens_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "CK_RefreshTokens_TokenHash",
+      "kind": "c",
+      "definition": "CHECK (((\"TokenHash\")::text ~ '^[0-9a-f]{64}$'::text))"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "FK_RefreshTokens_DeviceSessions_DeviceSessionId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"DeviceSessionId\") REFERENCES \"DeviceSessions\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "FK_RefreshTokens_RefreshTokens_DeviceSessionId_ReplacedByToken~",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"DeviceSessionId\", \"ReplacedByTokenId\") REFERENCES \"RefreshTokens\"(\"DeviceSessionId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "PK_RefreshTokens",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "SchedulingCreateReceipts",
+      "name": "FK_SchedulingCreateReceipts_Appointments_BusinessId_Appointmen~",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"AppointmentId\") REFERENCES \"Appointments\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "SchedulingCreateReceipts",
+      "name": "PK_SchedulingCreateReceipts",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"BusinessId\", \"ClientRequestId\")"
+    },
+    {
+      "table": "ServiceOfferings",
+      "name": "CK_ServiceOfferings_Category",
+      "kind": "c",
+      "definition": "CHECK (((\"Category\")::text = ANY ((ARRAY['Car'::character varying, 'Suv'::character varying, 'Van'::character varying, 'Pickup'::character varying, 'Motorcycle'::character varying, 'Other'::character varying])::text[])))"
+    },
+    {
+      "table": "ServiceOfferings",
+      "name": "CK_ServiceOfferings_Currency",
+      "kind": "c",
+      "definition": "CHECK (((\"Currency\")::text = 'TRY'::text))"
+    },
+    {
+      "table": "ServiceOfferings",
+      "name": "CK_ServiceOfferings_Estimates",
+      "kind": "c",
+      "definition": "CHECK ((((\"ActiveMinutes\" >= 1) AND (\"ActiveMinutes\" <= 10080)) AND ((\"WaitingMinutes\" IS NULL) OR ((\"WaitingMinutes\" >= 0) AND (\"WaitingMinutes\" <= 43200))) AND ((\"Employees\" >= 1) AND (\"Employees\" <= 100))))"
+    },
+    {
+      "table": "ServiceOfferings",
+      "name": "CK_ServiceOfferings_Price",
+      "kind": "c",
+      "definition": "CHECK ((((\"Price\" >= (0)::numeric) AND (\"Price\" <= 9999999.99)) AND (scale(\"Price\") <= 2)))"
+    },
+    {
+      "table": "ServiceOfferings",
+      "name": "FK_ServiceOfferings_BusinessServices_ServiceId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"ServiceId\") REFERENCES \"BusinessServices\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "ServiceOfferings",
+      "name": "PK_ServiceOfferings",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"ServiceId\", \"Category\")"
+    },
+    {
+      "table": "ServiceSchedulingRequirements",
+      "name": "AK_ServiceSchedulingRequirements_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "ServiceSchedulingRequirements",
+      "name": "CK_ServiceSchedulingRequirements_Category",
+      "kind": "c",
+      "definition": "CHECK (((\"Category\")::text = ANY ((ARRAY['Car'::character varying, 'Suv'::character varying, 'Van'::character varying, 'Pickup'::character varying, 'Motorcycle'::character varying, 'Other'::character varying])::text[])))"
+    },
+    {
+      "table": "ServiceSchedulingRequirements",
+      "name": "CK_ServiceSchedulingRequirements_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "ServiceSchedulingRequirements",
+      "name": "CK_ServiceSchedulingRequirements_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "ServiceSchedulingRequirements",
+      "name": "FK_ServiceSchedulingRequirements_BusinessServices_BusinessId_S~",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"ServiceId\") REFERENCES \"BusinessServices\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "ServiceSchedulingRequirements",
+      "name": "FK_ServiceSchedulingRequirements_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "ServiceSchedulingRequirements",
+      "name": "FK_ServiceSchedulingRequirements_WorkAreas_BusinessId_WorkArea~",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"WorkAreaId\") REFERENCES \"WorkAreas\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "ServiceSchedulingRequirements",
+      "name": "PK_ServiceSchedulingRequirements",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "ServiceStageTemplates",
+      "name": "AK_ServiceStageTemplates_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "ServiceStageTemplates",
+      "name": "CK_ServiceStageTemplates_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "ServiceStageTemplates",
+      "name": "CK_ServiceStageTemplates_Plan",
+      "kind": "c",
+      "definition": "CHECK ((((\"Sequence\" >= 1) AND (\"Sequence\" <= 20)) AND ((length(btrim((\"Name\")::text)) >= 1) AND (length(btrim((\"Name\")::text)) <= 100)) AND ((\"Minutes\" >= 1) AND (\"Minutes\" <= 10080)) AND ((\"Employees\" >= 1) AND (\"Employees\" <= 100)) AND ((\"ArchivedAt\" IS NULL) OR (\"ArchivedAt\" >= \"CreatedAt\")) AND ((\"Category\")::text = ANY ((ARRAY['Car'::character varying, 'Suv'::character varying, 'Van'::character varying, 'Pickup'::character varying, 'Motorcycle'::character varying, 'Other'::character varying])::text[]))))"
+    },
+    {
+      "table": "ServiceStageTemplates",
+      "name": "CK_ServiceStageTemplates_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "ServiceStageTemplates",
+      "name": "FK_ServiceStageTemplates_BusinessServices_BusinessId_ServiceId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"ServiceId\") REFERENCES \"BusinessServices\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "ServiceStageTemplates",
+      "name": "FK_ServiceStageTemplates_WorkAreas_BusinessId_WorkAreaId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"WorkAreaId\") REFERENCES \"WorkAreas\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "ServiceStageTemplates",
+      "name": "PK_ServiceStageTemplates",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "Users",
+      "name": "CK_Users_Email",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Email\")::text)) > 0))"
+    },
+    {
+      "table": "Users",
+      "name": "CK_Users_FullName",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"FullName\")::text)) > 0))"
+    },
+    {
+      "table": "Users",
+      "name": "CK_Users_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "Users",
+      "name": "CK_Users_NormalizedEmail",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"NormalizedEmail\")::text)) > 0))"
+    },
+    {
+      "table": "Users",
+      "name": "CK_Users_PasswordHash",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"PasswordHash\")::text)) > 0))"
+    },
+    {
+      "table": "Users",
+      "name": "CK_Users_SecurityStamp",
+      "kind": "c",
+      "definition": "CHECK ((\"SecurityStamp\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "Users",
+      "name": "CK_Users_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "Users",
+      "name": "CK_Users_Verification",
+      "kind": "c",
+      "definition": "CHECK (((\"EmailVerifiedAt\" IS NULL) OR (\"EmailVerifiedAt\" >= \"CreatedAt\")))"
+    },
+    {
+      "table": "Users",
+      "name": "PK_Users",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "WeeklyOpeningDays",
+      "name": "CK_WeeklyOpeningDays_Day",
+      "kind": "c",
+      "definition": "CHECK (((\"Day\" >= 1) AND (\"Day\" <= 7)))"
+    },
+    {
+      "table": "WeeklyOpeningDays",
+      "name": "CK_WeeklyOpeningDays_Interval",
+      "kind": "c",
+      "definition": "CHECK (((\"Closed\" AND (\"OpensAtMinute\" IS NULL) AND (\"ClosesAtMinute\" IS NULL)) OR ((NOT \"Closed\") AND (\"OpensAtMinute\" IS NOT NULL) AND (\"ClosesAtMinute\" IS NOT NULL) AND (\"OpensAtMinute\" >= 0) AND (\"OpensAtMinute\" < \"ClosesAtMinute\") AND (\"ClosesAtMinute\" <= 1440))))"
+    },
+    {
+      "table": "WeeklyOpeningDays",
+      "name": "FK_WeeklyOpeningDays_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "WeeklyOpeningDays",
+      "name": "PK_WeeklyOpeningDays",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"BusinessId\", \"Day\")"
+    },
+    {
+      "table": "WorkAreas",
+      "name": "AK_WorkAreas_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "WorkAreas",
+      "name": "CK_WorkAreas_Archive",
+      "kind": "c",
+      "definition": "CHECK (((\"ArchivedAt\" IS NULL) OR (\"ArchivedAt\" >= \"CreatedAt\")))"
+    },
+    {
+      "table": "WorkAreas",
+      "name": "CK_WorkAreas_Capacity",
+      "kind": "c",
+      "definition": "CHECK ((\"Capacity\" > 0))"
+    },
+    {
+      "table": "WorkAreas",
+      "name": "CK_WorkAreas_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "WorkAreas",
+      "name": "CK_WorkAreas_Name",
+      "kind": "c",
+      "definition": "CHECK ((length(btrim((\"Name\")::text)) > 0))"
+    },
+    {
+      "table": "WorkAreas",
+      "name": "CK_WorkAreas_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "WorkAreas",
+      "name": "FK_WorkAreas_Businesses_BusinessId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\") REFERENCES \"Businesses\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "WorkAreas",
+      "name": "PK_WorkAreas",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "WorkOrderEvents",
+      "name": "CK_WorkOrderEvents_Action",
+      "kind": "c",
+      "definition": "CHECK (((\"RequestId\" <> '00000000-0000-0000-0000-000000000000'::uuid) AND ((\"Action\")::text = ANY ((ARRAY['create'::character varying, 'start'::character varying, 'pause'::character varying, 'resume'::character varying, 'complete'::character varying, 'cancel'::character varying])::text[]))))"
+    },
+    {
+      "table": "WorkOrderEvents",
+      "name": "FK_WorkOrderEvents_Users_ActorUserId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"ActorUserId\") REFERENCES \"Users\"(\"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "WorkOrderEvents",
+      "name": "FK_WorkOrderEvents_WorkOrderStages_BusinessId_WorkOrderId_Stag~",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"WorkOrderId\", \"StageId\") REFERENCES \"WorkOrderStages\"(\"BusinessId\", \"WorkOrderId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "WorkOrderEvents",
+      "name": "FK_WorkOrderEvents_WorkOrders_BusinessId_WorkOrderId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"WorkOrderId\") REFERENCES \"WorkOrders\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "WorkOrderEvents",
+      "name": "PK_WorkOrderEvents",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "WorkOrderStages",
+      "name": "AK_WorkOrderStages_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "WorkOrderStages",
+      "name": "AK_WorkOrderStages_BusinessId_WorkOrderId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"WorkOrderId\", \"Id\")"
+    },
+    {
+      "table": "WorkOrderStages",
+      "name": "CK_WorkOrderStages_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "WorkOrderStages",
+      "name": "CK_WorkOrderStages_State",
+      "kind": "c",
+      "definition": "CHECK (((\"Sequence\" > 0) AND (length(btrim((\"Name\")::text)) > 0) AND ((\"EstimatedMinutes\" >= 1) AND (\"EstimatedMinutes\" <= 10080)) AND ((\"Status\" >= 1) AND (\"Status\" <= 6)) AND (\"PausedMilliseconds\" >= 0) AND (((\"Status\" = ANY (ARRAY[1, 2])) AND (\"StartedAtUtc\" IS NULL) AND (\"CompletedAtUtc\" IS NULL) AND (\"PausedAtUtc\" IS NULL)) OR ((\"Status\" = 6) AND (\"CompletedAtUtc\" IS NULL) AND (\"PausedAtUtc\" IS NULL)) OR ((\"Status\" = 3) AND (\"StartedAtUtc\" IS NOT NULL) AND (\"CompletedAtUtc\" IS NULL) AND (\"PausedAtUtc\" IS NULL)) OR ((\"Status\" = 4) AND (\"StartedAtUtc\" IS NOT NULL) AND (\"PausedAtUtc\" IS NOT NULL) AND (\"PausedAtUtc\" >= \"StartedAtUtc\") AND (\"CompletedAtUtc\" IS NULL)) OR ((\"Status\" = 5) AND (\"StartedAtUtc\" IS NOT NULL) AND (\"CompletedAtUtc\" IS NOT NULL) AND (\"CompletedAtUtc\" >= \"StartedAtUtc\") AND (\"PausedAtUtc\" IS NULL)))))"
+    },
+    {
+      "table": "WorkOrderStages",
+      "name": "CK_WorkOrderStages_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "WorkOrderStages",
+      "name": "FK_WorkOrderStages_WorkAreas_BusinessId_WorkAreaId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"WorkAreaId\") REFERENCES \"WorkAreas\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "WorkOrderStages",
+      "name": "FK_WorkOrderStages_WorkOrders_BusinessId_WorkOrderId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"WorkOrderId\") REFERENCES \"WorkOrders\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "WorkOrderStages",
+      "name": "PK_WorkOrderStages",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "WorkOrders",
+      "name": "AK_WorkOrders_BusinessId_Id",
+      "kind": "u",
+      "definition": "UNIQUE (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "WorkOrders",
+      "name": "CK_WorkOrders_Id",
+      "kind": "c",
+      "definition": "CHECK ((\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid))"
+    },
+    {
+      "table": "WorkOrders",
+      "name": "CK_WorkOrders_Lifecycle",
+      "kind": "c",
+      "definition": "CHECK (((NOT ((\"CompletedAtUtc\" IS NOT NULL) AND (\"CancelledAtUtc\" IS NOT NULL))) AND ((\"CompletedAtUtc\" IS NULL) OR (\"CompletedAtUtc\" >= \"CreatedAt\")) AND ((\"CancelledAtUtc\" IS NULL) OR (\"CancelledAtUtc\" >= \"CreatedAt\"))))"
+    },
+    {
+      "table": "WorkOrders",
+      "name": "CK_WorkOrders_Timestamps",
+      "kind": "c",
+      "definition": "CHECK ((\"UpdatedAt\" >= \"CreatedAt\"))"
+    },
+    {
+      "table": "WorkOrders",
+      "name": "FK_WorkOrders_Appointments_BusinessId_AppointmentId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"AppointmentId\") REFERENCES \"Appointments\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "WorkOrders",
+      "name": "PK_WorkOrders",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"Id\")"
+    },
+    {
+      "table": "WorkStageAssignments",
+      "name": "FK_WorkStageAssignments_BusinessMemberships_BusinessId_Employe~",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"EmployeeMembershipId\") REFERENCES \"BusinessMemberships\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "WorkStageAssignments",
+      "name": "FK_WorkStageAssignments_WorkOrderStages_BusinessId_StageId",
+      "kind": "f",
+      "definition": "FOREIGN KEY (\"BusinessId\", \"StageId\") REFERENCES \"WorkOrderStages\"(\"BusinessId\", \"Id\") ON DELETE RESTRICT"
+    },
+    {
+      "table": "WorkStageAssignments",
+      "name": "PK_WorkStageAssignments",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"BusinessId\", \"StageId\", \"EmployeeMembershipId\")"
+    },
+    {
+      "table": "__EFMigrationsHistory",
+      "name": "PK___EFMigrationsHistory",
+      "kind": "p",
+      "definition": "PRIMARY KEY (\"MigrationId\")"
+    }
+  ],
+  "indexes": [
+    {
+      "table": "AppointmentEvents",
+      "name": "AK_AppointmentEvents_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_AppointmentEvents_BusinessId_Id\" ON public.\"AppointmentEvents\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "AppointmentEvents",
+      "name": "IX_AppointmentEvents_ActorUserId",
+      "definition": "CREATE INDEX \"IX_AppointmentEvents_ActorUserId\" ON public.\"AppointmentEvents\" USING btree (\"ActorUserId\")"
+    },
+    {
+      "table": "AppointmentEvents",
+      "name": "IX_AppointmentEvents_BusinessId_AppointmentId_Sequence",
+      "definition": "CREATE UNIQUE INDEX \"IX_AppointmentEvents_BusinessId_AppointmentId_Sequence\" ON public.\"AppointmentEvents\" USING btree (\"BusinessId\", \"AppointmentId\", \"Sequence\")"
+    },
+    {
+      "table": "AppointmentEvents",
+      "name": "PK_AppointmentEvents",
+      "definition": "CREATE UNIQUE INDEX \"PK_AppointmentEvents\" ON public.\"AppointmentEvents\" USING btree (\"Id\")"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "AK_AppointmentResourceReservations_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_AppointmentResourceReservations_BusinessId_Id\" ON public.\"AppointmentResourceReservations\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "IX_AppointmentResourceReservations_BusinessId_AppointmentId_Em~",
+      "definition": "CREATE UNIQUE INDEX \"IX_AppointmentResourceReservations_BusinessId_AppointmentId_Em~\" ON public.\"AppointmentResourceReservations\" USING btree (\"BusinessId\", \"AppointmentId\", \"EmployeeMembershipId\") WHERE ((\"ReleasedAt\" IS NULL) AND (\"EmployeeMembershipId\" IS NOT NULL) AND (\"StageId\" IS NULL))"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "IX_AppointmentResourceReservations_BusinessId_AppointmentId_St~",
+      "definition": "CREATE UNIQUE INDEX \"IX_AppointmentResourceReservations_BusinessId_AppointmentId_St~\" ON public.\"AppointmentResourceReservations\" USING btree (\"BusinessId\", \"AppointmentId\", \"StageId\", \"EmployeeMembershipId\") WHERE ((\"ReleasedAt\" IS NULL) AND (\"EmployeeMembershipId\" IS NOT NULL) AND (\"StageId\" IS NOT NULL))"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "IX_AppointmentResourceReservations_BusinessId_AppointmentId_S~1",
+      "definition": "CREATE UNIQUE INDEX \"IX_AppointmentResourceReservations_BusinessId_AppointmentId_S~1\" ON public.\"AppointmentResourceReservations\" USING btree (\"BusinessId\", \"AppointmentId\", \"StageId\", \"WorkAreaId\") WHERE ((\"ReleasedAt\" IS NULL) AND (\"WorkAreaId\" IS NOT NULL) AND (\"StageId\" IS NOT NULL))"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "IX_AppointmentResourceReservations_BusinessId_AppointmentId_Wo~",
+      "definition": "CREATE UNIQUE INDEX \"IX_AppointmentResourceReservations_BusinessId_AppointmentId_Wo~\" ON public.\"AppointmentResourceReservations\" USING btree (\"BusinessId\", \"AppointmentId\", \"WorkAreaId\") WHERE ((\"ReleasedAt\" IS NULL) AND (\"WorkAreaId\" IS NOT NULL) AND (\"StageId\" IS NULL))"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "IX_AppointmentResourceReservations_BusinessId_EmployeeMembersh~",
+      "definition": "CREATE INDEX \"IX_AppointmentResourceReservations_BusinessId_EmployeeMembersh~\" ON public.\"AppointmentResourceReservations\" USING btree (\"BusinessId\", \"EmployeeMembershipId\", \"StartsAtUtc\", \"EndsAtUtc\") WHERE ((\"ReleasedAt\" IS NULL) AND (\"EmployeeMembershipId\" IS NOT NULL))"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "IX_AppointmentResourceReservations_BusinessId_WorkAreaId_Start~",
+      "definition": "CREATE INDEX \"IX_AppointmentResourceReservations_BusinessId_WorkAreaId_Start~\" ON public.\"AppointmentResourceReservations\" USING btree (\"BusinessId\", \"WorkAreaId\", \"StartsAtUtc\", \"EndsAtUtc\") WHERE ((\"ReleasedAt\" IS NULL) AND (\"WorkAreaId\" IS NOT NULL))"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "name": "PK_AppointmentResourceReservations",
+      "definition": "CREATE UNIQUE INDEX \"PK_AppointmentResourceReservations\" ON public.\"AppointmentResourceReservations\" USING btree (\"Id\")"
+    },
+    {
+      "table": "AppointmentStages",
+      "name": "AK_AppointmentStages_BusinessId_AppointmentId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_AppointmentStages_BusinessId_AppointmentId_Id\" ON public.\"AppointmentStages\" USING btree (\"BusinessId\", \"AppointmentId\", \"Id\")"
+    },
+    {
+      "table": "AppointmentStages",
+      "name": "IX_AppointmentStages_BusinessId_AppointmentId_Sequence",
+      "definition": "CREATE UNIQUE INDEX \"IX_AppointmentStages_BusinessId_AppointmentId_Sequence\" ON public.\"AppointmentStages\" USING btree (\"BusinessId\", \"AppointmentId\", \"Sequence\")"
+    },
+    {
+      "table": "AppointmentStages",
+      "name": "IX_AppointmentStages_BusinessId_WorkAreaId",
+      "definition": "CREATE INDEX \"IX_AppointmentStages_BusinessId_WorkAreaId\" ON public.\"AppointmentStages\" USING btree (\"BusinessId\", \"WorkAreaId\")"
+    },
+    {
+      "table": "AppointmentStages",
+      "name": "PK_AppointmentStages",
+      "definition": "CREATE UNIQUE INDEX \"PK_AppointmentStages\" ON public.\"AppointmentStages\" USING btree (\"Id\")"
+    },
+    {
+      "table": "Appointments",
+      "name": "AK_Appointments_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_Appointments_BusinessId_Id\" ON public.\"Appointments\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "Appointments",
+      "name": "IX_Appointments_BusinessId_ClientRequestId",
+      "definition": "CREATE UNIQUE INDEX \"IX_Appointments_BusinessId_ClientRequestId\" ON public.\"Appointments\" USING btree (\"BusinessId\", \"ClientRequestId\")"
+    },
+    {
+      "table": "Appointments",
+      "name": "IX_Appointments_BusinessId_LocalCustomerId_LocalVehicleId",
+      "definition": "CREATE INDEX \"IX_Appointments_BusinessId_LocalCustomerId_LocalVehicleId\" ON public.\"Appointments\" USING btree (\"BusinessId\", \"LocalCustomerId\", \"LocalVehicleId\")"
+    },
+    {
+      "table": "Appointments",
+      "name": "IX_Appointments_BusinessId_ServiceId",
+      "definition": "CREATE INDEX \"IX_Appointments_BusinessId_ServiceId\" ON public.\"Appointments\" USING btree (\"BusinessId\", \"ServiceId\")"
+    },
+    {
+      "table": "Appointments",
+      "name": "IX_Appointments_BusinessId_StartsAtUtc_Id",
+      "definition": "CREATE INDEX \"IX_Appointments_BusinessId_StartsAtUtc_Id\" ON public.\"Appointments\" USING btree (\"BusinessId\", \"StartsAtUtc\", \"Id\")"
+    },
+    {
+      "table": "Appointments",
+      "name": "IX_Appointments_BusinessId_Status_StartsAtUtc",
+      "definition": "CREATE INDEX \"IX_Appointments_BusinessId_Status_StartsAtUtc\" ON public.\"Appointments\" USING btree (\"BusinessId\", \"Status\", \"StartsAtUtc\")"
+    },
+    {
+      "table": "Appointments",
+      "name": "IX_Appointments_BusinessId_WorkAreaId",
+      "definition": "CREATE INDEX \"IX_Appointments_BusinessId_WorkAreaId\" ON public.\"Appointments\" USING btree (\"BusinessId\", \"WorkAreaId\")"
+    },
+    {
+      "table": "Appointments",
+      "name": "IX_Appointments_CreatedByUserId",
+      "definition": "CREATE INDEX \"IX_Appointments_CreatedByUserId\" ON public.\"Appointments\" USING btree (\"CreatedByUserId\")"
+    },
+    {
+      "table": "Appointments",
+      "name": "IX_Appointments_CustomerProfileId_OwnedVehicleId",
+      "definition": "CREATE INDEX \"IX_Appointments_CustomerProfileId_OwnedVehicleId\" ON public.\"Appointments\" USING btree (\"CustomerProfileId\", \"OwnedVehicleId\")"
+    },
+    {
+      "table": "Appointments",
+      "name": "IX_Appointments_CustomerProfileId_StartsAtUtc_Id",
+      "definition": "CREATE INDEX \"IX_Appointments_CustomerProfileId_StartsAtUtc_Id\" ON public.\"Appointments\" USING btree (\"CustomerProfileId\", \"StartsAtUtc\", \"Id\")"
+    },
+    {
+      "table": "Appointments",
+      "name": "PK_Appointments",
+      "definition": "CREATE UNIQUE INDEX \"PK_Appointments\" ON public.\"Appointments\" USING btree (\"Id\")"
+    },
+    {
+      "table": "BusinessMembershipRoles",
+      "name": "PK_BusinessMembershipRoles",
+      "definition": "CREATE UNIQUE INDEX \"PK_BusinessMembershipRoles\" ON public.\"BusinessMembershipRoles\" USING btree (\"BusinessMembershipId\", \"Role\")"
+    },
+    {
+      "table": "BusinessMemberships",
+      "name": "AK_BusinessMemberships_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_BusinessMemberships_BusinessId_Id\" ON public.\"BusinessMemberships\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "BusinessMemberships",
+      "name": "IX_BusinessMemberships_BusinessId_UserId",
+      "definition": "CREATE UNIQUE INDEX \"IX_BusinessMemberships_BusinessId_UserId\" ON public.\"BusinessMemberships\" USING btree (\"BusinessId\", \"UserId\")"
+    },
+    {
+      "table": "BusinessMemberships",
+      "name": "IX_BusinessMemberships_UserId",
+      "definition": "CREATE INDEX \"IX_BusinessMemberships_UserId\" ON public.\"BusinessMemberships\" USING btree (\"UserId\")"
+    },
+    {
+      "table": "BusinessMemberships",
+      "name": "PK_BusinessMemberships",
+      "definition": "CREATE UNIQUE INDEX \"PK_BusinessMemberships\" ON public.\"BusinessMemberships\" USING btree (\"Id\")"
+    },
+    {
+      "table": "BusinessServices",
+      "name": "AK_BusinessServices_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_BusinessServices_BusinessId_Id\" ON public.\"BusinessServices\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "BusinessServices",
+      "name": "IX_BusinessServices_BusinessId_SearchName_Id",
+      "definition": "CREATE INDEX \"IX_BusinessServices_BusinessId_SearchName_Id\" ON public.\"BusinessServices\" USING btree (\"BusinessId\", \"SearchName\", \"Id\")"
+    },
+    {
+      "table": "BusinessServices",
+      "name": "PK_BusinessServices",
+      "definition": "CREATE UNIQUE INDEX \"PK_BusinessServices\" ON public.\"BusinessServices\" USING btree (\"Id\")"
+    },
+    {
+      "table": "Businesses",
+      "name": "PK_Businesses",
+      "definition": "CREATE UNIQUE INDEX \"PK_Businesses\" ON public.\"Businesses\" USING btree (\"Id\")"
+    },
+    {
+      "table": "CustomerProfiles",
+      "name": "IX_CustomerProfiles_UserId",
+      "definition": "CREATE UNIQUE INDEX \"IX_CustomerProfiles_UserId\" ON public.\"CustomerProfiles\" USING btree (\"UserId\")"
+    },
+    {
+      "table": "CustomerProfiles",
+      "name": "PK_CustomerProfiles",
+      "definition": "CREATE UNIQUE INDEX \"PK_CustomerProfiles\" ON public.\"CustomerProfiles\" USING btree (\"Id\")"
+    },
+    {
+      "table": "DeviceSessions",
+      "name": "IX_DeviceSessions_ExpiresAt",
+      "definition": "CREATE INDEX \"IX_DeviceSessions_ExpiresAt\" ON public.\"DeviceSessions\" USING btree (\"ExpiresAt\")"
+    },
+    {
+      "table": "DeviceSessions",
+      "name": "IX_DeviceSessions_UserId",
+      "definition": "CREATE INDEX \"IX_DeviceSessions_UserId\" ON public.\"DeviceSessions\" USING btree (\"UserId\")"
+    },
+    {
+      "table": "DeviceSessions",
+      "name": "PK_DeviceSessions",
+      "definition": "CREATE UNIQUE INDEX \"PK_DeviceSessions\" ON public.\"DeviceSessions\" USING btree (\"Id\")"
+    },
+    {
+      "table": "EmailVerificationTokens",
+      "name": "IX_EmailVerificationTokens_ExpiresAt",
+      "definition": "CREATE INDEX \"IX_EmailVerificationTokens_ExpiresAt\" ON public.\"EmailVerificationTokens\" USING btree (\"ExpiresAt\")"
+    },
+    {
+      "table": "EmailVerificationTokens",
+      "name": "IX_EmailVerificationTokens_TokenHash",
+      "definition": "CREATE UNIQUE INDEX \"IX_EmailVerificationTokens_TokenHash\" ON public.\"EmailVerificationTokens\" USING btree (\"TokenHash\")"
+    },
+    {
+      "table": "EmailVerificationTokens",
+      "name": "IX_EmailVerificationTokens_UserId",
+      "definition": "CREATE UNIQUE INDEX \"IX_EmailVerificationTokens_UserId\" ON public.\"EmailVerificationTokens\" USING btree (\"UserId\") WHERE ((\"ConsumedAt\" IS NULL) AND (\"RevokedAt\" IS NULL))"
+    },
+    {
+      "table": "EmailVerificationTokens",
+      "name": "IX_EmailVerificationTokens_UserId_CreatedAt",
+      "definition": "CREATE INDEX \"IX_EmailVerificationTokens_UserId_CreatedAt\" ON public.\"EmailVerificationTokens\" USING btree (\"UserId\", \"CreatedAt\")"
+    },
+    {
+      "table": "EmailVerificationTokens",
+      "name": "PK_EmailVerificationTokens",
+      "definition": "CREATE UNIQUE INDEX \"PK_EmailVerificationTokens\" ON public.\"EmailVerificationTokens\" USING btree (\"Id\")"
+    },
+    {
+      "table": "EmployeeAvailabilities",
+      "name": "AK_EmployeeAvailabilities_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_EmployeeAvailabilities_BusinessId_Id\" ON public.\"EmployeeAvailabilities\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "EmployeeAvailabilities",
+      "name": "IX_EmployeeAvailabilities_BusinessId_MembershipId_StartsAtUtc_~",
+      "definition": "CREATE INDEX \"IX_EmployeeAvailabilities_BusinessId_MembershipId_StartsAtUtc_~\" ON public.\"EmployeeAvailabilities\" USING btree (\"BusinessId\", \"MembershipId\", \"StartsAtUtc\", \"EndsAtUtc\") WHERE (\"ArchivedAt\" IS NULL)"
+    },
+    {
+      "table": "EmployeeAvailabilities",
+      "name": "PK_EmployeeAvailabilities",
+      "definition": "CREATE UNIQUE INDEX \"PK_EmployeeAvailabilities\" ON public.\"EmployeeAvailabilities\" USING btree (\"Id\")"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "IX_EmployeeInvitations_AcceptedByUserId",
+      "definition": "CREATE INDEX \"IX_EmployeeInvitations_AcceptedByUserId\" ON public.\"EmployeeInvitations\" USING btree (\"AcceptedByUserId\")"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "IX_EmployeeInvitations_BusinessId_InvitedByMembershipId",
+      "definition": "CREATE INDEX \"IX_EmployeeInvitations_BusinessId_InvitedByMembershipId\" ON public.\"EmployeeInvitations\" USING btree (\"BusinessId\", \"InvitedByMembershipId\")"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "IX_EmployeeInvitations_BusinessId_NormalizedEmail",
+      "definition": "CREATE UNIQUE INDEX \"IX_EmployeeInvitations_BusinessId_NormalizedEmail\" ON public.\"EmployeeInvitations\" USING btree (\"BusinessId\", \"NormalizedEmail\") WHERE ((\"AcceptedAt\" IS NULL) AND (\"RevokedAt\" IS NULL))"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "IX_EmployeeInvitations_ExpiresAt",
+      "definition": "CREATE INDEX \"IX_EmployeeInvitations_ExpiresAt\" ON public.\"EmployeeInvitations\" USING btree (\"ExpiresAt\")"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "IX_EmployeeInvitations_TokenHash",
+      "definition": "CREATE UNIQUE INDEX \"IX_EmployeeInvitations_TokenHash\" ON public.\"EmployeeInvitations\" USING btree (\"TokenHash\")"
+    },
+    {
+      "table": "EmployeeInvitations",
+      "name": "PK_EmployeeInvitations",
+      "definition": "CREATE UNIQUE INDEX \"PK_EmployeeInvitations\" ON public.\"EmployeeInvitations\" USING btree (\"Id\")"
+    },
+    {
+      "table": "Expenses",
+      "name": "AK_Expenses_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_Expenses_BusinessId_Id\" ON public.\"Expenses\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "Expenses",
+      "name": "IX_Expenses_ActorUserId",
+      "definition": "CREATE INDEX \"IX_Expenses_ActorUserId\" ON public.\"Expenses\" USING btree (\"ActorUserId\")"
+    },
+    {
+      "table": "Expenses",
+      "name": "IX_Expenses_BusinessId_CorrectsId",
+      "definition": "CREATE INDEX \"IX_Expenses_BusinessId_CorrectsId\" ON public.\"Expenses\" USING btree (\"BusinessId\", \"CorrectsId\")"
+    },
+    {
+      "table": "Expenses",
+      "name": "IX_Expenses_BusinessId_EmployeeMembershipId",
+      "definition": "CREATE INDEX \"IX_Expenses_BusinessId_EmployeeMembershipId\" ON public.\"Expenses\" USING btree (\"BusinessId\", \"EmployeeMembershipId\")"
+    },
+    {
+      "table": "Expenses",
+      "name": "IX_Expenses_BusinessId_OccurredAtUtc_Id",
+      "definition": "CREATE INDEX \"IX_Expenses_BusinessId_OccurredAtUtc_Id\" ON public.\"Expenses\" USING btree (\"BusinessId\", \"OccurredAtUtc\", \"Id\")"
+    },
+    {
+      "table": "Expenses",
+      "name": "IX_Expenses_BusinessId_RequestId",
+      "definition": "CREATE UNIQUE INDEX \"IX_Expenses_BusinessId_RequestId\" ON public.\"Expenses\" USING btree (\"BusinessId\", \"RequestId\")"
+    },
+    {
+      "table": "Expenses",
+      "name": "IX_Expenses_BusinessId_ReversesId",
+      "definition": "CREATE UNIQUE INDEX \"IX_Expenses_BusinessId_ReversesId\" ON public.\"Expenses\" USING btree (\"BusinessId\", \"ReversesId\") WHERE (\"ReversesId\" IS NOT NULL)"
+    },
+    {
+      "table": "Expenses",
+      "name": "PK_Expenses",
+      "definition": "CREATE UNIQUE INDEX \"PK_Expenses\" ON public.\"Expenses\" USING btree (\"Id\")"
+    },
+    {
+      "table": "LocalCustomers",
+      "name": "AK_LocalCustomers_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_LocalCustomers_BusinessId_Id\" ON public.\"LocalCustomers\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "LocalCustomers",
+      "name": "IX_LocalCustomers_BusinessId_NormalizedName_Id",
+      "definition": "CREATE INDEX \"IX_LocalCustomers_BusinessId_NormalizedName_Id\" ON public.\"LocalCustomers\" USING btree (\"BusinessId\", \"NormalizedName\", \"Id\")"
+    },
+    {
+      "table": "LocalCustomers",
+      "name": "IX_LocalCustomers_BusinessId_NormalizedPhone",
+      "definition": "CREATE INDEX \"IX_LocalCustomers_BusinessId_NormalizedPhone\" ON public.\"LocalCustomers\" USING btree (\"BusinessId\", \"NormalizedPhone\")"
+    },
+    {
+      "table": "LocalCustomers",
+      "name": "PK_LocalCustomers",
+      "definition": "CREATE UNIQUE INDEX \"PK_LocalCustomers\" ON public.\"LocalCustomers\" USING btree (\"Id\")"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "AK_LocalVehicles_BusinessId_LocalCustomerId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_LocalVehicles_BusinessId_LocalCustomerId_Id\" ON public.\"LocalVehicles\" USING btree (\"BusinessId\", \"LocalCustomerId\", \"Id\")"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "IX_LocalVehicles_BusinessId_LocalCustomerId_Id",
+      "definition": "CREATE INDEX \"IX_LocalVehicles_BusinessId_LocalCustomerId_Id\" ON public.\"LocalVehicles\" USING btree (\"BusinessId\", \"LocalCustomerId\", \"Id\")"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "IX_LocalVehicles_BusinessId_NormalizedPlate_Id",
+      "definition": "CREATE INDEX \"IX_LocalVehicles_BusinessId_NormalizedPlate_Id\" ON public.\"LocalVehicles\" USING btree (\"BusinessId\", \"NormalizedPlate\", \"Id\")"
+    },
+    {
+      "table": "LocalVehicles",
+      "name": "PK_LocalVehicles",
+      "definition": "CREATE UNIQUE INDEX \"PK_LocalVehicles\" ON public.\"LocalVehicles\" USING btree (\"Id\")"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "AK_ManualIncomes_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_ManualIncomes_BusinessId_Id\" ON public.\"ManualIncomes\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "IX_ManualIncomes_ActorUserId",
+      "definition": "CREATE INDEX \"IX_ManualIncomes_ActorUserId\" ON public.\"ManualIncomes\" USING btree (\"ActorUserId\")"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "IX_ManualIncomes_BusinessId_CorrectsId",
+      "definition": "CREATE INDEX \"IX_ManualIncomes_BusinessId_CorrectsId\" ON public.\"ManualIncomes\" USING btree (\"BusinessId\", \"CorrectsId\")"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "IX_ManualIncomes_BusinessId_OccurredAtUtc_Id",
+      "definition": "CREATE INDEX \"IX_ManualIncomes_BusinessId_OccurredAtUtc_Id\" ON public.\"ManualIncomes\" USING btree (\"BusinessId\", \"OccurredAtUtc\", \"Id\")"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "IX_ManualIncomes_BusinessId_PaymentMethodId",
+      "definition": "CREATE INDEX \"IX_ManualIncomes_BusinessId_PaymentMethodId\" ON public.\"ManualIncomes\" USING btree (\"BusinessId\", \"PaymentMethodId\")"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "IX_ManualIncomes_BusinessId_RequestId",
+      "definition": "CREATE UNIQUE INDEX \"IX_ManualIncomes_BusinessId_RequestId\" ON public.\"ManualIncomes\" USING btree (\"BusinessId\", \"RequestId\")"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "IX_ManualIncomes_BusinessId_ReversesId",
+      "definition": "CREATE UNIQUE INDEX \"IX_ManualIncomes_BusinessId_ReversesId\" ON public.\"ManualIncomes\" USING btree (\"BusinessId\", \"ReversesId\") WHERE (\"ReversesId\" IS NOT NULL)"
+    },
+    {
+      "table": "ManualIncomes",
+      "name": "PK_ManualIncomes",
+      "definition": "CREATE UNIQUE INDEX \"PK_ManualIncomes\" ON public.\"ManualIncomes\" USING btree (\"Id\")"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "AK_OwnedVehicles_CustomerProfileId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_OwnedVehicles_CustomerProfileId_Id\" ON public.\"OwnedVehicles\" USING btree (\"CustomerProfileId\", \"Id\")"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "IX_OwnedVehicles_CustomerProfileId_NormalizedPlate_Id",
+      "definition": "CREATE INDEX \"IX_OwnedVehicles_CustomerProfileId_NormalizedPlate_Id\" ON public.\"OwnedVehicles\" USING btree (\"CustomerProfileId\", \"NormalizedPlate\", \"Id\")"
+    },
+    {
+      "table": "OwnedVehicles",
+      "name": "PK_OwnedVehicles",
+      "definition": "CREATE UNIQUE INDEX \"PK_OwnedVehicles\" ON public.\"OwnedVehicles\" USING btree (\"Id\")"
+    },
+    {
+      "table": "PasswordResetTokens",
+      "name": "IX_PasswordResetTokens_ExpiresAt",
+      "definition": "CREATE INDEX \"IX_PasswordResetTokens_ExpiresAt\" ON public.\"PasswordResetTokens\" USING btree (\"ExpiresAt\")"
+    },
+    {
+      "table": "PasswordResetTokens",
+      "name": "IX_PasswordResetTokens_TokenHash",
+      "definition": "CREATE UNIQUE INDEX \"IX_PasswordResetTokens_TokenHash\" ON public.\"PasswordResetTokens\" USING btree (\"TokenHash\")"
+    },
+    {
+      "table": "PasswordResetTokens",
+      "name": "IX_PasswordResetTokens_UserId",
+      "definition": "CREATE INDEX \"IX_PasswordResetTokens_UserId\" ON public.\"PasswordResetTokens\" USING btree (\"UserId\")"
+    },
+    {
+      "table": "PasswordResetTokens",
+      "name": "PK_PasswordResetTokens",
+      "definition": "CREATE UNIQUE INDEX \"PK_PasswordResetTokens\" ON public.\"PasswordResetTokens\" USING btree (\"Id\")"
+    },
+    {
+      "table": "PaymentMethods",
+      "name": "AK_PaymentMethods_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_PaymentMethods_BusinessId_Id\" ON public.\"PaymentMethods\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "PaymentMethods",
+      "name": "IX_PaymentMethods_ActorUserId",
+      "definition": "CREATE INDEX \"IX_PaymentMethods_ActorUserId\" ON public.\"PaymentMethods\" USING btree (\"ActorUserId\")"
+    },
+    {
+      "table": "PaymentMethods",
+      "name": "IX_PaymentMethods_BusinessId_Name",
+      "definition": "CREATE UNIQUE INDEX \"IX_PaymentMethods_BusinessId_Name\" ON public.\"PaymentMethods\" USING btree (\"BusinessId\", \"Name\")"
+    },
+    {
+      "table": "PaymentMethods",
+      "name": "PK_PaymentMethods",
+      "definition": "CREATE UNIQUE INDEX \"PK_PaymentMethods\" ON public.\"PaymentMethods\" USING btree (\"Id\")"
+    },
+    {
+      "table": "Payments",
+      "name": "AK_Payments_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_Payments_BusinessId_Id\" ON public.\"Payments\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "Payments",
+      "name": "IX_Payments_ActorUserId",
+      "definition": "CREATE INDEX \"IX_Payments_ActorUserId\" ON public.\"Payments\" USING btree (\"ActorUserId\")"
+    },
+    {
+      "table": "Payments",
+      "name": "IX_Payments_BusinessId_CorrectsId",
+      "definition": "CREATE INDEX \"IX_Payments_BusinessId_CorrectsId\" ON public.\"Payments\" USING btree (\"BusinessId\", \"CorrectsId\")"
+    },
+    {
+      "table": "Payments",
+      "name": "IX_Payments_BusinessId_OccurredAtUtc_Id",
+      "definition": "CREATE INDEX \"IX_Payments_BusinessId_OccurredAtUtc_Id\" ON public.\"Payments\" USING btree (\"BusinessId\", \"OccurredAtUtc\", \"Id\")"
+    },
+    {
+      "table": "Payments",
+      "name": "IX_Payments_BusinessId_PaymentMethodId",
+      "definition": "CREATE INDEX \"IX_Payments_BusinessId_PaymentMethodId\" ON public.\"Payments\" USING btree (\"BusinessId\", \"PaymentMethodId\")"
+    },
+    {
+      "table": "Payments",
+      "name": "IX_Payments_BusinessId_RequestId",
+      "definition": "CREATE UNIQUE INDEX \"IX_Payments_BusinessId_RequestId\" ON public.\"Payments\" USING btree (\"BusinessId\", \"RequestId\")"
+    },
+    {
+      "table": "Payments",
+      "name": "IX_Payments_BusinessId_ReversesId",
+      "definition": "CREATE UNIQUE INDEX \"IX_Payments_BusinessId_ReversesId\" ON public.\"Payments\" USING btree (\"BusinessId\", \"ReversesId\") WHERE (\"ReversesId\" IS NOT NULL)"
+    },
+    {
+      "table": "Payments",
+      "name": "IX_Payments_BusinessId_WorkOrderId",
+      "definition": "CREATE INDEX \"IX_Payments_BusinessId_WorkOrderId\" ON public.\"Payments\" USING btree (\"BusinessId\", \"WorkOrderId\")"
+    },
+    {
+      "table": "Payments",
+      "name": "PK_Payments",
+      "definition": "CREATE UNIQUE INDEX \"PK_Payments\" ON public.\"Payments\" USING btree (\"Id\")"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "AK_RefreshTokens_DeviceSessionId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_RefreshTokens_DeviceSessionId_Id\" ON public.\"RefreshTokens\" USING btree (\"DeviceSessionId\", \"Id\")"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "IX_RefreshTokens_DeviceSessionId",
+      "definition": "CREATE UNIQUE INDEX \"IX_RefreshTokens_DeviceSessionId\" ON public.\"RefreshTokens\" USING btree (\"DeviceSessionId\") WHERE ((\"ConsumedAt\" IS NULL) AND (\"RevokedAt\" IS NULL))"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "IX_RefreshTokens_DeviceSessionId_ReplacedByTokenId",
+      "definition": "CREATE INDEX \"IX_RefreshTokens_DeviceSessionId_ReplacedByTokenId\" ON public.\"RefreshTokens\" USING btree (\"DeviceSessionId\", \"ReplacedByTokenId\")"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "IX_RefreshTokens_ReplacedByTokenId",
+      "definition": "CREATE UNIQUE INDEX \"IX_RefreshTokens_ReplacedByTokenId\" ON public.\"RefreshTokens\" USING btree (\"ReplacedByTokenId\") WHERE (\"ReplacedByTokenId\" IS NOT NULL)"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "IX_RefreshTokens_TokenHash",
+      "definition": "CREATE UNIQUE INDEX \"IX_RefreshTokens_TokenHash\" ON public.\"RefreshTokens\" USING btree (\"TokenHash\")"
+    },
+    {
+      "table": "RefreshTokens",
+      "name": "PK_RefreshTokens",
+      "definition": "CREATE UNIQUE INDEX \"PK_RefreshTokens\" ON public.\"RefreshTokens\" USING btree (\"Id\")"
+    },
+    {
+      "table": "SchedulingCreateReceipts",
+      "name": "IX_SchedulingCreateReceipts_BusinessId_AppointmentId",
+      "definition": "CREATE UNIQUE INDEX \"IX_SchedulingCreateReceipts_BusinessId_AppointmentId\" ON public.\"SchedulingCreateReceipts\" USING btree (\"BusinessId\", \"AppointmentId\")"
+    },
+    {
+      "table": "SchedulingCreateReceipts",
+      "name": "PK_SchedulingCreateReceipts",
+      "definition": "CREATE UNIQUE INDEX \"PK_SchedulingCreateReceipts\" ON public.\"SchedulingCreateReceipts\" USING btree (\"BusinessId\", \"ClientRequestId\")"
+    },
+    {
+      "table": "ServiceOfferings",
+      "name": "PK_ServiceOfferings",
+      "definition": "CREATE UNIQUE INDEX \"PK_ServiceOfferings\" ON public.\"ServiceOfferings\" USING btree (\"ServiceId\", \"Category\")"
+    },
+    {
+      "table": "ServiceSchedulingRequirements",
+      "name": "AK_ServiceSchedulingRequirements_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_ServiceSchedulingRequirements_BusinessId_Id\" ON public.\"ServiceSchedulingRequirements\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "ServiceSchedulingRequirements",
+      "name": "IX_ServiceSchedulingRequirements_BusinessId_ServiceId_Category",
+      "definition": "CREATE UNIQUE INDEX \"IX_ServiceSchedulingRequirements_BusinessId_ServiceId_Category\" ON public.\"ServiceSchedulingRequirements\" USING btree (\"BusinessId\", \"ServiceId\", \"Category\")"
+    },
+    {
+      "table": "ServiceSchedulingRequirements",
+      "name": "IX_ServiceSchedulingRequirements_BusinessId_WorkAreaId",
+      "definition": "CREATE INDEX \"IX_ServiceSchedulingRequirements_BusinessId_WorkAreaId\" ON public.\"ServiceSchedulingRequirements\" USING btree (\"BusinessId\", \"WorkAreaId\")"
+    },
+    {
+      "table": "ServiceSchedulingRequirements",
+      "name": "PK_ServiceSchedulingRequirements",
+      "definition": "CREATE UNIQUE INDEX \"PK_ServiceSchedulingRequirements\" ON public.\"ServiceSchedulingRequirements\" USING btree (\"Id\")"
+    },
+    {
+      "table": "ServiceStageTemplates",
+      "name": "AK_ServiceStageTemplates_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_ServiceStageTemplates_BusinessId_Id\" ON public.\"ServiceStageTemplates\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "ServiceStageTemplates",
+      "name": "IX_ServiceStageTemplates_BusinessId_ServiceId_Category_Sequence",
+      "definition": "CREATE UNIQUE INDEX \"IX_ServiceStageTemplates_BusinessId_ServiceId_Category_Sequence\" ON public.\"ServiceStageTemplates\" USING btree (\"BusinessId\", \"ServiceId\", \"Category\", \"Sequence\") WHERE (\"ArchivedAt\" IS NULL)"
+    },
+    {
+      "table": "ServiceStageTemplates",
+      "name": "IX_ServiceStageTemplates_BusinessId_WorkAreaId",
+      "definition": "CREATE INDEX \"IX_ServiceStageTemplates_BusinessId_WorkAreaId\" ON public.\"ServiceStageTemplates\" USING btree (\"BusinessId\", \"WorkAreaId\")"
+    },
+    {
+      "table": "ServiceStageTemplates",
+      "name": "PK_ServiceStageTemplates",
+      "definition": "CREATE UNIQUE INDEX \"PK_ServiceStageTemplates\" ON public.\"ServiceStageTemplates\" USING btree (\"Id\")"
+    },
+    {
+      "table": "Users",
+      "name": "IX_Users_NormalizedEmail",
+      "definition": "CREATE UNIQUE INDEX \"IX_Users_NormalizedEmail\" ON public.\"Users\" USING btree (\"NormalizedEmail\")"
+    },
+    {
+      "table": "Users",
+      "name": "PK_Users",
+      "definition": "CREATE UNIQUE INDEX \"PK_Users\" ON public.\"Users\" USING btree (\"Id\")"
+    },
+    {
+      "table": "WeeklyOpeningDays",
+      "name": "PK_WeeklyOpeningDays",
+      "definition": "CREATE UNIQUE INDEX \"PK_WeeklyOpeningDays\" ON public.\"WeeklyOpeningDays\" USING btree (\"BusinessId\", \"Day\")"
+    },
+    {
+      "table": "WorkAreas",
+      "name": "AK_WorkAreas_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_WorkAreas_BusinessId_Id\" ON public.\"WorkAreas\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "WorkAreas",
+      "name": "IX_WorkAreas_BusinessId_Name_Id",
+      "definition": "CREATE INDEX \"IX_WorkAreas_BusinessId_Name_Id\" ON public.\"WorkAreas\" USING btree (\"BusinessId\", \"Name\", \"Id\")"
+    },
+    {
+      "table": "WorkAreas",
+      "name": "PK_WorkAreas",
+      "definition": "CREATE UNIQUE INDEX \"PK_WorkAreas\" ON public.\"WorkAreas\" USING btree (\"Id\")"
+    },
+    {
+      "table": "WorkOrderEvents",
+      "name": "IX_WorkOrderEvents_ActorUserId",
+      "definition": "CREATE INDEX \"IX_WorkOrderEvents_ActorUserId\" ON public.\"WorkOrderEvents\" USING btree (\"ActorUserId\")"
+    },
+    {
+      "table": "WorkOrderEvents",
+      "name": "IX_WorkOrderEvents_BusinessId_RequestId",
+      "definition": "CREATE UNIQUE INDEX \"IX_WorkOrderEvents_BusinessId_RequestId\" ON public.\"WorkOrderEvents\" USING btree (\"BusinessId\", \"RequestId\")"
+    },
+    {
+      "table": "WorkOrderEvents",
+      "name": "IX_WorkOrderEvents_BusinessId_WorkOrderId",
+      "definition": "CREATE INDEX \"IX_WorkOrderEvents_BusinessId_WorkOrderId\" ON public.\"WorkOrderEvents\" USING btree (\"BusinessId\", \"WorkOrderId\")"
+    },
+    {
+      "table": "WorkOrderEvents",
+      "name": "IX_WorkOrderEvents_BusinessId_WorkOrderId_StageId",
+      "definition": "CREATE INDEX \"IX_WorkOrderEvents_BusinessId_WorkOrderId_StageId\" ON public.\"WorkOrderEvents\" USING btree (\"BusinessId\", \"WorkOrderId\", \"StageId\")"
+    },
+    {
+      "table": "WorkOrderEvents",
+      "name": "PK_WorkOrderEvents",
+      "definition": "CREATE UNIQUE INDEX \"PK_WorkOrderEvents\" ON public.\"WorkOrderEvents\" USING btree (\"Id\")"
+    },
+    {
+      "table": "WorkOrderStages",
+      "name": "AK_WorkOrderStages_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_WorkOrderStages_BusinessId_Id\" ON public.\"WorkOrderStages\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "WorkOrderStages",
+      "name": "AK_WorkOrderStages_BusinessId_WorkOrderId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_WorkOrderStages_BusinessId_WorkOrderId_Id\" ON public.\"WorkOrderStages\" USING btree (\"BusinessId\", \"WorkOrderId\", \"Id\")"
+    },
+    {
+      "table": "WorkOrderStages",
+      "name": "IX_WorkOrderStages_BusinessId_WorkAreaId",
+      "definition": "CREATE INDEX \"IX_WorkOrderStages_BusinessId_WorkAreaId\" ON public.\"WorkOrderStages\" USING btree (\"BusinessId\", \"WorkAreaId\")"
+    },
+    {
+      "table": "WorkOrderStages",
+      "name": "IX_WorkOrderStages_BusinessId_WorkOrderId",
+      "definition": "CREATE UNIQUE INDEX \"IX_WorkOrderStages_BusinessId_WorkOrderId\" ON public.\"WorkOrderStages\" USING btree (\"BusinessId\", \"WorkOrderId\") WHERE (\"Status\" = ANY (ARRAY[3, 4]))"
+    },
+    {
+      "table": "WorkOrderStages",
+      "name": "IX_WorkOrderStages_BusinessId_WorkOrderId_Sequence",
+      "definition": "CREATE UNIQUE INDEX \"IX_WorkOrderStages_BusinessId_WorkOrderId_Sequence\" ON public.\"WorkOrderStages\" USING btree (\"BusinessId\", \"WorkOrderId\", \"Sequence\")"
+    },
+    {
+      "table": "WorkOrderStages",
+      "name": "PK_WorkOrderStages",
+      "definition": "CREATE UNIQUE INDEX \"PK_WorkOrderStages\" ON public.\"WorkOrderStages\" USING btree (\"Id\")"
+    },
+    {
+      "table": "WorkOrders",
+      "name": "AK_WorkOrders_BusinessId_Id",
+      "definition": "CREATE UNIQUE INDEX \"AK_WorkOrders_BusinessId_Id\" ON public.\"WorkOrders\" USING btree (\"BusinessId\", \"Id\")"
+    },
+    {
+      "table": "WorkOrders",
+      "name": "IX_WorkOrders_BusinessId_AppointmentId",
+      "definition": "CREATE UNIQUE INDEX \"IX_WorkOrders_BusinessId_AppointmentId\" ON public.\"WorkOrders\" USING btree (\"BusinessId\", \"AppointmentId\") WHERE (\"CancelledAtUtc\" IS NULL)"
+    },
+    {
+      "table": "WorkOrders",
+      "name": "PK_WorkOrders",
+      "definition": "CREATE UNIQUE INDEX \"PK_WorkOrders\" ON public.\"WorkOrders\" USING btree (\"Id\")"
+    },
+    {
+      "table": "WorkStageAssignments",
+      "name": "IX_WorkStageAssignments_BusinessId_EmployeeMembershipId_StageId",
+      "definition": "CREATE INDEX \"IX_WorkStageAssignments_BusinessId_EmployeeMembershipId_StageId\" ON public.\"WorkStageAssignments\" USING btree (\"BusinessId\", \"EmployeeMembershipId\", \"StageId\")"
+    },
+    {
+      "table": "WorkStageAssignments",
+      "name": "PK_WorkStageAssignments",
+      "definition": "CREATE UNIQUE INDEX \"PK_WorkStageAssignments\" ON public.\"WorkStageAssignments\" USING btree (\"BusinessId\", \"StageId\", \"EmployeeMembershipId\")"
+    },
+    {
+      "table": "__EFMigrationsHistory",
+      "name": "PK___EFMigrationsHistory",
+      "definition": "CREATE UNIQUE INDEX \"PK___EFMigrationsHistory\" ON public.\"__EFMigrationsHistory\" USING btree (\"MigrationId\")"
+    }
+  ],
+  "triggers": [
+    {
+      "table": "AppointmentEvents",
+      "definition": "CREATE TRIGGER scheduling_event_immutable BEFORE DELETE OR UPDATE ON public.\"AppointmentEvents\" FOR EACH ROW EXECUTE FUNCTION washflow_scheduling_immutable()"
+    },
+    {
+      "table": "AppointmentResourceReservations",
+      "definition": "CREATE TRIGGER scheduling_reservation_history BEFORE DELETE OR UPDATE ON public.\"AppointmentResourceReservations\" FOR EACH ROW EXECUTE FUNCTION washflow_reservation_history()"
+    },
+    {
+      "table": "AppointmentStages",
+      "definition": "CREATE TRIGGER appointment_stage_immutable BEFORE DELETE OR UPDATE ON public.\"AppointmentStages\" FOR EACH ROW EXECUTE FUNCTION washflow_scheduling_immutable()"
+    },
+    {
+      "table": "Appointments",
+      "definition": "CREATE TRIGGER scheduling_snapshot_immutable BEFORE UPDATE ON public.\"Appointments\" FOR EACH ROW EXECUTE FUNCTION washflow_appointment_snapshot()"
+    },
+    {
+      "table": "Expenses",
+      "definition": "CREATE TRIGGER finance_expenses_immutable BEFORE INSERT OR DELETE OR UPDATE ON public.\"Expenses\" FOR EACH ROW EXECUTE FUNCTION washflow_finance_append_only()"
+    },
+    {
+      "table": "ManualIncomes",
+      "definition": "CREATE TRIGGER finance_manual_income_immutable BEFORE INSERT OR DELETE OR UPDATE ON public.\"ManualIncomes\" FOR EACH ROW EXECUTE FUNCTION washflow_finance_append_only()"
+    },
+    {
+      "table": "Payments",
+      "definition": "CREATE TRIGGER finance_payments_immutable BEFORE INSERT OR DELETE OR UPDATE ON public.\"Payments\" FOR EACH ROW EXECUTE FUNCTION washflow_finance_append_only()"
+    },
+    {
+      "table": "SchedulingCreateReceipts",
+      "definition": "CREATE TRIGGER scheduling_receipt_immutable BEFORE DELETE OR UPDATE ON public.\"SchedulingCreateReceipts\" FOR EACH ROW EXECUTE FUNCTION washflow_scheduling_immutable()"
+    },
+    {
+      "table": "WorkOrderEvents",
+      "definition": "CREATE TRIGGER work_order_event_immutable BEFORE DELETE OR UPDATE ON public.\"WorkOrderEvents\" FOR EACH ROW EXECUTE FUNCTION washflow_scheduling_immutable()"
+    },
+    {
+      "table": "WorkOrders",
+      "definition": "CREATE TRIGGER work_order_identity_immutable BEFORE UPDATE ON public.\"WorkOrders\" FOR EACH ROW EXECUTE FUNCTION washflow_work_order_identity()"
+    }
+  ],
+  "migrations": [
+    "20261021123220_InitialIdentityAndTenancy",
+    "20261021135215_EmailVerificationIssuanceIndexes",
+    "20261023112302_EmployeeInvitationLifecycle",
+    "20261027071455_BusinessProfileAndWeeklyHours",
+    "20261027074840_CustomerAndVehicleOwnership",
+    "20261027083159_ServiceCatalogAndOfferings",
+    "20261027125056_SchedulingPersistencePhase9B",
+    "20261125082321_WorkOrderExecution",
+    "20261125090139_OrderedStageScheduling",
+    "20261125130449_CustomerSelfServiceBooking",
+    "20261125132208_OwnerFinancialLedger"
+  ]
+}
