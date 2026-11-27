@@ -81,6 +81,18 @@ void main() {
       );
     },
   );
+  test('owner agenda accepts customer bookings without tenant-local links', () {
+    final row = Appointment.fromJson({
+      ...appointmentJson(),
+      'source': 'Customer',
+      'localCustomerId': null,
+      'localVehicleId': null,
+    });
+    expect(row.source, 'Customer');
+    expect(row.localCustomerId, isNull);
+    expect(row.localVehicleId, isNull);
+    expect(row.vehiclePlate, appointmentJson()['vehiclePlate']);
+  });
   test('invalid enums, unsafe numbers and offsetless instants fail closed', () {
     for (final patch in [
       {'status': 'Working'},

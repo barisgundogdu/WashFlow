@@ -21,7 +21,7 @@
 Existing project: https://github.com/users/barisgundogdu/projects/1 . Read-only public browser; Projects mutation unavailable.
 
 1. Move #4 TODO → DOING now (existing DOING #2/#3 leaves exactly three cards, matching visible WIP limit).
-2. #6 execution work is now active locally. Before moving #6 TODO → DOING, respect the board WIP limit of three: #2/#3/#4 currently occupy those slots; review inactive umbrella cards rather than silently raising the limit. Keep #7/#10/#11 TODO until work actually starts. Do not mark broad #4 DONE for the owner-only P0 increment.
+2. #6 execution work is now active locally. Before moving #6 TODO → DOING, respect the board WIP limit of three: #2/#3/#4 currently occupy those slots; review inactive umbrella cards rather than silently raising the limit. Customer #10/#11 is now active; #7 follows after customer validation. Do not mark broad #4 DONE for the owner-only P0 increment.
 3. Review merged PR #13 + latest hosted CI against #12 before moving DONE/closing; review PR #15 and committed ERD against #14 before DONE/closing.
 4. #1/#9 remain DONE/closed. No unrelated issue closure.
 5. When starting P1, resolve WIP capacity explicitly and attach reviewed technical scope/testing requirements to existing #6/#11/#7; avoid mass-editing original acceptance criteria.
@@ -38,7 +38,10 @@ Existing project: https://github.com/users/barisgundogdu/projects/1 . Read-only 
 Issue descriptions #4, #6 and #11 were updated on 25 November 2026 to preserve the original acceptance criteria while adding P0 verification scope and explicit customer/overrun policies. All remain open. No Kanban mutation occurred; #4 → DOING remains the exact pending update. No milestone exists in the repository. Available labels were inventoried; no new label was created or blindly assigned.
 
 
-Employee execution core verified in local commit `40d4c9c` (422 backend/348 Flutter passed). Ordered per-stage resource allocation is being finalized on `codex/staged-scheduling`; its full acceptance and latest test evidence are tracked separately. Customer booking and finance have not started implementation yet. Both available browser surfaces are signed out, confirming the Kanban write limitation.
+Employee execution core verified in local commit `40d4c9c` (422 backend/348 Flutter passed). Ordered per-stage resource allocation is being finalized on `codex/staged-scheduling`; its full acceptance and latest test evidence are tracked separately. Customer booking is now implemented and verified in its focused increment; finance follows after publishing its PR. Both available browser surfaces are signed out, confirming the Kanban write limitation.
 
 
 Ordered area/staff scheduling and employee execution are now verified together: 429 backend / 351 Flutter tests passed; analysis clean. The approved one-booked-service/multiple-ordered-stages flow is working in source and API/widget tests. Keep broad #4/#6 open while customer history, final live rehearsal and GitHub publication are pending. Next implementation: #11 customer self-service on the same scheduling engine, with approved 120-minute cancellation/rescheduling default.
+
+
+Customer self-service is implemented on `codex/customer-self-service`; see CUSTOMER_BOOKING_INCREMENT.md. Backend 436 passed with no skips; Flutter final verification is recorded in TEST_MATRIX.md. PRs #17/#18/#19 were rechecked: push and PR CI succeeded on their exact recorded heads, all remain open/unmerged. No existing work or demo data reset. Customer #11/#10 should reflect DOING pending final rehearsal; do not close broad issues from automated evidence alone.

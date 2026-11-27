@@ -35,6 +35,10 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
+                    b.Property<int>("CancellationRescheduleCutoffMinutes")
+                        .HasColumnType("integer")
+                        .HasDefaultValue(120);
+
                     b.Property<string>("City")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -95,6 +99,8 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Businesses", null, t =>
                         {
+                            t.HasCheckConstraint("CK_Businesses_BookingCutoff", "\"CancellationRescheduleCutoffMinutes\" >= 0");
+
                             t.HasCheckConstraint("CK_Businesses_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
 
                             t.HasCheckConstraint("CK_Businesses_Name", "length(btrim(\"Name\")) > 0");
@@ -1019,17 +1025,25 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("CustomerName");
 
+                    b.Property<Guid?>("CustomerProfileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CustomerProfileId");
+
                     b.Property<int>("Employees")
                         .HasColumnType("integer")
                         .HasColumnName("Employees");
 
-                    b.Property<Guid>("LocalCustomerId")
+                    b.Property<Guid?>("LocalCustomerId")
                         .HasColumnType("uuid")
                         .HasColumnName("LocalCustomerId");
 
-                    b.Property<Guid>("LocalVehicleId")
+                    b.Property<Guid?>("LocalVehicleId")
                         .HasColumnType("uuid")
                         .HasColumnName("LocalVehicleId");
+
+                    b.Property<Guid?>("OwnedVehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("OwnedVehicleId");
 
                     b.Property<decimal>("Price")
                         .HasPrecision(9, 2)
@@ -1105,11 +1119,15 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("BusinessId", "WorkAreaId");
 
+                    b.HasIndex("CustomerProfileId", "OwnedVehicleId");
+
                     b.HasIndex("BusinessId", "LocalCustomerId", "LocalVehicleId");
 
                     b.HasIndex("BusinessId", "StartsAtUtc", "Id");
 
                     b.HasIndex("BusinessId", "Status", "StartsAtUtc");
+
+                    b.HasIndex("CustomerProfileId", "StartsAtUtc", "Id");
 
                     b.ToTable("Appointments", null, t =>
                         {
@@ -1131,7 +1149,7 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
 
                             t.HasCheckConstraint("CK_Appointments_Snapshot", "\"Price\" BETWEEN 0 AND 9999999.99 AND \"Currency\" = 'TRY' AND \"ActiveMinutes\" BETWEEN 1 AND 10080 AND (\"WaitingMinutes\" IS NULL OR \"WaitingMinutes\" BETWEEN 0 AND 43200) AND \"Employees\" BETWEEN 1 AND 100 AND \"ActiveEndsAtUtc\" = \"StartsAtUtc\" + \"ActiveMinutes\" * interval '1 minute'");
 
-                            t.HasCheckConstraint("CK_Appointments_State", "\"Status\" IN (1,2) AND \"Source\" = 1");
+                            t.HasCheckConstraint("CK_Appointments_State", "\"Status\" IN (1,2) AND ((\"Source\" = 1 AND \"LocalCustomerId\" IS NOT NULL AND \"LocalVehicleId\" IS NOT NULL AND \"CustomerProfileId\" IS NULL AND \"OwnedVehicleId\" IS NULL) OR (\"Source\" = 2 AND \"LocalCustomerId\" IS NULL AND \"LocalVehicleId\" IS NULL AND \"CustomerProfileId\" IS NOT NULL AND \"OwnedVehicleId\" IS NOT NULL))");
 
                             t.HasCheckConstraint("CK_Appointments_TimeZoneIdSnapshot", "length(btrim(\"TimeZoneIdSnapshot\")) > 0");
 
@@ -1646,7 +1664,8 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
-                    b.Property<DateTimeOffset?>("PlannedStartUtc").HasColumnType("timestamp with time zone");
+                    b.Property<DateTimeOffset?>("PlannedStartUtc")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -1775,7 +1794,9 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("BusinessId", "WorkAreaId");
 
-                    b.HasIndex("BusinessId", "WorkOrderId").IsUnique().HasFilter("\"Status\" IN (3,4)");
+                    b.HasIndex("BusinessId", "WorkOrderId")
+                        .IsUnique()
+                        .HasFilter("\"Status\" IN (3,4)");
 
                     b.HasIndex("BusinessId", "WorkOrderId", "Sequence")
                         .IsUnique();
@@ -1999,12 +2020,16 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("WashFlow.Domain.Customers.CustomerProfile", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerProfileId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("WashFlow.Domain.Customers.LocalCustomer", null)
                         .WithMany()
                         .HasForeignKey("BusinessId", "LocalCustomerId")
                         .HasPrincipalKey("BusinessId", "Id")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("WashFlow.Domain.Catalog.BusinessService", null)
                         .WithMany()
@@ -2020,12 +2045,17 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("WashFlow.Domain.Customers.OwnedVehicle", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerProfileId", "OwnedVehicleId")
+                        .HasPrincipalKey("CustomerProfileId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("WashFlow.Domain.Customers.LocalVehicle", null)
                         .WithMany()
                         .HasForeignKey("BusinessId", "LocalCustomerId", "LocalVehicleId")
                         .HasPrincipalKey("BusinessId", "LocalCustomerId", "Id")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("WashFlow.Domain.Scheduling.AppointmentEvent", b =>

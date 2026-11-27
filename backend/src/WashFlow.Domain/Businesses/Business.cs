@@ -18,6 +18,7 @@ public sealed class Business : IEntity
     public string? Description { get; set; }
     public string? TimeZoneId { get; set; }
     public bool HoursConfigured { get; set; }
+    public int CancellationRescheduleCutoffMinutes { get; set; } = 120;
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

@@ -44,7 +44,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Müşteri alanı'), findsOneWidget);
     expect(
-      find.text('Randevu işlemleri henüz kullanıma açık değil.'),
+      find.text('Müşteri alanı'),
       findsOneWidget,
     );
   });

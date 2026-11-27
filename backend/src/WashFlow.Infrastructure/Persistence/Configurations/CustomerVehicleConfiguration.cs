@@ -48,6 +48,7 @@ public sealed class OwnedVehicleConfiguration : IEntityTypeConfiguration<OwnedVe
     public void Configure(EntityTypeBuilder<OwnedVehicle> b)
     {
         b.ConfigureEntity("OwnedVehicles");
+        b.HasAlternateKey(x=>new{x.CustomerProfileId,x.Id});
         b.HasOne<CustomerProfile>().WithMany().HasForeignKey(x => x.CustomerProfileId).OnDelete(DeleteBehavior.Restrict);
         b.HasIndex(x => new { x.CustomerProfileId, x.NormalizedPlate, x.Id });
         b.NonBlank("OwnedVehicles", nameof(OwnedVehicle.Plate), 32);

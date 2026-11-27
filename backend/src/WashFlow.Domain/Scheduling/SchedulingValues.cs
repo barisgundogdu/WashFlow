@@ -3,8 +3,8 @@ using System.Text;
 namespace WashFlow.Domain.Scheduling;
 
 public enum AppointmentStatus { Confirmed = 1, Cancelled = 2 }
-// Only explicitly approved sources are accepted. Customer and walk-in flows are deferred.
-public enum BookingSource { OwnerPhone = 1 }
+// Explicitly supported booking sources share the same calendar and capacity engine.
+public enum BookingSource { OwnerPhone = 1, Customer = 2 }
 public enum AppointmentEventKind { Created = 1, Rescheduled = 2, Cancelled = 3 }
 
 /// <summary>UTC, minute-precision, half-open interval. Validate also rejects default(Occupancy).</summary>

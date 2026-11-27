@@ -5,60 +5,63 @@ using WashFlow.Domain.WorkOrders;
 using WashFlow.Infrastructure.Persistence;
 namespace WashFlow.Infrastructure.Scheduling;
 
-/// <summary>Caller must hold the business lock. Combines planned reservations with actual running work,
-/// counting each appointment once per area even where its planned and actual intervals overlap.</summary>
+/// <summary>Authoritative writers hold the business lock. Read-only slot suggestions may reuse one
+/// snapshot; booking always reloads it under that lock. No employee data leaves this boundary.</summary>
 internal static class ResourceCapacity
 {
-    public static async Task<bool> Available(WashFlowDbContext db, Guid business, WorkArea area, Occupancy interval,
-        Guid[] employees, Guid? excluding, DateTimeOffset now, CancellationToken ct)
-    { var result = await Check(db,business,area,interval,employees,excluding,now,ct); return result.Area && result.Eligible.Length == employees.Length; }
-    public static async Task<Guid[]?> Choose(WashFlowDbContext db, Guid business, WorkArea area, Occupancy interval,
-        Guid[] candidates, int required, Guid? excluding, DateTimeOffset now, CancellationToken ct)
-    { var result = await Check(db,business,area,interval,candidates,excluding,now,ct); return result.Area && result.Eligible.Length >= required ? result.Eligible.Take(required).ToArray() : null; }
-    private static async Task<(bool Area, Guid[] Eligible)> Check(WashFlowDbContext db, Guid business, WorkArea area, Occupancy interval,
-        Guid[] employees, Guid? excluding, DateTimeOffset now, CancellationToken ct)
+    internal sealed record ActualUse(Guid Appointment,Guid Area,Guid[] Employees,Occupancy Interval);
+    internal sealed class Snapshot(IReadOnlyList<AppointmentResourceReservation> reservations,IReadOnlyList<EmployeeAvailability> windows,IReadOnlyList<ActualUse> actual)
     {
-        var reservations = await db.AppointmentResourceReservations.AsNoTracking().Where(x => x.BusinessId == business && x.ReleasedAt == null && x.AppointmentId != excluding &&
-            x.StartsAtUtc < interval.End && interval.Start < x.EndsAtUtc && (x.WorkAreaId == area.Id || (x.EmployeeMembershipId != null && employees.Contains(x.EmployeeMembershipId.Value)))).ToListAsync(ct);
-        var stages = await db.WorkOrderStages.AsNoTracking().Where(x => x.BusinessId == business && (x.Status == WorkStageStatus.InProgress || x.Status == WorkStageStatus.Paused))
-            .Include(x => x.Assignments).ToListAsync(ct);
-        var orderIds = stages.Select(x => x.WorkOrderId).ToArray();
-        var running = await (from order in db.WorkOrders.AsNoTracking() join appointment in db.Appointments.AsNoTracking()
-            on new { order.BusinessId, Id = order.AppointmentId } equals new { appointment.BusinessId, appointment.Id }
-            where order.BusinessId == business && orderIds.Contains(order.Id) && appointment.Id != excluding
-            select new { OrderId = order.Id, AppointmentId = appointment.Id, appointment.WorkAreaId }).ToListAsync(ct);
-        var actual = new List<(Guid Appointment, Guid Area, Guid[] Employees, Occupancy Interval)>();
-        foreach (var row in running)
+        public Guid[]? Choose(WorkArea area,Occupancy interval,Guid[] candidates,int required,Guid? excluding)
         {
-            var stage = stages.Single(x => x.WorkOrderId == row.OrderId);
-            var from = stage.StartedAtUtc!.Value;
-            // Paused work still occupies its resources. An overdue stage never becomes available at estimate zero.
-            var expected = from.AddMinutes(stage.EstimatedMinutes).AddMilliseconds(stage.PausedMilliseconds);
-            if (stage.PausedAtUtc is { } paused) expected += now - paused;
-            var until = expected > now ? expected : now.AddMinutes(1);
-            var start = new DateTimeOffset(from.UtcTicks - from.UtcTicks % TimeSpan.TicksPerMinute, TimeSpan.Zero);
-            var endTicks = until.UtcTicks;
-            if (endTicks % TimeSpan.TicksPerMinute != 0) endTicks += TimeSpan.TicksPerMinute - endTicks % TimeSpan.TicksPerMinute;
-            var occupied = new Occupancy(start, new(endTicks, TimeSpan.Zero));
-            if (SchedulingRules.Overlaps(occupied, interval)) actual.Add((row.AppointmentId, stage.WorkAreaId ?? row.WorkAreaId, stage.Assignments.Select(x => x.EmployeeMembershipId).ToArray(), occupied));
+            var busy=reservations.Where(x=>x.AppointmentId!=excluding&&x.StartsAtUtc<interval.End&&interval.Start<x.EndsAtUtc).ToArray();
+            var running=actual.Where(x=>x.Appointment!=excluding&&SchedulingRules.Overlaps(x.Interval,interval)).ToArray();
+            var areaUses=busy.Where(x=>x.WorkAreaId==area.Id).Select(x=>(Appointment:x.AppointmentId,Interval:new Occupancy(x.StartsAtUtc,x.EndsAtUtc)))
+                .Concat(running.Where(x=>x.Area==area.Id).Select(x=>(x.Appointment,x.Interval))).GroupBy(x=>x.Appointment).SelectMany(g=>Merge(g.Select(x=>x.Interval)));
+            if(!SchedulingRules.HasCapacity(areaUses,interval,area.Capacity))return null;
+            var eligible=candidates.Where(e=>SchedulingRules.EmployeeAvailable(windows.Where(w=>w.MembershipId==e).Select(w=>new Occupancy(w.StartsAtUtc,w.EndsAtUtc)),
+                busy.Where(x=>x.EmployeeMembershipId==e).Select(x=>new Occupancy(x.StartsAtUtc,x.EndsAtUtc)).Concat(running.Where(x=>x.Employees.Contains(e)).Select(x=>x.Interval)),interval)).Take(required).ToArray();
+            return eligible.Length==required?eligible:null;
         }
-        var areaUses = reservations.Where(x => x.WorkAreaId == area.Id).Select(x => (Appointment: x.AppointmentId, Interval: new Occupancy(x.StartsAtUtc, x.EndsAtUtc)))
-            .Concat(actual.Where(x => x.Area == area.Id).Select(x => (x.Appointment, x.Interval)))
-            .GroupBy(x => x.Appointment).SelectMany(g => Merge(g.Select(x => x.Interval)));
-        if (!SchedulingRules.HasCapacity(areaUses, interval, area.Capacity)) return (false, []);
-        var windows = await db.EmployeeAvailabilities.AsNoTracking().Where(x => x.BusinessId == business && x.ArchivedAt == null && employees.Contains(x.MembershipId) && x.StartsAtUtc < interval.End && interval.Start < x.EndsAtUtc).ToListAsync(ct);
-        return (true, employees.Where(e => SchedulingRules.EmployeeAvailable(windows.Where(x => x.MembershipId == e).Select(x => new Occupancy(x.StartsAtUtc, x.EndsAtUtc)),
-            reservations.Where(x => x.EmployeeMembershipId == e).Select(x => new Occupancy(x.StartsAtUtc, x.EndsAtUtc)).Concat(actual.Where(x => x.Employees.Contains(e)).Select(x => x.Interval)), interval)).ToArray());
+        public bool Available(WorkArea area,Occupancy interval,Guid[] employees,Guid? excluding)=>Choose(area,interval,employees,employees.Length,excluding)!=null;
     }
+    public static async Task<Snapshot> Load(WashFlowDbContext db,Guid business,DateTimeOffset from,DateTimeOffset to,Guid[] employees,DateTimeOffset now,CancellationToken ct)
+    {
+        var reservations=await db.AppointmentResourceReservations.AsNoTracking().Where(x=>x.BusinessId==business&&x.ReleasedAt==null&&x.StartsAtUtc<to&&from<x.EndsAtUtc).ToListAsync(ct);
+        var stages=await db.WorkOrderStages.AsNoTracking().Where(x=>x.BusinessId==business&&(x.Status==WorkStageStatus.InProgress||x.Status==WorkStageStatus.Paused)).Include(x=>x.Assignments).ToListAsync(ct);
+        var orderIds=stages.Select(x=>x.WorkOrderId).ToArray();
+        var running=await(from order in db.WorkOrders.AsNoTracking() join appointment in db.Appointments.AsNoTracking()
+            on new{order.BusinessId,Id=order.AppointmentId} equals new{appointment.BusinessId,appointment.Id}
+            where order.BusinessId==business&&orderIds.Contains(order.Id)
+            select new{OrderId=order.Id,AppointmentId=appointment.Id,appointment.WorkAreaId}).ToListAsync(ct);
+        var actual=new List<ActualUse>();
+        foreach(var row in running)
+        {
+            var stage=stages.Single(x=>x.WorkOrderId==row.OrderId);var start=stage.StartedAtUtc!.Value;
+            var expected=start.AddMinutes(stage.EstimatedMinutes).AddMilliseconds(stage.PausedMilliseconds);
+            if(stage.PausedAtUtc is{}paused)expected+=now-paused;
+            var until=expected>now?expected:now.AddMinutes(1);
+            var startMinute=new DateTimeOffset(start.UtcTicks-start.UtcTicks%TimeSpan.TicksPerMinute,TimeSpan.Zero);
+            var ticks=until.UtcTicks;if(ticks%TimeSpan.TicksPerMinute!=0)ticks+=TimeSpan.TicksPerMinute-ticks%TimeSpan.TicksPerMinute;
+            var occupied=new Occupancy(startMinute,new(ticks,TimeSpan.Zero));
+            if(occupied.Start<to&&from<occupied.End)actual.Add(new(row.AppointmentId,stage.WorkAreaId??row.WorkAreaId,stage.Assignments.Select(x=>x.EmployeeMembershipId).ToArray(),occupied));
+        }
+        var windows=await db.EmployeeAvailabilities.AsNoTracking().Where(x=>x.BusinessId==business&&x.ArchivedAt==null&&employees.Contains(x.MembershipId)&&x.StartsAtUtc<to&&from<x.EndsAtUtc).ToListAsync(ct);
+        return new(reservations,windows,actual);
+    }
+    public static async Task<bool> Available(WashFlowDbContext db,Guid business,WorkArea area,Occupancy interval,Guid[] employees,Guid? excluding,DateTimeOffset now,CancellationToken ct)=>
+        (await Load(db,business,interval.Start,interval.End,employees,now,ct)).Available(area,interval,employees,excluding);
+    public static async Task<Guid[]?> Choose(WashFlowDbContext db,Guid business,WorkArea area,Occupancy interval,Guid[] candidates,int required,Guid? excluding,DateTimeOffset now,CancellationToken ct)=>
+        (await Load(db,business,interval.Start,interval.End,candidates,now,ct)).Choose(area,interval,candidates,required,excluding);
     private static IEnumerable<Occupancy> Merge(IEnumerable<Occupancy> source)
     {
-        Occupancy? current = null;
-        foreach (var item in source.OrderBy(x => x.Start))
+        Occupancy? current=null;
+        foreach(var item in source.OrderBy(x=>x.Start))
         {
-            if (current is not { } previous) current = item;
-            else if (item.Start <= previous.End) current = new(previous.Start, item.End > previous.End ? item.End : previous.End);
-            else { yield return previous; current = item; }
+            if(current is not{}previous)current=item;
+            else if(item.Start<=previous.End)current=new(previous.Start,item.End>previous.End?item.End:previous.End);
+            else{yield return previous;current=item;}
         }
-        if (current is { } last) yield return last;
+        if(current is{}last)yield return last;
     }
 }

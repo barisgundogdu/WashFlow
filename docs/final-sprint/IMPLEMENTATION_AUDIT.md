@@ -86,3 +86,8 @@ The ordered-stage continuation adds independently configured areas/staff and imm
 
 
 Ordered-stage final evidence: 429 backend and 351 Flutter passed, no failures/skips; Flutter analysis and whitespace check clean. Migration 9 preserves existing rows and stage histories, with downgrade guards. Employee-stage functionality is ready for the next customer-booking increment; demo deployment is still explicitly unapproved.
+
+
+## Customer booking checkpoint — 25 November 2026
+
+Customer self-service now uses the existing calendar and shared resource allocator, with profile-owned vehicles, safe public discovery, server-selected employees, two-hour default policy, own history and connected Turkish Flutter screens. See CUSTOMER_BOOKING_INCREMENT.md for migration 10 and verification. Existing demo schema remains untouched. PR #17/#18/#19 push and PR workflows were rechecked successful; no PR merged. The initial untracked `.DS_Store` remains preserved.

@@ -11,6 +11,8 @@ public sealed class BusinessConfiguration : IEntityTypeConfiguration<Business>
     public void Configure(EntityTypeBuilder<Business> builder)
     {
         builder.ConfigureEntity("Businesses");
+        builder.Property(x=>x.CancellationRescheduleCutoffMinutes).HasDefaultValue(120).ValueGeneratedNever();
+        builder.ToTable("Businesses",t=>t.HasCheckConstraint("CK_Businesses_BookingCutoff","\"CancellationRescheduleCutoffMinutes\" >= 0"));
         builder.NonBlank("Businesses", nameof(Business.Name), 200);
         builder.Property(x => x.Phone).HasMaxLength(40);
         builder.Property(x => x.ContactEmail).HasMaxLength(320);
