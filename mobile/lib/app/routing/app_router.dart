@@ -1,3 +1,4 @@
+import '../../features/finance/finance.dart';
 import '../../features/customer_booking/customer_booking.dart';
 import '../../features/work_orders/work_orders.dart';
 import '../../features/scheduling/domain/scheduling.dart';
@@ -43,6 +44,7 @@ abstract final class AppRouter {
     SchedulingService? schedulingService,
     WorkOrderService? workOrderService,
     CustomerBookingService? customerBookingService,
+    FinanceService? financeService,
     AuthSubmission submission = const UnavailableAuthSubmission(),
   }) {
     return MaterialPageRoute<void>(
@@ -77,6 +79,7 @@ abstract final class AppRouter {
           schedulingService: schedulingService,
           workOrderService: workOrderService,
           customerBookingService: customerBookingService,
+          financeService: financeService,
           redemptionEnabled: redemptionService != null,
         ),
         welcome => WelcomeScreen(redemptionEnabled: redemptionService != null),

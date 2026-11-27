@@ -653,6 +653,356 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("WashFlow.Domain.Finance.Expense", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("CorrectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("CorrectsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Guid?>("EmployeeMembershipId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ReversesId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("BusinessId", "CorrectsId");
+
+                    b.HasIndex("BusinessId", "EmployeeMembershipId");
+
+                    b.HasIndex("BusinessId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("BusinessId", "ReversesId")
+                        .IsUnique()
+                        .HasFilter("\"ReversesId\" IS NOT NULL");
+
+                    b.HasIndex("BusinessId", "OccurredAtUtc", "Id");
+
+                    b.ToTable("Expenses", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Expenses_Category", "length(btrim(\"Category\")) > 0");
+
+                            t.HasCheckConstraint("CK_Expenses_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_Expenses_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+
+                            t.HasCheckConstraint("CK_Expenses_Values", "\"Amount\" BETWEEN 0.01 AND 9999999.99 AND \"Currency\" = 'TRY' AND \"RequestHash\" ~ '^[0-9a-f]{64}$' AND \"RequestId\" <> '00000000-0000-0000-0000-000000000000'::uuid AND ((\"ReversesId\" IS NULL AND \"CorrectionReason\" IS NULL) OR (\"ReversesId\" IS NOT NULL AND \"ReversesId\" <> \"Id\" AND length(btrim(\"CorrectionReason\")) > 0))");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Finance.ManualIncome", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("CorrectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("CorrectsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PaymentMethodId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PaymentMethodName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ReversesId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("BusinessId", "CorrectsId");
+
+                    b.HasIndex("BusinessId", "PaymentMethodId");
+
+                    b.HasIndex("BusinessId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("BusinessId", "ReversesId")
+                        .IsUnique()
+                        .HasFilter("\"ReversesId\" IS NOT NULL");
+
+                    b.HasIndex("BusinessId", "OccurredAtUtc", "Id");
+
+                    b.ToTable("ManualIncomes", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ManualIncomes_Category", "length(btrim(\"Category\")) > 0");
+
+                            t.HasCheckConstraint("CK_ManualIncomes_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_ManualIncomes_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+
+                            t.HasCheckConstraint("CK_ManualIncomes_Values", "\"Amount\" BETWEEN 0.01 AND 9999999.99 AND \"Currency\" = 'TRY' AND \"RequestHash\" ~ '^[0-9a-f]{64}$' AND \"RequestId\" <> '00000000-0000-0000-0000-000000000000'::uuid AND ((\"ReversesId\" IS NULL AND \"CorrectionReason\" IS NULL) OR (\"ReversesId\" IS NOT NULL AND \"ReversesId\" <> \"Id\" AND length(btrim(\"CorrectionReason\")) > 0))");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Finance.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CorrectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("CorrectsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PaymentMethodId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PaymentMethodName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ReversesId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("WorkOrderId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("BusinessId", "CorrectsId");
+
+                    b.HasIndex("BusinessId", "PaymentMethodId");
+
+                    b.HasIndex("BusinessId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("BusinessId", "ReversesId")
+                        .IsUnique()
+                        .HasFilter("\"ReversesId\" IS NOT NULL");
+
+                    b.HasIndex("BusinessId", "WorkOrderId");
+
+                    b.HasIndex("BusinessId", "OccurredAtUtc", "Id");
+
+                    b.ToTable("Payments", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Payments_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_Payments_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+
+                            t.HasCheckConstraint("CK_Payments_Values", "\"Amount\" BETWEEN 0.01 AND 9999999.99 AND \"Currency\" = 'TRY' AND \"RequestHash\" ~ '^[0-9a-f]{64}$' AND \"RequestId\" <> '00000000-0000-0000-0000-000000000000'::uuid AND ((\"ReversesId\" IS NULL AND \"CorrectionReason\" IS NULL) OR (\"ReversesId\" IS NOT NULL AND \"ReversesId\" <> \"Id\" AND length(btrim(\"CorrectionReason\")) > 0))");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Finance.PaymentMethod", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ArchivedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("BusinessId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("PaymentMethods", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_PaymentMethods_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_PaymentMethods_Name", "length(btrim(\"Name\")) > 0");
+
+                            t.HasCheckConstraint("CK_PaymentMethods_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+                        });
+                });
+
             modelBuilder.Entity("WashFlow.Domain.Identity.DeviceSession", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1960,6 +2310,129 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                     b.HasOne("WashFlow.Domain.Customers.CustomerProfile", null)
                         .WithMany()
                         .HasForeignKey("CustomerProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Finance.Expense", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Finance.Expense", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "CorrectsId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WashFlow.Domain.Businesses.BusinessMembership", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "EmployeeMembershipId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WashFlow.Domain.Finance.Expense", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "ReversesId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Finance.ManualIncome", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Finance.ManualIncome", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "CorrectsId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WashFlow.Domain.Finance.PaymentMethod", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "PaymentMethodId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Finance.ManualIncome", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "ReversesId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Finance.Payment", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Finance.Payment", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "CorrectsId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WashFlow.Domain.Finance.PaymentMethod", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "PaymentMethodId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Finance.Payment", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "ReversesId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WashFlow.Domain.WorkOrders.WorkOrder", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "WorkOrderId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Finance.PaymentMethod", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

@@ -1,3 +1,4 @@
+import 'features/finance/finance.dart';
 import 'features/customer_booking/customer_booking.dart';
 import 'features/work_orders/work_orders.dart';
 import 'features/scheduling/data/api_scheduling_service.dart';
@@ -43,6 +44,10 @@ Future<void> main() async {
           session: service,
         ),
         customerBookingService: ApiCustomerBookingService(
+          apiClient: service.apiClient,
+          session: service,
+        ),
+        financeService: ApiFinanceService(
           apiClient: service.apiClient,
           session: service,
         ),

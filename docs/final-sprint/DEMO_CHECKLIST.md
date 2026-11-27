@@ -28,11 +28,11 @@
 | 8 | Employee starts assigned work, denied access to other's work | Implemented/tested in employee increment; live rehearsal pending approved demo migration |
 | 9 | Countdown survives navigation; overdue visible; no auto-completion | Implemented with server timestamps; widget/API verified; live rehearsal pending |
 | 10 | Complete stages and wash, owner sees progress | Implemented with ordered stages and actual timestamps; live rehearsal pending |
-| 11 | Record partial/full payment and expense | Not implemented yet |
-| 12 | Financial dashboard separates earned/collected money | Not implemented yet |
+| 11 | Record partial/full payment and expense | API and Flutter implemented/tested; live rehearsal pending |
+| 12 | Financial dashboard separates earned/collected money | API and Flutter implemented/tested; local-date reports and breakdowns verified |
 | 13 | Customer own vehicle and appointment history | Own vehicles and appointment history implemented/tested; live rehearsal pending |
 | 14 | Incompatible hours/shift edits rejected; explicitly resolve appointment | P0 fix and automated tests passed; live rehearsal pending |
 
 ## Evidence and limitations
 
-Capture app/API/database evidence for each completed step and its issue/commit/CI run. Existing thesis screenshots are historical evidence, not proof of newly implemented flows. Record known limitations candidly. No mocked screen qualifies as completed backend functionality. Employee execution now has backend/Flutter automated evidence; live deployment to the preserved demo is pending explicit migration approval. Customer booking now has backend/Flutter automated evidence. Finance follows; delivered operational notifications remain unverified.
+Capture app/API/database evidence for each completed step and its issue/commit/CI run. Existing thesis screenshots are historical evidence, not proof of newly implemented flows. Record known limitations candidly. No mocked screen qualifies as completed backend functionality. Employee execution now has backend/Flutter automated evidence; live deployment to the preserved demo is pending explicit migration approval. Customer booking now has backend/Flutter automated evidence. Finance now has backend/Flutter automated evidence. Integrated live rehearsal and delivered operational notifications remain unverified.

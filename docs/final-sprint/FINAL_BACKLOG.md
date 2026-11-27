@@ -45,3 +45,8 @@ Ordered area/staff scheduling and employee execution are now verified together: 
 
 
 Customer self-service is implemented on `codex/customer-self-service`; see CUSTOMER_BOOKING_INCREMENT.md. Backend 436 passed with no skips; Flutter final verification is recorded in TEST_MATRIX.md. PRs #17/#18/#19 were rechecked: push and PR CI succeeded on their exact recorded heads, all remain open/unmerged. No existing work or demo data reset. Customer #11/#10 should reflect DOING pending final rehearsal; do not close broad issues from automated evidence alone.
+
+
+## Essential module delivery checkpoint
+
+Customer PR [#20](https://github.com/barisgundogdu/WashFlow/pull/20), commit `945848e`: 436 backend/358 Flutter passed; hosted push and PR CI successful. Finance now implemented and verified on `codex/owner-finance`: 444 backend/370 Flutter passed, analysis clean; see FINANCE_INCREMENT.md. Employee/stage/customer/finance modules all have connected APIs and Turkish Flutter screens. Remaining essential verification is the integrated live rehearsal and deployment review; no demo migration or merge. Optional advanced employee analytics and external operational delivery remain deferred. Keep broad Issues open until their full acceptance/rehearsal is satisfied. Exact current board intentions: #4/#6/#11/#10/#7 reflect implementation/rehearsal progress; resolve three-card WIP via existing umbrella card review rather than raising the limit. Projects write still unavailable.

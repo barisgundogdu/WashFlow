@@ -37,6 +37,6 @@ public sealed class InfrastructureTests
         Assert.Same(first, firstScope.ServiceProvider.GetRequiredService<WashFlowDbContext>());
         Assert.NotSame(first, secondScope.ServiceProvider.GetRequiredService<WashFlowDbContext>());
         Assert.Equal("Npgsql.EntityFrameworkCore.PostgreSQL", first.Database.ProviderName);
-        Assert.Equal(29, first.Model.GetEntityTypes().Count());
+        Assert.Equal(33, first.Model.GetEntityTypes().Count());
     }
 }

@@ -13,6 +13,7 @@ class OwnerHomeScreen extends StatelessWidget {
     this.onCatalog,
     this.onScheduling,
     this.onWorkOrders,
+    this.onFinance,
   });
 
   final String businessName;
@@ -22,7 +23,8 @@ class OwnerHomeScreen extends StatelessWidget {
       onCustomers,
       onCatalog,
       onScheduling,
-      onWorkOrders;
+      onWorkOrders,
+      onFinance;
 
   @override
   Widget build(BuildContext context) {
@@ -169,6 +171,24 @@ class OwnerHomeScreen extends StatelessWidget {
                               onTap: action,
                             ),
                           ),
+                      ],
+                    ),
+                  if (onFinance != null)
+                    _Section(
+                      title: 'Finans',
+                      children: [
+                        Card(
+                          child: ListTile(
+                            leading: const Icon(
+                              Icons.account_balance_wallet_outlined,
+                            ),
+                            title: const Text('Finans yönetimi'),
+                            subtitle: const Text(
+                              'Tahsilat, gider ve tarih aralıklı raporlar',
+                            ),
+                            onTap: onFinance,
+                          ),
+                        ),
                       ],
                     ),
                   _Section(title: 'Hesap işlemleri', children: accountActions),

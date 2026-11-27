@@ -1,3 +1,5 @@
+import '../../finance/finance.dart';
+import '../../finance/finance_screen.dart';
 import '../../customer_booking/customer_booking.dart';
 import '../../customer_booking/customer_booking_screen.dart';
 import '../../work_orders/work_orders.dart';
@@ -40,6 +42,7 @@ class SessionScreen extends StatefulWidget {
     this.schedulingService,
     this.workOrderService,
     this.customerBookingService,
+    this.financeService,
     this.redemptionEnabled = false,
   });
   final SessionService? service;
@@ -50,6 +53,7 @@ class SessionScreen extends StatefulWidget {
   final SchedulingService? schedulingService;
   final WorkOrderService? workOrderService;
   final CustomerBookingService? customerBookingService;
+  final FinanceService? financeService;
   final CustomerVehicleService? customerVehicleService;
   final bool redemptionEnabled;
   @override
@@ -102,6 +106,7 @@ class _SessionScreenState extends State<SessionScreen>
         !identical(oldWidget.catalogService, widget.catalogService) ||
         !identical(oldWidget.schedulingService, widget.schedulingService) ||
         !identical(oldWidget.workOrderService, widget.workOrderService) ||
+        !identical(oldWidget.financeService, widget.financeService) ||
         !identical(
           oldWidget.customerBookingService,
           widget.customerBookingService,
@@ -197,6 +202,9 @@ class _SessionScreenState extends State<SessionScreen>
         : controller.logout;
     if (owner && selected != null) {
       return OwnerHomeScreen(
+        onFinance: widget.financeService == null
+            ? null
+            : () => _openOwner('/finance'),
         businessName: selected.business!.businessName,
         accountActions: [
           if (controller.options.length > 1)
@@ -342,6 +350,7 @@ class _SessionScreenState extends State<SessionScreen>
     if (selected?.role != ExperienceRole.owner ||
         (switch (route) {
           '/work-orders' => widget.workOrderService == null,
+          '/finance' => widget.financeService == null,
           '/employee-invitations' => widget.invitationService == null,
           '/business-settings' => widget.settingsService == null,
           '/service-catalog' => widget.catalogService == null,
@@ -432,6 +441,24 @@ class _SessionScreenState extends State<SessionScreen>
                         selected.id.split(':').last,
                       ),
                       isCurrent: () => currentScope(ExperienceRole.customer),
+                      onAuthorizationFailure: (error) =>
+                          controller.handleAuthorizationFailure(
+                            error,
+                            generation: generation,
+                          ),
+                    );
+                  }
+                  if (settings.name == '/finance' &&
+                      currentOwner() &&
+                      widget.financeService != null) {
+                    return FinanceScreen(
+                      service: widget.financeService!,
+                      business: selected.business!.businessId,
+                      store: SecureFinanceAttemptStore(
+                        selected.business!.businessId,
+                        selected.business!.membershipId,
+                      ),
+                      isCurrent: currentOwner,
                       onAuthorizationFailure: (error) =>
                           controller.handleAuthorizationFailure(
                             error,
