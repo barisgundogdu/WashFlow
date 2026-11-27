@@ -449,6 +449,7 @@ String schedulingError(AuthError e) {
       'Kayıt değişti. Güncel verileri yükleyip seçiminizi yeniden onaylayın.',
     'idempotencyConflict' => 'Bu işlem anahtarı farklı bir kayıt için kullanılmış. Takvimi kontrol edin.',
     'employeeUnavailable' => 'Seçilen çalışan artık uygun veya yetkili değil. Çalışan listesini yenileyin.',
+    'workOrderInUse' => 'Önce randevuya bağlı iş emrini çözümleyin. Etkin veya tamamlanmış işin randevusu değiştirilemez.',
     'outsideHours' ||
     'hoursUnconfigured' => 'İşletmenin çalışma saatlerini kontrol edin.',
     'invalidLocalTime' || 'ambiguousLocalTime' => 'Saat dilimi geçişi nedeniyle saat geçersiz veya belirsiz. Saat ve UTC farkını kontrol edin.',

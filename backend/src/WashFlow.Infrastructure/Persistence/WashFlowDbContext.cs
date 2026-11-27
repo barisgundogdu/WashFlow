@@ -22,6 +22,10 @@ public sealed class WashFlowDbContext(DbContextOptions<WashFlowDbContext> option
     public DbSet<WashFlow.Domain.Scheduling.AppointmentEvent> AppointmentEvents => Set<WashFlow.Domain.Scheduling.AppointmentEvent>();
     public DbSet<WashFlow.Domain.Scheduling.AppointmentResourceReservation> AppointmentResourceReservations => Set<WashFlow.Domain.Scheduling.AppointmentResourceReservation>();
     public DbSet<WashFlow.Infrastructure.Scheduling.SchedulingCreateReceipt> SchedulingCreateReceipts => Set<WashFlow.Infrastructure.Scheduling.SchedulingCreateReceipt>();
+    public DbSet<WashFlow.Domain.WorkOrders.WorkOrder> WorkOrders => Set<WashFlow.Domain.WorkOrders.WorkOrder>();
+    public DbSet<WashFlow.Domain.WorkOrders.WorkOrderStage> WorkOrderStages => Set<WashFlow.Domain.WorkOrders.WorkOrderStage>();
+    public DbSet<WashFlow.Domain.WorkOrders.WorkStageAssignment> WorkStageAssignments => Set<WashFlow.Domain.WorkOrders.WorkStageAssignment>();
+    public DbSet<WashFlow.Domain.WorkOrders.WorkOrderEvent> WorkOrderEvents => Set<WashFlow.Domain.WorkOrders.WorkOrderEvent>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Business> Businesses => Set<Business>();
     public DbSet<BusinessMembership> BusinessMemberships => Set<BusinessMembership>();
@@ -63,7 +67,7 @@ public sealed class WashFlowDbContext(DbContextOptions<WashFlowDbContext> option
                 entry.Property(x => x.CreatedAt).IsModified = false;
                 // Scheduling aggregates supply an explicit operation timestamp, shared with their
                 // events/releases and TimeProvider. Do not replace it with a second wall clock.
-                if (entry.Entity.GetType().Namespace != "WashFlow.Domain.Scheduling")
+                if (entry.Entity.GetType().Namespace is not ("WashFlow.Domain.Scheduling" or "WashFlow.Domain.WorkOrders"))
                     entry.Entity.UpdatedAt = now;
             }
         }

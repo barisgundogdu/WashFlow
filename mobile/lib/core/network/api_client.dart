@@ -165,6 +165,7 @@ class ApiClient {
                 'employeeUnavailable',
                 'outsideHours',
                 'appointmentsOutsideHours',
+                'workOrderInUse',
                 'hoursUnconfigured',
                 'requirementChanged',
                 'invalidLocalTime',

@@ -75,3 +75,8 @@ GitHub #4/#6/#11 bodies updated successfully with P0 scope and confirmed executi
 
 
 P0 final verification: **415 backend tests passed (252 unit, 163 integration), 0 failed/skipped; 343 Flutter tests passed; Flutter analysis and git diff --check passed.** Seventeen backend and two Flutter cases added. No migration, push, PR or merge. The scheduling issue remains broader than this completed increment; full work orders/customer booking/finance await the documented architectural approval. All new test schemas were confined to the dedicated disposable database.
+
+
+## Approved P1 continuation
+
+The user approved all three architecture increments on 25 November 2026 and explicitly prohibited applying migrations to the demo without further approval. Employee execution is now implemented in a focused working increment; see WORK_ORDER_INCREMENT.md. Customer booking, finance and distinct-resource ordered-stage allocation remain outstanding. P0 local commit: `40389ba`; no push/PR. Work-order changes are not yet represented by a delivered commit while final validation runs.

@@ -12,6 +12,7 @@ class OwnerHomeScreen extends StatelessWidget {
     this.onCustomers,
     this.onCatalog,
     this.onScheduling,
+    this.onWorkOrders,
   });
 
   final String businessName;
@@ -20,7 +21,8 @@ class OwnerHomeScreen extends StatelessWidget {
       onSettings,
       onCustomers,
       onCatalog,
-      onScheduling;
+      onScheduling,
+      onWorkOrders;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +64,15 @@ class OwnerHomeScreen extends StatelessWidget {
                       style: theme.textTheme.headlineLarge,
                     ),
                   ),
+                  if (onWorkOrders != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: FilledButton.icon(
+                        onPressed: onWorkOrders,
+                        icon: const Icon(Icons.assignment),
+                        label: const Text('İş emirleri'),
+                      ),
+                    ),
                   if (onScheduling != null) ...[
                     const SizedBox(height: WashFlowSpacing.xl),
                     Card(

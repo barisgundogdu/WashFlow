@@ -89,12 +89,7 @@ public sealed class EfSchedulingService(WashFlowDbContext db, TimeProvider clock
             .Select(x => new OpeningDay(x.Day, x.Closed, x.OpensAtMinute, x.ClosesAtMinute)).ToListAsync(ct);
         if (!WithinHours(interval, Zone(b.TimeZoneId), hours)) Fail("outsideHours", "Randevu işletmenin açık olduğu saatlere sığmalıdır.");
         foreach (var employee in employees) await Employee(b.Id, employee, ct);
-        var busy = await Active(b.Id).Where(x => x.AppointmentId != excluding && x.StartsAtUtc < interval.End && interval.Start < x.EndsAtUtc &&
-            (x.WorkAreaId == area.Id || (x.EmployeeMembershipId != null && employees.Contains(x.EmployeeMembershipId.Value)))).ToListAsync(ct);
-        if (!HasCapacity(busy.Where(x => x.WorkAreaId == area.Id).Select(x => new Occupancy(x.StartsAtUtc, x.EndsAtUtc)), interval, area.Capacity)) return false;
-        var windows = await db.EmployeeAvailabilities.AsNoTracking().Where(x => x.BusinessId == b.Id && x.ArchivedAt == null && employees.Contains(x.MembershipId) && x.StartsAtUtc < interval.End && interval.Start < x.EndsAtUtc).ToListAsync(ct);
-        return employees.All(e => EmployeeAvailable(windows.Where(x => x.MembershipId == e).Select(x => new Occupancy(x.StartsAtUtc, x.EndsAtUtc)),
-            busy.Where(x => x.EmployeeMembershipId == e).Select(x => new Occupancy(x.StartsAtUtc, x.EndsAtUtc)), interval));
+        return await ResourceCapacity.Available(db, b.Id, area, interval, employees, excluding, clock.GetUtcNow(), ct);
     }
     private static Occupancy Interval(DateTimeOffset start, int minutes)
     {
@@ -110,7 +105,12 @@ public sealed class EfSchedulingService(WashFlowDbContext db, TimeProvider clock
         {
             Expected(area, input.Version!.Value);
             var busy = await Active(business).Where(x => x.WorkAreaId == id && x.EndsAtUtc > now).ToListAsync(ct);
-            if (Peak(busy.Select(x => new Occupancy(x.StartsAtUtc, x.EndsAtUtc))) > input.Capacity) Fail("capacityInUse", "Kapasite mevcut randevuların altına düşürülemez.");
+            var activeWork = await (from stage in db.WorkOrderStages join order in db.WorkOrders on new { stage.BusinessId, Id = stage.WorkOrderId } equals new { order.BusinessId, order.Id }
+                join appointment in db.Appointments on new { order.BusinessId, Id = order.AppointmentId } equals new { appointment.BusinessId, appointment.Id }
+                where stage.BusinessId == business && appointment.WorkAreaId == id &&
+                    (stage.Status == WashFlow.Domain.WorkOrders.WorkStageStatus.InProgress || stage.Status == WashFlow.Domain.WorkOrders.WorkStageStatus.Paused)
+                select order.Id).Distinct().CountAsync(ct);
+            if (activeWork > input.Capacity || Peak(busy.Select(x => new Occupancy(x.StartsAtUtc, x.EndsAtUtc))) > input.Capacity) Fail("capacityInUse", "Kapasite mevcut randevuların altına düşürülemez.");
             area.Update(input.Name!, input.Capacity, now);
             db.Entry(area).Property(x => x.UpdatedAt).IsModified = true;
         }
@@ -121,6 +121,11 @@ public sealed class EfSchedulingService(WashFlowDbContext db, TimeProvider clock
     {
         Validate(SchedulingValidation.Versioned(input));
         var area = Found(await db.WorkAreas.SingleOrDefaultAsync(x => x.BusinessId == business && x.Id == id && x.ArchivedAt == null, ct)); Expected(area, input.Version);
+        if (await (from stage in db.WorkOrderStages join order in db.WorkOrders on new { stage.BusinessId, Id = stage.WorkOrderId } equals new { order.BusinessId, order.Id }
+            join appointment in db.Appointments on new { order.BusinessId, Id = order.AppointmentId } equals new { appointment.BusinessId, appointment.Id }
+            where stage.BusinessId == business && appointment.WorkAreaId == id &&
+                (stage.Status == WashFlow.Domain.WorkOrders.WorkStageStatus.InProgress || stage.Status == WashFlow.Domain.WorkOrders.WorkStageStatus.Paused)
+            select stage.Id).AnyAsync(ct)) Fail("areaInUse", "Devam eden işin çalışma alanı arşivlenemez.");
         if (await Active(business).AnyAsync(x => x.WorkAreaId == id && x.EndsAtUtc > clock.GetUtcNow(), ct)) Fail("areaInUse", "Planlanmış randevuları olan alan arşivlenemez.");
         area.Archive(clock.GetUtcNow()); await db.SaveChangesAsync(ct);
     }, ct);
@@ -174,6 +179,10 @@ public sealed class EfSchedulingService(WashFlowDbContext db, TimeProvider clock
     }, ct);
     private async Task PreserveCoverage(Guid business, Guid employee, Guid changed, Occupancy? replacement, CancellationToken ct)
     {
+        if (await db.WorkOrderStages.AnyAsync(x => x.BusinessId == business &&
+            (x.Status == WashFlow.Domain.WorkOrders.WorkStageStatus.InProgress || x.Status == WashFlow.Domain.WorkOrders.WorkStageStatus.Paused) &&
+            x.Assignments.Any(a => a.EmployeeMembershipId == employee), ct))
+            Fail("availabilityInUse", "Çalışanın devam eden işi varken uygunluk penceresi değiştirilemez. Önce etkin işi çözümleyin.");
         var remaining = await db.EmployeeAvailabilities.AsNoTracking().Where(x => x.BusinessId == business && x.MembershipId == employee && x.Id != changed && x.ArchivedAt == null).ToListAsync(ct);
         var windows = remaining.Select(x => new Occupancy(x.StartsAtUtc, x.EndsAtUtc)).ToList(); if (replacement is { } r) windows.Add(r);
         var reservations = await Active(business).Where(x => x.EmployeeMembershipId == employee && x.EndsAtUtc > clock.GetUtcNow()).ToListAsync(ct);
@@ -235,6 +244,8 @@ public sealed class EfSchedulingService(WashFlowDbContext db, TimeProvider clock
     {
         Validate(SchedulingValidation.Reschedule(input)); var row = await Load(business, id, ct); Expected(row, input.Version);
         if (row.Status != AppointmentStatus.Confirmed) Fail("invalidStatus", "Yalnızca onaylı randevu yeniden planlanabilir.");
+        if (await db.WorkOrders.AnyAsync(x => x.BusinessId == business && x.AppointmentId == row.Id && x.CancelledAtUtc == null, ct))
+            Fail("workOrderInUse", "Önce bağlı iş emrini çözümleyin. Devam eden veya tamamlanmış iş yeniden planlanamaz.");
         var config = await Configuration(business, row.ServiceId, row.Category, ct);
         if (config.Area.Id != row.WorkAreaId) Fail("requirementChanged", "Randevunun kaynak gereksinimi değişmiş.");
         _ = Found(await db.LocalCustomers.SingleOrDefaultAsync(x => x.BusinessId == business && x.Id == row.LocalCustomerId, ct));
@@ -257,6 +268,8 @@ public sealed class EfSchedulingService(WashFlowDbContext db, TimeProvider clock
     {
         Validate(SchedulingValidation.Versioned(input)); var row = await Load(business, id, ct); Expected(row, input.Version);
         if (row.Status != AppointmentStatus.Confirmed) Fail("invalidStatus", "Randevu zaten iptal edilmiş.");
+        if (await db.WorkOrders.AnyAsync(x => x.BusinessId == business && x.AppointmentId == row.Id && x.CancelledAtUtc == null, ct))
+            Fail("workOrderInUse", "Önce bağlı iş emrini çözümleyin. Devam eden veya tamamlanmış işin randevusu iptal edilemez.");
         row.Cancel(actor.UserId, clock.GetUtcNow()); db.Entry(row).Property(x => x.UpdatedAt).IsModified = true;
         db.Entry(row.Events[^1]).State = EntityState.Added;
         await db.SaveChangesAsync(ct); return View(row);

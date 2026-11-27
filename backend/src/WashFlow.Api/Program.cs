@@ -66,6 +66,7 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapSchedulingEndpoints();
+WashFlow.Api.Features.WorkOrders.WorkOrderEndpoints.MapWorkOrderEndpoints(app);
 app.MapOpenApi().RequireAuthorization();
 app.MapAuthEndpoints();
 app.MapInvitationEndpoints();

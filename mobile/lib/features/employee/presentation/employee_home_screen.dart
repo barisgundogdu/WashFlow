@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 
-/// Temporary destination; assigned-work operations are not implemented yet.
 class EmployeeHomeScreen extends StatelessWidget {
-  const EmployeeHomeScreen({super.key});
+  const EmployeeHomeScreen({super.key, this.onWorkOrders});
+  final VoidCallback? onWorkOrders;
   @override
-  Widget build(BuildContext context) => const Column(
+  Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Text('Çalışan alanı'),
-      Text('Geçici ekran. Atanan işler henüz kullanıma açık değil.'),
+      const Text('Çalışan alanı'),
+      if (onWorkOrders != null)
+        FilledButton.icon(
+          onPressed: onWorkOrders,
+          icon: const Icon(Icons.assignment),
+          label: const Text('Atanan işlerim'),
+        )
+      else
+        const Text('İş emri bağlantısı yapılandırılmamış.'),
     ],
   );
 }
