@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 using WashFlow.Application.Scheduling;
+using WashFlow.Application.Businesses;
+using WashFlow.Infrastructure.Businesses;
 using WashFlow.Domain.Businesses;
 using WashFlow.Domain.Catalog;
 using WashFlow.Domain.Customers;
@@ -29,7 +31,7 @@ public sealed class SchedulingPostgresTests(PostgresModelFixture fixture) : ICla
         await using var db = Db();
         Assert.Equal(17, (await db.Database.SqlQueryRaw<int>("SELECT current_setting('server_version_num')::int AS \"Value\"").SingleAsync()) / 10000);
         var u = new User("Sahip", $"{Guid.NewGuid():N}@example.test", "hash");
-        var b = new Business { Name = "Planlama", TimeZoneId = zone };
+        var b = new Business { Name = "Planlama", TimeZoneId = zone, HoursConfigured = true };
         var owner = new BusinessMembership { BusinessId = b.Id, UserId = u.Id };
         var session = new DeviceSession { UserId = u.Id, SecurityStamp = u.SecurityStamp, DeviceName = "Test", CreatedAt = Now.AddMinutes(-1), ExpiresAt = Now.AddDays(1) };
         var c = new LocalCustomer { BusinessId = b.Id, FullName = "Müşteri", NormalizedName = "MÜŞTERİ" };
@@ -358,6 +360,221 @@ public sealed class SchedulingPostgresTests(PostgresModelFixture fixture) : ICla
         Assert.False((await Create(s, input)).Created);
         await Fault("idempotencyConflict", () => Create(s, input with { UtcOffsetMinutes = 60 }));
         var second = await Create(s, input with { ClientRequestId = Guid.NewGuid(), UtcOffsetMinutes = 60 }); Assert.Equal(1, second.Value.StartsAtUtc.Hour);
+    }
+
+    [PostgresTheory]
+    [InlineData("closed")]
+    [InlineData("lateOpening")]
+    [InlineData("earlyClosing")]
+    [InlineData("clearHours")]
+    [InlineData("timezone")]
+    public async Task IncompatibleBusinessSettingsLeaveConfirmedBookingAndSettingsIntact(string change)
+    {
+        var s = await Seed(); var booked = (await Create(s, s.Booking())).Value;
+        await using var db = Db(); var settings = new EfBusinessSettingsStore(db, new Clock());
+        var original = (await settings.ReadAsync(s.Actor.UserId, s.Business, default)).Value!;
+        var version = original.Version;
+        original.Name = "Must not persist";
+        original.WeeklyHours = Enumerable.Range(1, 7).Select(day => change switch
+        {
+            "closed" => new OpeningDay(day, true, null, null),
+            "lateOpening" => new OpeningDay(day, false, 11 * 60, 20 * 60),
+            "earlyClosing" => new OpeningDay(day, false, 8 * 60, 10 * 60 + 15),
+            _ => new OpeningDay(day, false, 8 * 60, 20 * 60)
+        }).ToArray();
+        if (change == "clearHours") original.WeeklyHours = null;
+        if (change == "timezone") original.TimeZoneId = "America/New_York";
+        var result = await settings.UpdateAsync(s.Actor.UserId, s.Business, original, default);
+        Assert.Equal(SettingsStatus.AppointmentsConflict, result.Status);
+        await using var verify = Db();
+        var business = await verify.Businesses.SingleAsync(x => x.Id == s.Business);
+        Assert.Equal("Planlama", business.Name); Assert.Equal("Etc/UTC", business.TimeZoneId);
+        Assert.Equal(version, verify.Entry(business).Property<uint>("Version").CurrentValue);
+        Assert.All(await verify.WeeklyOpeningDays.Where(x => x.BusinessId == s.Business).ToListAsync(),
+            x => { Assert.False(x.Closed); Assert.Equal(480, x.OpensAtMinute); Assert.Equal(1200, x.ClosesAtMinute); });
+        var actual = await Service(verify).Detail(s.Actor, s.Business, booked.Id);
+        Assert.Equal(booked.Version, actual.Version); Assert.Equal(booked.StartsAtUtc, actual.StartsAtUtc);
+        Assert.Equal(AppointmentStatus.Confirmed, actual.Status); Assert.Single(actual.Events);
+        Assert.All(actual.Reservations, x => Assert.Null(x.ReleasedAt));
+    }
+
+    private static async Task<BusinessSettingsView> Settings(WashFlowDbContext db, SeedData s) =>
+        (await new EfBusinessSettingsStore(db, new Clock()).ReadAsync(s.Actor.UserId, s.Business, default)).Value!;
+    private static void SetHours(BusinessSettingsInput input, int open, int close) =>
+        input.WeeklyHours = Enumerable.Range(1, 7).Select(d => new OpeningDay(d, false, open, close)).ToArray();
+
+    [PostgresFact]
+    public async Task CompatibleHoursAllowExactBoundariesAndCancellationExplicitlyResolvesConflict()
+    {
+        var s = await Seed(); var booked = (await Create(s, s.Booking())).Value;
+        await using var db = Db(); var input = await Settings(db, s);
+        SetHours(input, 600, 630);
+        var store = new EfBusinessSettingsStore(db, new Clock());
+        Assert.Equal(SettingsStatus.Success, (await store.UpdateAsync(s.Actor.UserId, s.Business, input, default)).Status);
+        input = await Settings(db, s); SetHours(input, 660, 720);
+        Assert.Equal(SettingsStatus.AppointmentsConflict, (await store.UpdateAsync(s.Actor.UserId, s.Business, input, default)).Status);
+        await Service(db).Cancel(s.Actor, s.Business, booked.Id, new(booked.Version));
+        Assert.Equal(SettingsStatus.Success, (await store.UpdateAsync(s.Actor.UserId, s.Business, input, default)).Status);
+        var cancelled = await Service(db).Detail(s.Actor, s.Business, booked.Id);
+        Assert.Equal(AppointmentStatus.Cancelled, cancelled.Status); Assert.Equal(2, cancelled.Events.Count);
+    }
+
+    [PostgresTheory]
+    [InlineData("2030-01-02T07:59", "outsideHours")]
+    [InlineData("2030-01-02T19:30", null)]
+    [InlineData("2030-01-02T19:31", "outsideHours")]
+    public async Task ServerEnforcesOpeningAndExactClosingIndependentlyOfEmployeeCoverage(string time, string? fault)
+    {
+        var s = await Seed(); await using var db = Db();
+        await Service(db).SaveAvailability(s.Actor, s.Business, s.Employees[0], s.Windows[0].Id,
+            new(Now.AddDays(1), Now.AddDays(2), s.Windows[0].Version));
+        if (fault == null) Assert.True((await Create(s, s.Booking(time))).Created);
+        else await Fault(fault, () => Create(s, s.Booking(time)));
+    }
+
+    [PostgresFact]
+    public async Task ClosedDayRejectsAvailableStaffAndShortShiftRejectsOpenBusiness()
+    {
+        var s = await Seed(); await using var db = Db(); var input = await Settings(db, s);
+        input.WeeklyHours = input.WeeklyHours!.Select(x => x.Day == 3 ? new OpeningDay(3, true, null, null) : x).ToArray();
+        var settings = new EfBusinessSettingsStore(db, new Clock());
+        Assert.Equal(SettingsStatus.Success, (await settings.UpdateAsync(s.Actor.UserId, s.Business, input, default)).Status);
+        await Fault("outsideHours", () => Create(s, s.Booking()));
+        input = await Settings(db, s); SetHours(input, 480, 1200);
+        Assert.Equal(SettingsStatus.Success, (await settings.UpdateAsync(s.Actor.UserId, s.Business, input, default)).Status);
+        await Service(db).SaveAvailability(s.Actor, s.Business, s.Employees[0], s.Windows[0].Id,
+            new(Now.AddDays(1).AddHours(8), Now.AddDays(1).AddHours(10).AddMinutes(29), s.Windows[0].Version));
+        await Fault("resourceConflict", () => Create(s, s.Booking()));
+        Assert.True((await Create(s, s.Booking("2030-01-02T09:59"))).Created);
+    }
+
+    [PostgresFact]
+    public async Task MultipleRequiredEmployeesAllNeedFullCoverageAndDifferentAreasStillCheckEmployeeConflicts()
+    {
+        var s = await Seed(); await using var db = Db();
+        await db.ServiceOfferings.Where(x => x.ServiceId == s.Service).ExecuteUpdateAsync(x => x.SetProperty(v => v.Employees, 2));
+        await Fault("invalidEmployees", () => Create(s, s.Booking()));
+        var both = s.Booking() with { EmployeeMembershipIds = [s.Employees[0], s.Employees[1]] };
+        await Service(db).SaveAvailability(s.Actor, s.Business, s.Employees[1], s.Windows[1].Id,
+            new(Now.AddDays(1).AddHours(8), Now.AddDays(1).AddHours(10).AddMinutes(15), s.Windows[1].Version));
+        await Fault("resourceConflict", () => Create(s, both));
+        var window = (await Service(db).Availability(s.Actor, s.Business, s.Employees[1])).Single();
+        await Service(db).SaveAvailability(s.Actor, s.Business, s.Employees[1], window.Id,
+            new(Now.AddDays(1).AddHours(8), Now.AddDays(1).AddHours(20), window.Version));
+        await Create(s, both);
+        var secondService = new BusinessService { BusinessId = s.Business, Name = "İç temizlik", SearchName = "İÇ TEMİZLİK", Enabled = true };
+        db.AddRange(secondService, new ServiceOffering { ServiceId = secondService.Id, Category = "Car", Price = 100m, Currency = "TRY", ActiveMinutes = 30, Employees = 1 });
+        await db.SaveChangesAsync(); var version = db.Entry(secondService).Property<uint>("Version").CurrentValue;
+        var area = await Service(db).SaveWorkArea(s.Actor, s.Business, null, new("Diğer alan", 1, null));
+        await Service(db).SaveRequirement(s.Actor, s.Business, secondService.Id, "Car", new(area.Id, true, null));
+        var otherArea = s.Booking() with { ServiceId = secondService.Id, ExpectedServiceVersion = version };
+        await Fault("resourceConflict", () => Create(s, otherArea));
+        Assert.True((await Create(s, otherArea with { EmployeeMembershipIds = [s.Employees[2]] })).Created);
+    }
+
+    [PostgresFact]
+    public async Task ConcurrentHoursChangeAndBookingCannotBothInvalidateEachOther()
+    {
+        var s = await Seed();
+        BusinessSettingsView input;
+        await using (var db = Db()) input = await Settings(db, s);
+        SetHours(input, 660, 1200);
+        var gate = new LockGate(2);
+        var options = new DbContextOptionsBuilder<WashFlowDbContext>(fixture.Options).AddInterceptors(gate).Options;
+        async Task<SettingsStatus> Change()
+        {
+            await using var db = new WashFlowDbContext(options);
+            return (await new EfBusinessSettingsStore(db, new Clock()).UpdateAsync(s.Actor.UserId, s.Business, input, default)).Status;
+        }
+        async Task<string?> Book()
+        {
+            await using var db = new WashFlowDbContext(options);
+            try { await Service(db).Create(s.Actor, s.Business, s.Booking()); return null; }
+            catch (SchedulingFault e) { return e.Code; }
+        }
+        var change = Change(); var book = Book(); await Task.WhenAll(change, (Task)book);
+        Assert.Equal(2, gate.Connections.Distinct().Count());
+        Assert.True((change.Result == SettingsStatus.Success && book.Result == "outsideHours") ||
+            (change.Result == SettingsStatus.AppointmentsConflict && book.Result == null));
+        await using var verify = Db(); var saved = await Settings(verify, s);
+        var appointments = await verify.Appointments.Where(x => x.BusinessId == s.Business).ToListAsync();
+        Assert.All(appointments, x => Assert.True(SchedulingRules.WithinHours(new(x.StartsAtUtc, x.ActiveEndsAtUtc), SchedulingRules.Zone(saved.TimeZoneId), saved.WeeklyHours)));
+    }
+
+    [PostgresFact]
+    public async Task ConcurrentShiftChangeAndBookingKeepConfirmedWorkCovered()
+    {
+        var s = await Seed(); var gate = new LockGate(2);
+        var options = new DbContextOptionsBuilder<WashFlowDbContext>(fixture.Options).AddInterceptors(gate).Options;
+        async Task<string?> Attempt(bool shift)
+        {
+            await using var db = new WashFlowDbContext(options); var service = Service(db);
+            try
+            {
+                if (shift) await service.SaveAvailability(s.Actor, s.Business, s.Employees[0], s.Windows[0].Id,
+                    new(Now.AddDays(1).AddHours(11), Now.AddDays(1).AddHours(20), s.Windows[0].Version));
+                else await service.Create(s.Actor, s.Business, s.Booking());
+                return null;
+            }
+            catch (SchedulingFault e) { return e.Code; }
+        }
+        var results = await Task.WhenAll(Attempt(true), Attempt(false));
+        Assert.Equal(2, gate.Connections.Distinct().Count()); Assert.Single(results, x => x == null);
+        Assert.True((results[0] == "availabilityInUse" && results[1] == null) || (results[0] == null && results[1] == "resourceConflict"));
+        await using var verify = Db();
+        var windows = await verify.EmployeeAvailabilities.Where(x => x.BusinessId == s.Business && x.MembershipId == s.Employees[0] && x.ArchivedAt == null).ToListAsync();
+        var bookings = await verify.Appointments.Where(x => x.BusinessId == s.Business).ToListAsync();
+        Assert.All(bookings, x => Assert.True(SchedulingRules.Covered(windows.Select(w => new Occupancy(w.StartsAtUtc, w.EndsAtUtc)), new(x.StartsAtUtc, x.ActiveEndsAtUtc))));
+    }
+
+    private sealed class FixedClock(DateTimeOffset now) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => now;
+    }
+
+    [PostgresFact]
+    public async Task StartedConfirmedWorkBlocksHoursChangesUntilItsActiveEnd()
+    {
+        var s = await Seed(); var booked = (await Create(s, s.Booking())).Value;
+        await using var db = Db(); var input = await Settings(db, s); SetHours(input, 660, 1200);
+        var during = new EfBusinessSettingsStore(db, new FixedClock(booked.StartsAtUtc.AddMinutes(5)));
+        Assert.Equal(SettingsStatus.AppointmentsConflict, (await during.UpdateAsync(s.Actor.UserId, s.Business, input, default)).Status);
+        var after = new EfBusinessSettingsStore(db, new FixedClock(booked.ActiveEndsAtUtc));
+        Assert.Equal(SettingsStatus.Success, (await after.UpdateAsync(s.Actor.UserId, s.Business, input, default)).Status);
+        var original = await Service(db).Detail(s.Actor, s.Business, booked.Id);
+        Assert.Equal(booked.Version, original.Version); Assert.Equal(AppointmentStatus.Confirmed, original.Status);
+    }
+
+    [PostgresFact]
+    public async Task BusinessTimezoneDateBoundaryDeterminesClosedDayEvenWhenUtcDayIsOpen()
+    {
+        var s = await Seed(zone: "Europe/Istanbul"); await using var db = Db();
+        var input = await Settings(db, s);
+        input.WeeklyHours = Enumerable.Range(1, 7).Select(day => day == 3 ? new OpeningDay(day, true, null, null) : new OpeningDay(day, false, 0, 1440)).ToArray();
+        var store = new EfBusinessSettingsStore(db, new Clock());
+        Assert.Equal(SettingsStatus.Success, (await store.UpdateAsync(s.Actor.UserId, s.Business, input, default)).Status);
+        await Service(db).SaveAvailability(s.Actor, s.Business, s.Employees[0], s.Windows[0].Id,
+            new(Now, Now.AddDays(3), s.Windows[0].Version));
+        // Wednesday 00:15 Istanbul is Tuesday 21:15 UTC; Wednesday is closed.
+        await Fault("outsideHours", () => Create(s, s.Booking("2030-01-02T00:15")));
+        input = await Settings(db, s); SetHours(input, 0, 1440);
+        Assert.Equal(SettingsStatus.Success, (await store.UpdateAsync(s.Actor.UserId, s.Business, input, default)).Status);
+        var result = await Create(s, s.Booking("2030-01-02T00:15"));
+        Assert.Equal(Now.AddHours(21).AddMinutes(15), result.Value.StartsAtUtc);
+    }
+
+    [PostgresFact]
+    public async Task ReusedSettingsStoreRejectsStaleVersionAfterAnotherEditorCommits()
+    {
+        var s = await Seed(); await using var db = Db(); var stale = await Settings(db, s);
+        await using (var other = Db())
+        {
+            var current = await Settings(other, s); current.Name = "Other editor";
+            Assert.Equal(SettingsStatus.Success, (await new EfBusinessSettingsStore(other, new Clock()).UpdateAsync(s.Actor.UserId, s.Business, current, default)).Status);
+        }
+        stale.Name = "Stale edit";
+        Assert.Equal(SettingsStatus.Conflict, (await new EfBusinessSettingsStore(db, new Clock()).UpdateAsync(s.Actor.UserId, s.Business, stale, default)).Status);
+        await using var verify = Db(); Assert.Equal("Other editor", (await verify.Businesses.SingleAsync(x => x.Id == s.Business)).Name);
     }
 
 }

@@ -35,6 +35,10 @@ class ApiBusinessSettingsService implements BusinessSettingsService {
       }
       return AuthSuccess(value);
     } on ApiException catch (error) {
+      if (error.code == ApiErrorCode.conflict &&
+          error.problemCode == 'appointmentsOutsideHours') {
+        return AuthFailure(SettingsAppointmentsConflict());
+      }
       return AuthFailure(
         AuthError(
           code: switch (error.code) {
