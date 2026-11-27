@@ -201,14 +201,14 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                 $body$;
                 CREATE TRIGGER work_order_identity_immutable BEFORE UPDATE ON "WorkOrders" FOR EACH ROW EXECUTE FUNCTION washflow_work_order_identity();
                 """);
-            migrationBuilder.Sql("CREATE TRIGGER appointment_stage_immutable BEFORE UPDATE OR DELETE ON \"AppointmentStages\" FOR EACH ROW EXECUTE FUNCTION washflow_scheduling_immutable()");
+            migrationBuilder.Sql("CREATE TRIGGER appointment_stage_immutable BEFORE UPDATE OR DELETE ON \"AppointmentStages\" FOR EACH ROW EXECUTE FUNCTION washflow_scheduling_immutable();");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("DO $$ BEGIN IF EXISTS (SELECT 1 FROM \"AppointmentStages\") OR EXISTS (SELECT 1 FROM \"ServiceStageTemplates\") OR EXISTS (SELECT 1 FROM \"WorkOrders\" WHERE \"PlannedStartUtc\" IS NOT NULL) THEN RAISE EXCEPTION 'Aşama verileri varken otomatik geri dönüş desteklenmiyor; incelenmiş veri koruma planı gerekli.'; END IF; END $$");
-            migrationBuilder.Sql("DROP TRIGGER work_order_identity_immutable ON \"WorkOrders\"; DROP FUNCTION washflow_work_order_identity()");
+            migrationBuilder.Sql("DO $$ BEGIN IF EXISTS (SELECT 1 FROM \"AppointmentStages\") OR EXISTS (SELECT 1 FROM \"ServiceStageTemplates\") OR EXISTS (SELECT 1 FROM \"WorkOrders\" WHERE \"PlannedStartUtc\" IS NOT NULL) THEN RAISE EXCEPTION 'Aşama verileri varken otomatik geri dönüş desteklenmiyor; incelenmiş veri koruma planı gerekli.'; END IF; END $$;");
+            migrationBuilder.Sql("DROP TRIGGER work_order_identity_immutable ON \"WorkOrders\"; DROP FUNCTION washflow_work_order_identity();");
             migrationBuilder.DropColumn(name:"PlannedStartUtc",table:"WorkOrders");
             migrationBuilder.DropIndex(name:"IX_WorkOrderStages_BusinessId_WorkOrderId",table:"WorkOrderStages");
             migrationBuilder.DropForeignKey(

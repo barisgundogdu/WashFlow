@@ -40,6 +40,10 @@ jobs:
         run: dotnet restore WashFlow.sln
       - name: Build
         run: dotnet build WashFlow.sln --configuration Release --no-restore
+      - name: Install PostgreSQL script runner
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client
       - name: Test against PostgreSQL
         env:
           # The fixture creates and drops its own schemas on this job's service.
