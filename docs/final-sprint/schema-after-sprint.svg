@@ -1,0 +1,671 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3660" height="3574" viewBox="0 0 3660 3574" role="img" aria-labelledby="title desc">
+<title id="title">WashFlow final sprint isolated schema</title>
+<desc id="desc">33 application tables, 340 columns and 71 foreign keys captured from a new disposable PostgreSQL database. Preserved demo not migrated. Each arrow points from child to referenced parent; hover for the complete foreign-key definition.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#64748b"/></marker></defs>
+<rect width="3660" height="3574" fill="#f8fafc"/>
+<g font-family="Arial,Helvetica,sans-serif">
+<text x="35" y="44" font-size="30" font-weight="bold" fill="#15323d">WashFlow · final sprint schema · 25 November 2026</text>
+<text x="35" y="76" font-size="18" fill="#475569">33 application tables · 340 application columns · 71 foreign keys · 11 migrations · NEW ISOLATED DATABASE</text>
+<text x="35" y="103" font-size="15" fill="#475569">PK / FK key membership · arrows child → parent (hover for exact constraint) · existing demo and historical ERD preserved</text>
+<path d="M2340,2530 C2365,2530 2365,1406 2340,1406" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_AppointmentEvents_Appointments_BusinessId_AppointmentId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;AppointmentId&quot;) REFERENCES &quot;Appointments&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1850,2538 C1490.0,2538 1490.0,188 1130,188" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_AppointmentEvents_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1850,2546 C1187.5,2546 1187.5,196 525,196" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_AppointmentEvents_Users_ActorUserId: FOREIGN KEY (&quot;ActorUserId&quot;) REFERENCES &quot;Users&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2340,2954 C2401,2954 2401,2152 2340,2152" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_AppointmentResourceReservations_AppointmentStages_BusinessI~: FOREIGN KEY (&quot;BusinessId&quot;, &quot;AppointmentId&quot;, &quot;StageId&quot;) REFERENCES &quot;AppointmentStages&quot;(&quot;BusinessId&quot;, &quot;AppointmentId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2340,2962 C2365,2962 2365,1414 2340,1414" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_AppointmentResourceReservations_Appointments_BusinessId_App~: FOREIGN KEY (&quot;BusinessId&quot;, &quot;AppointmentId&quot;) REFERENCES &quot;Appointments&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1850,2970 C1490.0,2970 1490.0,712 1130,712" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_AppointmentResourceReservations_BusinessMemberships_Busines~: FOREIGN KEY (&quot;BusinessId&quot;, &quot;EmployeeMembershipId&quot;) REFERENCES &quot;BusinessMemberships&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1850,2954 C1490.0,2954 1490.0,180 1130,180" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_AppointmentResourceReservations_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1850,2962 C1792.5,2962 1792.5,1562 1735,1562" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_AppointmentResourceReservations_WorkAreas_BusinessId_WorkAr~: FOREIGN KEY (&quot;BusinessId&quot;, &quot;WorkAreaId&quot;) REFERENCES &quot;WorkAreas&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2340,2168 C2365,2168 2365,1422 2340,1422" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_AppointmentStages_Appointments_BusinessId_AppointmentId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;AppointmentId&quot;) REFERENCES &quot;Appointments&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1850,2152 C1792.5,2152 1792.5,1554 1735,1554" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_AppointmentStages_WorkAreas_BusinessId_WorkAreaId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;WorkAreaId&quot;) REFERENCES &quot;WorkAreas&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1850,1414 C1792.5,1414 1792.5,188 1735,188" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Appointments_BusinessServices_BusinessId_ServiceId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;ServiceId&quot;) REFERENCES &quot;BusinessServices&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1850,1422 C1490.0,1422 1490.0,196 1130,196" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Appointments_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1850,1406 C1187.5,1406 1187.5,512 525,512" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Appointments_CustomerProfiles_CustomerProfileId: FOREIGN KEY (&quot;CustomerProfileId&quot;) REFERENCES &quot;CustomerProfiles&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2340,1414 C2377,1414 2377,188 2340,188" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Appointments_LocalCustomers_BusinessId_LocalCustomerId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;LocalCustomerId&quot;) REFERENCES &quot;LocalCustomers&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2340,1422 C2389,1422 2389,551 2340,551" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Appointments_LocalVehicles_BusinessId_LocalCustomerId_Local~: FOREIGN KEY (&quot;BusinessId&quot;, &quot;LocalCustomerId&quot;, &quot;LocalVehicleId&quot;) REFERENCES &quot;LocalVehicles&quot;(&quot;BusinessId&quot;, &quot;LocalCustomerId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2340,1406 C2401,1406 2401,982 2340,982" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Appointments_OwnedVehicles_CustomerProfileId_OwnedVehicleId: FOREIGN KEY (&quot;CustomerProfileId&quot;, &quot;OwnedVehicleId&quot;) REFERENCES &quot;OwnedVehicles&quot;(&quot;CustomerProfileId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1850,1414 C1187.5,1414 1187.5,188 525,188" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Appointments_Users_CreatedByUserId: FOREIGN KEY (&quot;CreatedByUserId&quot;) REFERENCES &quot;Users&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1850,1422 C1792.5,1422 1792.5,1570 1735,1570" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Appointments_WorkAreas_BusinessId_WorkAreaId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;WorkAreaId&quot;) REFERENCES &quot;WorkAreas&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1130,959 C1179,959 1179,696 1130,696" fill="none" stroke="#445477" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_BusinessMembershipRoles_BusinessMemberships_BusinessMembers~: FOREIGN KEY (&quot;BusinessMembershipId&quot;) REFERENCES &quot;BusinessMemberships&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1130,704 C1191,704 1191,188 1130,188" fill="none" stroke="#445477" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_BusinessMemberships_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M640,712 C582.5,712 582.5,196 525,196" fill="none" stroke="#445477" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_BusinessMemberships_Users_UserId: FOREIGN KEY (&quot;UserId&quot;) REFERENCES &quot;Users&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1245,180 C1187.5,180 1187.5,180 1130,180" fill="none" stroke="#625585" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_BusinessServices_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M525,520 C574,520 574,188 525,188" fill="none" stroke="#145c6b" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_CustomerProfiles_Users_UserId: FOREIGN KEY (&quot;UserId&quot;) REFERENCES &quot;Users&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M525,745 C586,745 586,196 525,196" fill="none" stroke="#145c6b" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_DeviceSessions_Users_UserId: FOREIGN KEY (&quot;UserId&quot;) REFERENCES &quot;Users&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M525,1347 C550,1347 550,180 525,180" fill="none" stroke="#145c6b" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_EmailVerificationTokens_Users_UserId: FOREIGN KEY (&quot;UserId&quot;) REFERENCES &quot;Users&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1245,1848 C1187.5,1848 1187.5,704 1130,704" fill="none" stroke="#625585" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_EmployeeAvailabilities_BusinessMemberships_BusinessId_Membe~: FOREIGN KEY (&quot;BusinessId&quot;, &quot;MembershipId&quot;) REFERENCES &quot;BusinessMemberships&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1245,1856 C1187.5,1856 1187.5,196 1130,196" fill="none" stroke="#625585" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_EmployeeAvailabilities_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1130,1130 C1191,1130 1191,696 1130,696" fill="none" stroke="#445477" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_EmployeeInvitations_BusinessMemberships_BusinessId_InvitedB~: FOREIGN KEY (&quot;BusinessId&quot;, &quot;InvitedByMembershipId&quot;) REFERENCES &quot;BusinessMemberships&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1130,1138 C1155,1138 1155,188 1130,188" fill="none" stroke="#445477" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_EmployeeInvitations_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M640,1146 C582.5,1146 582.5,196 525,196" fill="none" stroke="#445477" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_EmployeeInvitations_Users_AcceptedByUserId: FOREIGN KEY (&quot;AcceptedByUserId&quot;) REFERENCES &quot;Users&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3060,1544 C2095.0,1544 2095.0,696 1130,696" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Expenses_BusinessMemberships_BusinessId_EmployeeMembershipId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;EmployeeMembershipId&quot;) REFERENCES &quot;BusinessMemberships&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3060,1552 C2095.0,1552 2095.0,188 1130,188" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Expenses_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3550,1560 C3575,1560 3575,1560 3550,1560" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Expenses_Expenses_BusinessId_CorrectsId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;CorrectsId&quot;) REFERENCES &quot;Expenses&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3550,1544 C3587,1544 3587,1544 3550,1544" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Expenses_Expenses_BusinessId_ReversesId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;ReversesId&quot;) REFERENCES &quot;Expenses&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3060,1552 C1792.5,1552 1792.5,188 525,188" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Expenses_Users_ActorUserId: FOREIGN KEY (&quot;ActorUserId&quot;) REFERENCES &quot;Users&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1850,196 C1490.0,196 1490.0,196 1130,196" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_LocalCustomers_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2340,535 C2365,535 2365,180 2340,180" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_LocalVehicles_LocalCustomers_BusinessId_LocalCustomerId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;LocalCustomerId&quot;) REFERENCES &quot;LocalCustomers&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3060,1013 C2095.0,1013 2095.0,188 1130,188" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_ManualIncomes_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3550,1021 C3599,1021 3599,1021 3550,1021" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_ManualIncomes_ManualIncomes_BusinessId_CorrectsId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;CorrectsId&quot;) REFERENCES &quot;ManualIncomes&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3550,1005 C3611,1005 3611,1005 3550,1005" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_ManualIncomes_ManualIncomes_BusinessId_ReversesId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;ReversesId&quot;) REFERENCES &quot;ManualIncomes&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3550,1013 C3575,1013 3575,188 3550,188" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_ManualIncomes_PaymentMethods_BusinessId_PaymentMethodId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;PaymentMethodId&quot;) REFERENCES &quot;PaymentMethods&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3060,1021 C1792.5,1021 1792.5,196 525,196" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_ManualIncomes_Users_ActorUserId: FOREIGN KEY (&quot;ActorUserId&quot;) REFERENCES &quot;Users&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1850,982 C1187.5,982 1187.5,512 525,512" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_OwnedVehicles_CustomerProfiles_CustomerProfileId: FOREIGN KEY (&quot;CustomerProfileId&quot;) REFERENCES &quot;CustomerProfiles&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M525,1710 C586,1710 586,188 525,188" fill="none" stroke="#145c6b" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_PasswordResetTokens_Users_UserId: FOREIGN KEY (&quot;UserId&quot;) REFERENCES &quot;Users&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3060,196 C2095.0,196 2095.0,196 1130,196" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_PaymentMethods_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3060,180 C1792.5,180 1792.5,180 525,180" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_PaymentMethods_Users_ActorUserId: FOREIGN KEY (&quot;ActorUserId&quot;) REFERENCES &quot;Users&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3060,474 C2095.0,474 2095.0,188 1130,188" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Payments_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3550,482 C3611,482 3611,196 3550,196" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Payments_PaymentMethods_BusinessId_PaymentMethodId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;PaymentMethodId&quot;) REFERENCES &quot;PaymentMethods&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3550,466 C3575,466 3575,466 3550,466" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Payments_Payments_BusinessId_CorrectsId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;CorrectsId&quot;) REFERENCES &quot;Payments&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3550,474 C3587,474 3587,474 3550,474" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Payments_Payments_BusinessId_ReversesId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;ReversesId&quot;) REFERENCES &quot;Payments&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3060,482 C1792.5,482 1792.5,196 525,196" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Payments_Users_ActorUserId: FOREIGN KEY (&quot;ActorUserId&quot;) REFERENCES &quot;Users&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M3060,466 C3002.5,466 3002.5,180 2945,180" fill="none" stroke="#805517" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_Payments_WorkOrders_BusinessId_WorkOrderId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;WorkOrderId&quot;) REFERENCES &quot;WorkOrders&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M525,1046 C550,1046 550,737 525,737" fill="none" stroke="#145c6b" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_RefreshTokens_DeviceSessions_DeviceSessionId: FOREIGN KEY (&quot;DeviceSessionId&quot;) REFERENCES &quot;DeviceSessions&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M525,1054 C562,1054 562,1054 525,1054" fill="none" stroke="#145c6b" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_RefreshTokens_RefreshTokens_DeviceSessionId_ReplacedByToken~: FOREIGN KEY (&quot;DeviceSessionId&quot;, &quot;ReplacedByTokenId&quot;) REFERENCES &quot;RefreshTokens&quot;(&quot;DeviceSessionId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2340,3332 C2389,3332 2389,1406 2340,1406" fill="none" stroke="#087f7c" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_SchedulingCreateReceipts_Appointments_BusinessId_Appointmen~: FOREIGN KEY (&quot;BusinessId&quot;, &quot;AppointmentId&quot;) REFERENCES &quot;Appointments&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1735,543 C1796,543 1796,188 1735,188" fill="none" stroke="#625585" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_ServiceOfferings_BusinessServices_ServiceId: FOREIGN KEY (&quot;ServiceId&quot;) REFERENCES &quot;BusinessServices&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1735,837 C1760,837 1760,196 1735,196" fill="none" stroke="#625585" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_ServiceSchedulingRequirements_BusinessServices_BusinessId_S~: FOREIGN KEY (&quot;BusinessId&quot;, &quot;ServiceId&quot;) REFERENCES &quot;BusinessServices&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1245,821 C1187.5,821 1187.5,180 1130,180" fill="none" stroke="#625585" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_ServiceSchedulingRequirements_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1735,829 C1784,829 1784,1562 1735,1562" fill="none" stroke="#625585" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_ServiceSchedulingRequirements_WorkAreas_BusinessId_WorkArea~: FOREIGN KEY (&quot;BusinessId&quot;, &quot;WorkAreaId&quot;) REFERENCES &quot;WorkAreas&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1735,1169 C1796,1169 1796,196 1735,196" fill="none" stroke="#625585" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_ServiceStageTemplates_BusinessServices_BusinessId_ServiceId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;ServiceId&quot;) REFERENCES &quot;BusinessServices&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1735,1153 C1760,1153 1760,1554 1735,1554" fill="none" stroke="#625585" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_ServiceStageTemplates_WorkAreas_BusinessId_WorkAreaId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;WorkAreaId&quot;) REFERENCES &quot;WorkAreas&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1130,1516 C1167,1516 1167,188 1130,188" fill="none" stroke="#445477" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_WeeklyOpeningDays_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M1245,1570 C1187.5,1570 1187.5,196 1130,196" fill="none" stroke="#625585" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_WorkAreas_Businesses_BusinessId: FOREIGN KEY (&quot;BusinessId&quot;) REFERENCES &quot;Businesses&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2455,1176 C1490.0,1176 1490.0,180 525,180" fill="none" stroke="#7d4f70" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_WorkOrderEvents_Users_ActorUserId: FOREIGN KEY (&quot;ActorUserId&quot;) REFERENCES &quot;Users&quot;(&quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2945,1184 C2970,1184 2970,520 2945,520" fill="none" stroke="#7d4f70" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_WorkOrderEvents_WorkOrderStages_BusinessId_WorkOrderId_Stag~: FOREIGN KEY (&quot;BusinessId&quot;, &quot;WorkOrderId&quot;, &quot;StageId&quot;) REFERENCES &quot;WorkOrderStages&quot;(&quot;BusinessId&quot;, &quot;WorkOrderId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2945,1192 C2982,1192 2982,196 2945,196" fill="none" stroke="#7d4f70" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_WorkOrderEvents_WorkOrders_BusinessId_WorkOrderId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;WorkOrderId&quot;) REFERENCES &quot;WorkOrders&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2455,512 C2095.0,512 2095.0,1554 1735,1554" fill="none" stroke="#7d4f70" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_WorkOrderStages_WorkAreas_BusinessId_WorkAreaId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;WorkAreaId&quot;) REFERENCES &quot;WorkAreas&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2945,520 C3006,520 3006,188 2945,188" fill="none" stroke="#7d4f70" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_WorkOrderStages_WorkOrders_BusinessId_WorkOrderId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;WorkOrderId&quot;) REFERENCES &quot;WorkOrders&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2455,196 C2397.5,196 2397.5,1422 2340,1422" fill="none" stroke="#7d4f70" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_WorkOrders_Appointments_BusinessId_AppointmentId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;AppointmentId&quot;) REFERENCES &quot;Appointments&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2455,959 C1792.5,959 1792.5,696 1130,696" fill="none" stroke="#7d4f70" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_WorkStageAssignments_BusinessMemberships_BusinessId_Employe~: FOREIGN KEY (&quot;BusinessId&quot;, &quot;EmployeeMembershipId&quot;) REFERENCES &quot;BusinessMemberships&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<path d="M2945,967 C2994,967 2994,520 2945,520" fill="none" stroke="#7d4f70" stroke-width="1.3" opacity="0.55" marker-end="url(#arrow)"><title>FK_WorkStageAssignments_WorkOrderStages_BusinessId_StageId: FOREIGN KEY (&quot;BusinessId&quot;, &quot;StageId&quot;) REFERENCES &quot;WorkOrderStages&quot;(&quot;BusinessId&quot;, &quot;Id&quot;) ON DELETE RESTRICT</title></path>
+<text x="35" y="135" font-size="20" font-weight="bold" fill="#145c6b">Identity</text>
+<text x="640" y="135" font-size="20" font-weight="bold" fill="#445477">Business</text>
+<text x="1245" y="135" font-size="20" font-weight="bold" fill="#625585">Resources and catalog</text>
+<text x="1850" y="135" font-size="20" font-weight="bold" fill="#087f7c">Shared appointment calendar</text>
+<text x="2455" y="135" font-size="20" font-weight="bold" fill="#7d4f70">Execution</text>
+<text x="3060" y="135" font-size="20" font-weight="bold" fill="#805517">Finance</text>
+<g><rect x="35" y="155" width="490" height="267" rx="8" fill="white" stroke="#145c6b" stroke-width="1.5"/><rect x="35" y="155" width="490" height="38" rx="8" fill="#145c6b"/><text x="47" y="180" font-size="17" font-weight="bold" fill="white">Users</text>
+<rect x="36" y="198" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="213" font-size="12" fill="#0f172a">Id [PK]</text><text x="515" y="213" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="45" y="236" font-size="12" fill="#0f172a">FullName</text><text x="515" y="236" text-anchor="end" font-size="11" fill="#526478">varchar(200)</text>
+<rect x="36" y="244" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="259" font-size="12" fill="#0f172a">Email</text><text x="515" y="259" text-anchor="end" font-size="11" fill="#526478">varchar(320)</text>
+<text x="45" y="282" font-size="12" fill="#0f172a">NormalizedEmail</text><text x="515" y="282" text-anchor="end" font-size="11" fill="#526478">varchar(320)</text>
+<rect x="36" y="290" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="305" font-size="12" fill="#0f172a">PasswordHash</text><text x="515" y="305" text-anchor="end" font-size="11" fill="#526478">varchar(2048)</text>
+<text x="45" y="328" font-size="12" fill="#0f172a">SecurityStamp</text><text x="515" y="328" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="36" y="336" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="351" font-size="12" fill="#0f172a">EmailVerifiedAt</text><text x="515" y="351" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<text x="45" y="374" font-size="12" fill="#0f172a">CreatedAt</text><text x="515" y="374" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="36" y="382" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="397" font-size="12" fill="#0f172a">UpdatedAt</text><text x="515" y="397" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+</g>
+<g><rect x="35" y="487" width="490" height="152" rx="8" fill="white" stroke="#145c6b" stroke-width="1.5"/><rect x="35" y="487" width="490" height="38" rx="8" fill="#145c6b"/><text x="47" y="512" font-size="17" font-weight="bold" fill="white">CustomerProfiles</text>
+<rect x="36" y="530" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="545" font-size="12" fill="#0f172a">Id [PK]</text><text x="515" y="545" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="45" y="568" font-size="12" fill="#0f172a">UserId [FK]</text><text x="515" y="568" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="36" y="576" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="591" font-size="12" fill="#0f172a">CreatedAt</text><text x="515" y="591" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="45" y="614" font-size="12" fill="#0f172a">UpdatedAt</text><text x="515" y="614" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+</g>
+<g><rect x="35" y="704" width="490" height="244" rx="8" fill="white" stroke="#145c6b" stroke-width="1.5"/><rect x="35" y="704" width="490" height="38" rx="8" fill="#145c6b"/><text x="47" y="729" font-size="17" font-weight="bold" fill="white">DeviceSessions</text>
+<rect x="36" y="747" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="762" font-size="12" fill="#0f172a">Id [PK]</text><text x="515" y="762" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="45" y="785" font-size="12" fill="#0f172a">UserId [FK]</text><text x="515" y="785" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="36" y="793" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="808" font-size="12" fill="#0f172a">SecurityStamp</text><text x="515" y="808" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="45" y="831" font-size="12" fill="#0f172a">DeviceName</text><text x="515" y="831" text-anchor="end" font-size="11" fill="#526478">varchar(200)</text>
+<rect x="36" y="839" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="854" font-size="12" fill="#0f172a">ExpiresAt</text><text x="515" y="854" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="45" y="877" font-size="12" fill="#0f172a">RevokedAt</text><text x="515" y="877" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<rect x="36" y="885" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="900" font-size="12" fill="#0f172a">CreatedAt</text><text x="515" y="900" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="45" y="923" font-size="12" fill="#0f172a">UpdatedAt</text><text x="515" y="923" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+</g>
+<g><rect x="35" y="1013" width="490" height="244" rx="8" fill="white" stroke="#145c6b" stroke-width="1.5"/><rect x="35" y="1013" width="490" height="38" rx="8" fill="#145c6b"/><text x="47" y="1038" font-size="17" font-weight="bold" fill="white">RefreshTokens</text>
+<rect x="36" y="1056" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="1071" font-size="12" fill="#0f172a">Id [PK]</text><text x="515" y="1071" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="45" y="1094" font-size="12" fill="#0f172a">DeviceSessionId [FK]</text><text x="515" y="1094" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="36" y="1102" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="1117" font-size="12" fill="#0f172a">TokenHash</text><text x="515" y="1117" text-anchor="end" font-size="11" fill="#526478">varchar(64)</text>
+<text x="45" y="1140" font-size="12" fill="#0f172a">ConsumedAt</text><text x="515" y="1140" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<rect x="36" y="1148" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="1163" font-size="12" fill="#0f172a">RevokedAt</text><text x="515" y="1163" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<text x="45" y="1186" font-size="12" fill="#0f172a">ReplacedByTokenId [FK]</text><text x="515" y="1186" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+<rect x="36" y="1194" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="1209" font-size="12" fill="#0f172a">CreatedAt</text><text x="515" y="1209" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="45" y="1232" font-size="12" fill="#0f172a">UpdatedAt</text><text x="515" y="1232" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+</g>
+<g><rect x="35" y="1322" width="490" height="290" rx="8" fill="white" stroke="#145c6b" stroke-width="1.5"/><rect x="35" y="1322" width="490" height="38" rx="8" fill="#145c6b"/><text x="47" y="1347" font-size="17" font-weight="bold" fill="white">EmailVerificationTokens</text>
+<rect x="36" y="1365" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="1380" font-size="12" fill="#0f172a">Id [PK]</text><text x="515" y="1380" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="45" y="1403" font-size="12" fill="#0f172a">UserId [FK]</text><text x="515" y="1403" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="36" y="1411" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="1426" font-size="12" fill="#0f172a">NormalizedEmail</text><text x="515" y="1426" text-anchor="end" font-size="11" fill="#526478">varchar(320)</text>
+<text x="45" y="1449" font-size="12" fill="#0f172a">SecurityStamp</text><text x="515" y="1449" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="36" y="1457" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="1472" font-size="12" fill="#0f172a">TokenHash</text><text x="515" y="1472" text-anchor="end" font-size="11" fill="#526478">varchar(64)</text>
+<text x="45" y="1495" font-size="12" fill="#0f172a">ExpiresAt</text><text x="515" y="1495" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="36" y="1503" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="1518" font-size="12" fill="#0f172a">ConsumedAt</text><text x="515" y="1518" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<text x="45" y="1541" font-size="12" fill="#0f172a">RevokedAt</text><text x="515" y="1541" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<rect x="36" y="1549" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="1564" font-size="12" fill="#0f172a">CreatedAt</text><text x="515" y="1564" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="45" y="1587" font-size="12" fill="#0f172a">UpdatedAt</text><text x="515" y="1587" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+</g>
+<g><rect x="35" y="1677" width="490" height="267" rx="8" fill="white" stroke="#145c6b" stroke-width="1.5"/><rect x="35" y="1677" width="490" height="38" rx="8" fill="#145c6b"/><text x="47" y="1702" font-size="17" font-weight="bold" fill="white">PasswordResetTokens</text>
+<rect x="36" y="1720" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="1735" font-size="12" fill="#0f172a">Id [PK]</text><text x="515" y="1735" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="45" y="1758" font-size="12" fill="#0f172a">UserId [FK]</text><text x="515" y="1758" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="36" y="1766" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="1781" font-size="12" fill="#0f172a">SecurityStamp</text><text x="515" y="1781" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="45" y="1804" font-size="12" fill="#0f172a">TokenHash</text><text x="515" y="1804" text-anchor="end" font-size="11" fill="#526478">varchar(64)</text>
+<rect x="36" y="1812" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="1827" font-size="12" fill="#0f172a">ExpiresAt</text><text x="515" y="1827" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="45" y="1850" font-size="12" fill="#0f172a">ConsumedAt</text><text x="515" y="1850" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<rect x="36" y="1858" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="1873" font-size="12" fill="#0f172a">RevokedAt</text><text x="515" y="1873" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<text x="45" y="1896" font-size="12" fill="#0f172a">CreatedAt</text><text x="515" y="1896" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="36" y="1904" width="488" height="23" fill="#f1f5f9"/>
+<text x="45" y="1919" font-size="12" fill="#0f172a">UpdatedAt</text><text x="515" y="1919" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+</g>
+<g><rect x="640" y="155" width="490" height="451" rx="8" fill="white" stroke="#445477" stroke-width="1.5"/><rect x="640" y="155" width="490" height="38" rx="8" fill="#445477"/><text x="652" y="180" font-size="17" font-weight="bold" fill="white">Businesses</text>
+<rect x="641" y="198" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="213" font-size="12" fill="#0f172a">Id [PK]</text><text x="1120" y="213" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="650" y="236" font-size="12" fill="#0f172a">Name</text><text x="1120" y="236" text-anchor="end" font-size="11" fill="#526478">varchar(200)</text>
+<rect x="641" y="244" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="259" font-size="12" fill="#0f172a">CreatedAt</text><text x="1120" y="259" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="650" y="282" font-size="12" fill="#0f172a">UpdatedAt</text><text x="1120" y="282" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="641" y="290" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="305" font-size="12" fill="#0f172a">AddressLine1</text><text x="1120" y="305" text-anchor="end" font-size="11" fill="#526478">varchar(250) ?</text>
+<text x="650" y="328" font-size="12" fill="#0f172a">AddressLine2</text><text x="1120" y="328" text-anchor="end" font-size="11" fill="#526478">varchar(250) ?</text>
+<rect x="641" y="336" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="351" font-size="12" fill="#0f172a">City</text><text x="1120" y="351" text-anchor="end" font-size="11" fill="#526478">varchar(100) ?</text>
+<text x="650" y="374" font-size="12" fill="#0f172a">ContactEmail</text><text x="1120" y="374" text-anchor="end" font-size="11" fill="#526478">varchar(320) ?</text>
+<rect x="641" y="382" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="397" font-size="12" fill="#0f172a">CountryCode</text><text x="1120" y="397" text-anchor="end" font-size="11" fill="#526478">varchar(2) ?</text>
+<text x="650" y="420" font-size="12" fill="#0f172a">Description</text><text x="1120" y="420" text-anchor="end" font-size="11" fill="#526478">varchar(2000) ?</text>
+<rect x="641" y="428" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="443" font-size="12" fill="#0f172a">District</text><text x="1120" y="443" text-anchor="end" font-size="11" fill="#526478">varchar(100) ?</text>
+<text x="650" y="466" font-size="12" fill="#0f172a">HoursConfigured</text><text x="1120" y="466" text-anchor="end" font-size="11" fill="#526478">bool</text>
+<rect x="641" y="474" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="489" font-size="12" fill="#0f172a">Phone</text><text x="1120" y="489" text-anchor="end" font-size="11" fill="#526478">varchar(40) ?</text>
+<text x="650" y="512" font-size="12" fill="#0f172a">PostalCode</text><text x="1120" y="512" text-anchor="end" font-size="11" fill="#526478">varchar(32) ?</text>
+<rect x="641" y="520" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="535" font-size="12" fill="#0f172a">Region</text><text x="1120" y="535" text-anchor="end" font-size="11" fill="#526478">varchar(100) ?</text>
+<text x="650" y="558" font-size="12" fill="#0f172a">TimeZoneId</text><text x="1120" y="558" text-anchor="end" font-size="11" fill="#526478">varchar(100) ?</text>
+<rect x="641" y="566" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="581" font-size="12" fill="#0f172a">CancellationRescheduleCutoffMinutes</text><text x="1120" y="581" text-anchor="end" font-size="11" fill="#526478">int</text>
+</g>
+<g><rect x="640" y="671" width="490" height="198" rx="8" fill="white" stroke="#445477" stroke-width="1.5"/><rect x="640" y="671" width="490" height="38" rx="8" fill="#445477"/><text x="652" y="696" font-size="17" font-weight="bold" fill="white">BusinessMemberships</text>
+<rect x="641" y="714" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="729" font-size="12" fill="#0f172a">Id [PK]</text><text x="1120" y="729" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="650" y="752" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="1120" y="752" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="641" y="760" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="775" font-size="12" fill="#0f172a">UserId [FK]</text><text x="1120" y="775" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="650" y="798" font-size="12" fill="#0f172a">RevokedAt</text><text x="1120" y="798" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<rect x="641" y="806" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="821" font-size="12" fill="#0f172a">CreatedAt</text><text x="1120" y="821" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="650" y="844" font-size="12" fill="#0f172a">UpdatedAt</text><text x="1120" y="844" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+</g>
+<g><rect x="640" y="934" width="490" height="106" rx="8" fill="white" stroke="#445477" stroke-width="1.5"/><rect x="640" y="934" width="490" height="38" rx="8" fill="#445477"/><text x="652" y="959" font-size="17" font-weight="bold" fill="white">BusinessMembershipRoles</text>
+<rect x="641" y="977" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="992" font-size="12" fill="#0f172a">BusinessMembershipId [PK,FK]</text><text x="1120" y="992" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="650" y="1015" font-size="12" fill="#0f172a">Role [PK]</text><text x="1120" y="1015" text-anchor="end" font-size="11" fill="#526478">int</text>
+</g>
+<g><rect x="640" y="1105" width="490" height="313" rx="8" fill="white" stroke="#445477" stroke-width="1.5"/><rect x="640" y="1105" width="490" height="38" rx="8" fill="#445477"/><text x="652" y="1130" font-size="17" font-weight="bold" fill="white">EmployeeInvitations</text>
+<rect x="641" y="1148" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="1163" font-size="12" fill="#0f172a">Id [PK]</text><text x="1120" y="1163" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="650" y="1186" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="1120" y="1186" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="641" y="1194" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="1209" font-size="12" fill="#0f172a">InvitedByMembershipId [FK]</text><text x="1120" y="1209" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="650" y="1232" font-size="12" fill="#0f172a">NormalizedEmail</text><text x="1120" y="1232" text-anchor="end" font-size="11" fill="#526478">varchar(320)</text>
+<rect x="641" y="1240" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="1255" font-size="12" fill="#0f172a">TokenHash</text><text x="1120" y="1255" text-anchor="end" font-size="11" fill="#526478">varchar(64)</text>
+<text x="650" y="1278" font-size="12" fill="#0f172a">ExpiresAt</text><text x="1120" y="1278" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="641" y="1286" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="1301" font-size="12" fill="#0f172a">AcceptedAt</text><text x="1120" y="1301" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<text x="650" y="1324" font-size="12" fill="#0f172a">AcceptedByUserId [FK]</text><text x="1120" y="1324" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+<rect x="641" y="1332" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="1347" font-size="12" fill="#0f172a">RevokedAt</text><text x="1120" y="1347" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<text x="650" y="1370" font-size="12" fill="#0f172a">CreatedAt</text><text x="1120" y="1370" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="641" y="1378" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="1393" font-size="12" fill="#0f172a">UpdatedAt</text><text x="1120" y="1393" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+</g>
+<g><rect x="640" y="1483" width="490" height="175" rx="8" fill="white" stroke="#445477" stroke-width="1.5"/><rect x="640" y="1483" width="490" height="38" rx="8" fill="#445477"/><text x="652" y="1508" font-size="17" font-weight="bold" fill="white">WeeklyOpeningDays</text>
+<rect x="641" y="1526" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="1541" font-size="12" fill="#0f172a">BusinessId [PK,FK]</text><text x="1120" y="1541" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="650" y="1564" font-size="12" fill="#0f172a">Day [PK]</text><text x="1120" y="1564" text-anchor="end" font-size="11" fill="#526478">int</text>
+<rect x="641" y="1572" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="1587" font-size="12" fill="#0f172a">Closed</text><text x="1120" y="1587" text-anchor="end" font-size="11" fill="#526478">bool</text>
+<text x="650" y="1610" font-size="12" fill="#0f172a">OpensAtMinute</text><text x="1120" y="1610" text-anchor="end" font-size="11" fill="#526478">int ?</text>
+<rect x="641" y="1618" width="488" height="23" fill="#f1f5f9"/>
+<text x="650" y="1633" font-size="12" fill="#0f172a">ClosesAtMinute</text><text x="1120" y="1633" text-anchor="end" font-size="11" fill="#526478">int ?</text>
+</g>
+<g><rect x="1245" y="155" width="490" height="290" rx="8" fill="white" stroke="#625585" stroke-width="1.5"/><rect x="1245" y="155" width="490" height="38" rx="8" fill="#625585"/><text x="1257" y="180" font-size="17" font-weight="bold" fill="white">BusinessServices</text>
+<rect x="1246" y="198" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="213" font-size="12" fill="#0f172a">Id [PK]</text><text x="1725" y="213" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1255" y="236" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="1725" y="236" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1246" y="244" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="259" font-size="12" fill="#0f172a">Name</text><text x="1725" y="259" text-anchor="end" font-size="11" fill="#526478">varchar(200)</text>
+<text x="1255" y="282" font-size="12" fill="#0f172a">SearchName</text><text x="1725" y="282" text-anchor="end" font-size="11" fill="#526478">varchar(200)</text>
+<rect x="1246" y="290" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="305" font-size="12" fill="#0f172a">Description</text><text x="1725" y="305" text-anchor="end" font-size="11" fill="#526478">varchar(2000) ?</text>
+<text x="1255" y="328" font-size="12" fill="#0f172a">Enabled</text><text x="1725" y="328" text-anchor="end" font-size="11" fill="#526478">bool</text>
+<rect x="1246" y="336" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="351" font-size="12" fill="#0f172a">Published</text><text x="1725" y="351" text-anchor="end" font-size="11" fill="#526478">bool</text>
+<text x="1255" y="374" font-size="12" fill="#0f172a">ArchivedAt</text><text x="1725" y="374" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<rect x="1246" y="382" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="397" font-size="12" fill="#0f172a">CreatedAt</text><text x="1725" y="397" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1255" y="420" font-size="12" fill="#0f172a">UpdatedAt</text><text x="1725" y="420" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+</g>
+<g><rect x="1245" y="510" width="490" height="221" rx="8" fill="white" stroke="#625585" stroke-width="1.5"/><rect x="1245" y="510" width="490" height="38" rx="8" fill="#625585"/><text x="1257" y="535" font-size="17" font-weight="bold" fill="white">ServiceOfferings</text>
+<rect x="1246" y="553" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="568" font-size="12" fill="#0f172a">ServiceId [PK,FK]</text><text x="1725" y="568" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1255" y="591" font-size="12" fill="#0f172a">Category [PK]</text><text x="1725" y="591" text-anchor="end" font-size="11" fill="#526478">varchar(32)</text>
+<rect x="1246" y="599" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="614" font-size="12" fill="#0f172a">Price</text><text x="1725" y="614" text-anchor="end" font-size="11" fill="#526478">numeric(9,2)</text>
+<text x="1255" y="637" font-size="12" fill="#0f172a">Currency</text><text x="1725" y="637" text-anchor="end" font-size="11" fill="#526478">varchar(3)</text>
+<rect x="1246" y="645" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="660" font-size="12" fill="#0f172a">ActiveMinutes</text><text x="1725" y="660" text-anchor="end" font-size="11" fill="#526478">int</text>
+<text x="1255" y="683" font-size="12" fill="#0f172a">WaitingMinutes</text><text x="1725" y="683" text-anchor="end" font-size="11" fill="#526478">int ?</text>
+<rect x="1246" y="691" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="706" font-size="12" fill="#0f172a">Employees</text><text x="1725" y="706" text-anchor="end" font-size="11" fill="#526478">int</text>
+</g>
+<g><rect x="1245" y="796" width="490" height="267" rx="8" fill="white" stroke="#625585" stroke-width="1.5"/><rect x="1245" y="796" width="490" height="38" rx="8" fill="#625585"/><text x="1257" y="821" font-size="17" font-weight="bold" fill="white">ServiceSchedulingRequirements</text>
+<rect x="1246" y="839" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="854" font-size="12" fill="#0f172a">Id [PK]</text><text x="1725" y="854" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1255" y="877" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="1725" y="877" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1246" y="885" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="900" font-size="12" fill="#0f172a">CreatedAt</text><text x="1725" y="900" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1255" y="923" font-size="12" fill="#0f172a">UpdatedAt</text><text x="1725" y="923" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="1246" y="931" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="946" font-size="12" fill="#0f172a">ServiceId [FK]</text><text x="1725" y="946" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1255" y="969" font-size="12" fill="#0f172a">Category</text><text x="1725" y="969" text-anchor="end" font-size="11" fill="#526478">varchar(32)</text>
+<rect x="1246" y="977" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="992" font-size="12" fill="#0f172a">WorkAreaId [FK]</text><text x="1725" y="992" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1255" y="1015" font-size="12" fill="#0f172a">SingleStageConfirmed</text><text x="1725" y="1015" text-anchor="end" font-size="11" fill="#526478">bool</text>
+<rect x="1246" y="1023" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="1038" font-size="12" fill="#0f172a">StagePlanEnabled</text><text x="1725" y="1038" text-anchor="end" font-size="11" fill="#526478">bool</text>
+</g>
+<g><rect x="1245" y="1128" width="490" height="336" rx="8" fill="white" stroke="#625585" stroke-width="1.5"/><rect x="1245" y="1128" width="490" height="38" rx="8" fill="#625585"/><text x="1257" y="1153" font-size="17" font-weight="bold" fill="white">ServiceStageTemplates</text>
+<rect x="1246" y="1171" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="1186" font-size="12" fill="#0f172a">Id [PK]</text><text x="1725" y="1186" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1255" y="1209" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="1725" y="1209" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1246" y="1217" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="1232" font-size="12" fill="#0f172a">ServiceId [FK]</text><text x="1725" y="1232" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1255" y="1255" font-size="12" fill="#0f172a">Category</text><text x="1725" y="1255" text-anchor="end" font-size="11" fill="#526478">varchar(32)</text>
+<rect x="1246" y="1263" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="1278" font-size="12" fill="#0f172a">Sequence</text><text x="1725" y="1278" text-anchor="end" font-size="11" fill="#526478">int</text>
+<text x="1255" y="1301" font-size="12" fill="#0f172a">Name</text><text x="1725" y="1301" text-anchor="end" font-size="11" fill="#526478">varchar(100)</text>
+<rect x="1246" y="1309" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="1324" font-size="12" fill="#0f172a">Minutes</text><text x="1725" y="1324" text-anchor="end" font-size="11" fill="#526478">int</text>
+<text x="1255" y="1347" font-size="12" fill="#0f172a">WorkAreaId [FK]</text><text x="1725" y="1347" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1246" y="1355" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="1370" font-size="12" fill="#0f172a">Employees</text><text x="1725" y="1370" text-anchor="end" font-size="11" fill="#526478">int</text>
+<text x="1255" y="1393" font-size="12" fill="#0f172a">ArchivedAt</text><text x="1725" y="1393" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<rect x="1246" y="1401" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="1416" font-size="12" fill="#0f172a">CreatedAt</text><text x="1725" y="1416" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1255" y="1439" font-size="12" fill="#0f172a">UpdatedAt</text><text x="1725" y="1439" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+</g>
+<g><rect x="1245" y="1529" width="490" height="221" rx="8" fill="white" stroke="#625585" stroke-width="1.5"/><rect x="1245" y="1529" width="490" height="38" rx="8" fill="#625585"/><text x="1257" y="1554" font-size="17" font-weight="bold" fill="white">WorkAreas</text>
+<rect x="1246" y="1572" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="1587" font-size="12" fill="#0f172a">Id [PK]</text><text x="1725" y="1587" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1255" y="1610" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="1725" y="1610" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1246" y="1618" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="1633" font-size="12" fill="#0f172a">CreatedAt</text><text x="1725" y="1633" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1255" y="1656" font-size="12" fill="#0f172a">UpdatedAt</text><text x="1725" y="1656" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="1246" y="1664" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="1679" font-size="12" fill="#0f172a">Name</text><text x="1725" y="1679" text-anchor="end" font-size="11" fill="#526478">varchar(200)</text>
+<text x="1255" y="1702" font-size="12" fill="#0f172a">Capacity</text><text x="1725" y="1702" text-anchor="end" font-size="11" fill="#526478">int</text>
+<rect x="1246" y="1710" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="1725" font-size="12" fill="#0f172a">ArchivedAt</text><text x="1725" y="1725" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+</g>
+<g><rect x="1245" y="1815" width="490" height="244" rx="8" fill="white" stroke="#625585" stroke-width="1.5"/><rect x="1245" y="1815" width="490" height="38" rx="8" fill="#625585"/><text x="1257" y="1840" font-size="17" font-weight="bold" fill="white">EmployeeAvailabilities</text>
+<rect x="1246" y="1858" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="1873" font-size="12" fill="#0f172a">Id [PK]</text><text x="1725" y="1873" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1255" y="1896" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="1725" y="1896" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1246" y="1904" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="1919" font-size="12" fill="#0f172a">CreatedAt</text><text x="1725" y="1919" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1255" y="1942" font-size="12" fill="#0f172a">UpdatedAt</text><text x="1725" y="1942" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="1246" y="1950" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="1965" font-size="12" fill="#0f172a">MembershipId [FK]</text><text x="1725" y="1965" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1255" y="1988" font-size="12" fill="#0f172a">StartsAtUtc</text><text x="1725" y="1988" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="1246" y="1996" width="488" height="23" fill="#f1f5f9"/>
+<text x="1255" y="2011" font-size="12" fill="#0f172a">EndsAtUtc</text><text x="1725" y="2011" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1255" y="2034" font-size="12" fill="#0f172a">ArchivedAt</text><text x="1725" y="2034" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+</g>
+<g><rect x="1850" y="155" width="490" height="290" rx="8" fill="white" stroke="#087f7c" stroke-width="1.5"/><rect x="1850" y="155" width="490" height="38" rx="8" fill="#087f7c"/><text x="1862" y="180" font-size="17" font-weight="bold" fill="white">LocalCustomers</text>
+<rect x="1851" y="198" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="213" font-size="12" fill="#0f172a">Id [PK]</text><text x="2330" y="213" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="236" font-size="12" fill="#0f172a">CreatedAt</text><text x="2330" y="236" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="1851" y="244" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="259" font-size="12" fill="#0f172a">UpdatedAt</text><text x="2330" y="259" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1860" y="282" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="2330" y="282" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1851" y="290" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="305" font-size="12" fill="#0f172a">FullName</text><text x="2330" y="305" text-anchor="end" font-size="11" fill="#526478">varchar(200)</text>
+<text x="1860" y="328" font-size="12" fill="#0f172a">NormalizedName</text><text x="2330" y="328" text-anchor="end" font-size="11" fill="#526478">varchar(200)</text>
+<rect x="1851" y="336" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="351" font-size="12" fill="#0f172a">Phone</text><text x="2330" y="351" text-anchor="end" font-size="11" fill="#526478">varchar(40) ?</text>
+<text x="1860" y="374" font-size="12" fill="#0f172a">NormalizedPhone</text><text x="2330" y="374" text-anchor="end" font-size="11" fill="#526478">varchar(40) ?</text>
+<rect x="1851" y="382" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="397" font-size="12" fill="#0f172a">Email</text><text x="2330" y="397" text-anchor="end" font-size="11" fill="#526478">varchar(320) ?</text>
+<text x="1860" y="420" font-size="12" fill="#0f172a">Notes</text><text x="2330" y="420" text-anchor="end" font-size="11" fill="#526478">varchar(2000) ?</text>
+</g>
+<g><rect x="1850" y="510" width="490" height="382" rx="8" fill="white" stroke="#087f7c" stroke-width="1.5"/><rect x="1850" y="510" width="490" height="38" rx="8" fill="#087f7c"/><text x="1862" y="535" font-size="17" font-weight="bold" fill="white">LocalVehicles</text>
+<rect x="1851" y="553" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="568" font-size="12" fill="#0f172a">Id [PK]</text><text x="2330" y="568" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="591" font-size="12" fill="#0f172a">CreatedAt</text><text x="2330" y="591" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="1851" y="599" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="614" font-size="12" fill="#0f172a">UpdatedAt</text><text x="2330" y="614" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1860" y="637" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="2330" y="637" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1851" y="645" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="660" font-size="12" fill="#0f172a">LocalCustomerId [FK]</text><text x="2330" y="660" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="683" font-size="12" fill="#0f172a">Plate</text><text x="2330" y="683" text-anchor="end" font-size="11" fill="#526478">varchar(32)</text>
+<rect x="1851" y="691" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="706" font-size="12" fill="#0f172a">NormalizedPlate</text><text x="2330" y="706" text-anchor="end" font-size="11" fill="#526478">varchar(64)</text>
+<text x="1860" y="729" font-size="12" fill="#0f172a">Brand</text><text x="2330" y="729" text-anchor="end" font-size="11" fill="#526478">varchar(80)</text>
+<rect x="1851" y="737" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="752" font-size="12" fill="#0f172a">Model</text><text x="2330" y="752" text-anchor="end" font-size="11" fill="#526478">varchar(100)</text>
+<text x="1860" y="775" font-size="12" fill="#0f172a">Category</text><text x="2330" y="775" text-anchor="end" font-size="11" fill="#526478">varchar(32)</text>
+<rect x="1851" y="783" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="798" font-size="12" fill="#0f172a">ModelYear</text><text x="2330" y="798" text-anchor="end" font-size="11" fill="#526478">int ?</text>
+<text x="1860" y="821" font-size="12" fill="#0f172a">Color</text><text x="2330" y="821" text-anchor="end" font-size="11" fill="#526478">varchar(60) ?</text>
+<rect x="1851" y="829" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="844" font-size="12" fill="#0f172a">Notes</text><text x="2330" y="844" text-anchor="end" font-size="11" fill="#526478">varchar(2000) ?</text>
+<text x="1860" y="867" font-size="12" fill="#0f172a">ArchivedAt</text><text x="2330" y="867" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+</g>
+<g><rect x="1850" y="957" width="490" height="359" rx="8" fill="white" stroke="#087f7c" stroke-width="1.5"/><rect x="1850" y="957" width="490" height="38" rx="8" fill="#087f7c"/><text x="1862" y="982" font-size="17" font-weight="bold" fill="white">OwnedVehicles</text>
+<rect x="1851" y="1000" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1015" font-size="12" fill="#0f172a">Id [PK]</text><text x="2330" y="1015" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="1038" font-size="12" fill="#0f172a">CreatedAt</text><text x="2330" y="1038" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="1851" y="1046" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1061" font-size="12" fill="#0f172a">UpdatedAt</text><text x="2330" y="1061" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1860" y="1084" font-size="12" fill="#0f172a">CustomerProfileId [FK]</text><text x="2330" y="1084" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1851" y="1092" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1107" font-size="12" fill="#0f172a">Plate</text><text x="2330" y="1107" text-anchor="end" font-size="11" fill="#526478">varchar(32)</text>
+<text x="1860" y="1130" font-size="12" fill="#0f172a">NormalizedPlate</text><text x="2330" y="1130" text-anchor="end" font-size="11" fill="#526478">varchar(64)</text>
+<rect x="1851" y="1138" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1153" font-size="12" fill="#0f172a">Brand</text><text x="2330" y="1153" text-anchor="end" font-size="11" fill="#526478">varchar(80)</text>
+<text x="1860" y="1176" font-size="12" fill="#0f172a">Model</text><text x="2330" y="1176" text-anchor="end" font-size="11" fill="#526478">varchar(100)</text>
+<rect x="1851" y="1184" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1199" font-size="12" fill="#0f172a">Category</text><text x="2330" y="1199" text-anchor="end" font-size="11" fill="#526478">varchar(32)</text>
+<text x="1860" y="1222" font-size="12" fill="#0f172a">ModelYear</text><text x="2330" y="1222" text-anchor="end" font-size="11" fill="#526478">int ?</text>
+<rect x="1851" y="1230" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1245" font-size="12" fill="#0f172a">Color</text><text x="2330" y="1245" text-anchor="end" font-size="11" fill="#526478">varchar(60) ?</text>
+<text x="1860" y="1268" font-size="12" fill="#0f172a">Notes</text><text x="2330" y="1268" text-anchor="end" font-size="11" fill="#526478">varchar(2000) ?</text>
+<rect x="1851" y="1276" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1291" font-size="12" fill="#0f172a">ArchivedAt</text><text x="2330" y="1291" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+</g>
+<g><rect x="1850" y="1381" width="490" height="681" rx="8" fill="white" stroke="#087f7c" stroke-width="1.5"/><rect x="1850" y="1381" width="490" height="38" rx="8" fill="#087f7c"/><text x="1862" y="1406" font-size="17" font-weight="bold" fill="white">Appointments</text>
+<rect x="1851" y="1424" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1439" font-size="12" fill="#0f172a">Id [PK]</text><text x="2330" y="1439" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="1462" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="2330" y="1462" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1851" y="1470" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1485" font-size="12" fill="#0f172a">CreatedAt</text><text x="2330" y="1485" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1860" y="1508" font-size="12" fill="#0f172a">UpdatedAt</text><text x="2330" y="1508" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="1851" y="1516" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1531" font-size="12" fill="#0f172a">LocalCustomerId [FK]</text><text x="2330" y="1531" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+<text x="1860" y="1554" font-size="12" fill="#0f172a">LocalVehicleId [FK]</text><text x="2330" y="1554" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+<rect x="1851" y="1562" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1577" font-size="12" fill="#0f172a">ServiceId [FK]</text><text x="2330" y="1577" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="1600" font-size="12" fill="#0f172a">WorkAreaId [FK]</text><text x="2330" y="1600" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1851" y="1608" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1623" font-size="12" fill="#0f172a">CreatedByUserId [FK]</text><text x="2330" y="1623" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="1646" font-size="12" fill="#0f172a">ClientRequestId</text><text x="2330" y="1646" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1851" y="1654" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1669" font-size="12" fill="#0f172a">RequestHash</text><text x="2330" y="1669" text-anchor="end" font-size="11" fill="#526478">varchar(64)</text>
+<text x="1860" y="1692" font-size="12" fill="#0f172a">Source</text><text x="2330" y="1692" text-anchor="end" font-size="11" fill="#526478">int</text>
+<rect x="1851" y="1700" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1715" font-size="12" fill="#0f172a">Status</text><text x="2330" y="1715" text-anchor="end" font-size="11" fill="#526478">int</text>
+<text x="1860" y="1738" font-size="12" fill="#0f172a">StartsAtUtc</text><text x="2330" y="1738" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="1851" y="1746" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1761" font-size="12" fill="#0f172a">ActiveEndsAtUtc</text><text x="2330" y="1761" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1860" y="1784" font-size="12" fill="#0f172a">TimeZoneIdSnapshot</text><text x="2330" y="1784" text-anchor="end" font-size="11" fill="#526478">varchar(100)</text>
+<rect x="1851" y="1792" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1807" font-size="12" fill="#0f172a">ServiceName</text><text x="2330" y="1807" text-anchor="end" font-size="11" fill="#526478">varchar(200)</text>
+<text x="1860" y="1830" font-size="12" fill="#0f172a">CustomerName</text><text x="2330" y="1830" text-anchor="end" font-size="11" fill="#526478">varchar(200)</text>
+<rect x="1851" y="1838" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1853" font-size="12" fill="#0f172a">VehiclePlate</text><text x="2330" y="1853" text-anchor="end" font-size="11" fill="#526478">varchar(32)</text>
+<text x="1860" y="1876" font-size="12" fill="#0f172a">Category</text><text x="2330" y="1876" text-anchor="end" font-size="11" fill="#526478">varchar(32)</text>
+<rect x="1851" y="1884" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1899" font-size="12" fill="#0f172a">Price</text><text x="2330" y="1899" text-anchor="end" font-size="11" fill="#526478">numeric(9,2)</text>
+<text x="1860" y="1922" font-size="12" fill="#0f172a">Currency</text><text x="2330" y="1922" text-anchor="end" font-size="11" fill="#526478">varchar(3)</text>
+<rect x="1851" y="1930" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1945" font-size="12" fill="#0f172a">ActiveMinutes</text><text x="2330" y="1945" text-anchor="end" font-size="11" fill="#526478">int</text>
+<text x="1860" y="1968" font-size="12" fill="#0f172a">WaitingMinutes</text><text x="2330" y="1968" text-anchor="end" font-size="11" fill="#526478">int ?</text>
+<rect x="1851" y="1976" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="1991" font-size="12" fill="#0f172a">Employees</text><text x="2330" y="1991" text-anchor="end" font-size="11" fill="#526478">int</text>
+<text x="1860" y="2014" font-size="12" fill="#0f172a">CustomerProfileId [FK]</text><text x="2330" y="2014" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+<rect x="1851" y="2022" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2037" font-size="12" fill="#0f172a">OwnedVehicleId [FK]</text><text x="2330" y="2037" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+</g>
+<g><rect x="1850" y="2127" width="490" height="313" rx="8" fill="white" stroke="#087f7c" stroke-width="1.5"/><rect x="1850" y="2127" width="490" height="38" rx="8" fill="#087f7c"/><text x="1862" y="2152" font-size="17" font-weight="bold" fill="white">AppointmentStages</text>
+<rect x="1851" y="2170" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2185" font-size="12" fill="#0f172a">Id [PK]</text><text x="2330" y="2185" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="2208" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="2330" y="2208" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1851" y="2216" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2231" font-size="12" fill="#0f172a">AppointmentId [FK]</text><text x="2330" y="2231" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="2254" font-size="12" fill="#0f172a">Sequence</text><text x="2330" y="2254" text-anchor="end" font-size="11" fill="#526478">int</text>
+<rect x="1851" y="2262" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2277" font-size="12" fill="#0f172a">Name</text><text x="2330" y="2277" text-anchor="end" font-size="11" fill="#526478">varchar(100)</text>
+<text x="1860" y="2300" font-size="12" fill="#0f172a">OffsetMinutes</text><text x="2330" y="2300" text-anchor="end" font-size="11" fill="#526478">int</text>
+<rect x="1851" y="2308" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2323" font-size="12" fill="#0f172a">Minutes</text><text x="2330" y="2323" text-anchor="end" font-size="11" fill="#526478">int</text>
+<text x="1860" y="2346" font-size="12" fill="#0f172a">WorkAreaId [FK]</text><text x="2330" y="2346" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1851" y="2354" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2369" font-size="12" fill="#0f172a">Employees</text><text x="2330" y="2369" text-anchor="end" font-size="11" fill="#526478">int</text>
+<text x="1860" y="2392" font-size="12" fill="#0f172a">CreatedAt</text><text x="2330" y="2392" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="1851" y="2400" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2415" font-size="12" fill="#0f172a">UpdatedAt</text><text x="2330" y="2415" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+</g>
+<g><rect x="1850" y="2505" width="490" height="359" rx="8" fill="white" stroke="#087f7c" stroke-width="1.5"/><rect x="1850" y="2505" width="490" height="38" rx="8" fill="#087f7c"/><text x="1862" y="2530" font-size="17" font-weight="bold" fill="white">AppointmentEvents</text>
+<rect x="1851" y="2548" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2563" font-size="12" fill="#0f172a">Id [PK]</text><text x="2330" y="2563" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="2586" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="2330" y="2586" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1851" y="2594" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2609" font-size="12" fill="#0f172a">CreatedAt</text><text x="2330" y="2609" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1860" y="2632" font-size="12" fill="#0f172a">UpdatedAt</text><text x="2330" y="2632" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="1851" y="2640" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2655" font-size="12" fill="#0f172a">AppointmentId [FK]</text><text x="2330" y="2655" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="2678" font-size="12" fill="#0f172a">ActorUserId [FK]</text><text x="2330" y="2678" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1851" y="2686" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2701" font-size="12" fill="#0f172a">Sequence</text><text x="2330" y="2701" text-anchor="end" font-size="11" fill="#526478">int</text>
+<text x="1860" y="2724" font-size="12" fill="#0f172a">Kind</text><text x="2330" y="2724" text-anchor="end" font-size="11" fill="#526478">int</text>
+<rect x="1851" y="2732" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2747" font-size="12" fill="#0f172a">PreviousStart</text><text x="2330" y="2747" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<text x="1860" y="2770" font-size="12" fill="#0f172a">PreviousEnd</text><text x="2330" y="2770" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<rect x="1851" y="2778" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2793" font-size="12" fill="#0f172a">NewStart</text><text x="2330" y="2793" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1860" y="2816" font-size="12" fill="#0f172a">NewEnd</text><text x="2330" y="2816" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="1851" y="2824" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2839" font-size="12" fill="#0f172a">Status</text><text x="2330" y="2839" text-anchor="end" font-size="11" fill="#526478">int</text>
+</g>
+<g><rect x="1850" y="2929" width="490" height="313" rx="8" fill="white" stroke="#087f7c" stroke-width="1.5"/><rect x="1850" y="2929" width="490" height="38" rx="8" fill="#087f7c"/><text x="1862" y="2954" font-size="17" font-weight="bold" fill="white">AppointmentResourceReservations</text>
+<rect x="1851" y="2972" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="2987" font-size="12" fill="#0f172a">Id [PK]</text><text x="2330" y="2987" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="3010" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="2330" y="3010" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1851" y="3018" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="3033" font-size="12" fill="#0f172a">CreatedAt</text><text x="2330" y="3033" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1860" y="3056" font-size="12" fill="#0f172a">UpdatedAt</text><text x="2330" y="3056" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="1851" y="3064" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="3079" font-size="12" fill="#0f172a">AppointmentId [FK]</text><text x="2330" y="3079" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="3102" font-size="12" fill="#0f172a">WorkAreaId [FK]</text><text x="2330" y="3102" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+<rect x="1851" y="3110" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="3125" font-size="12" fill="#0f172a">EmployeeMembershipId [FK]</text><text x="2330" y="3125" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+<text x="1860" y="3148" font-size="12" fill="#0f172a">StartsAtUtc</text><text x="2330" y="3148" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="1851" y="3156" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="3171" font-size="12" fill="#0f172a">EndsAtUtc</text><text x="2330" y="3171" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="1860" y="3194" font-size="12" fill="#0f172a">ReleasedAt</text><text x="2330" y="3194" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<rect x="1851" y="3202" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="3217" font-size="12" fill="#0f172a">StageId [FK]</text><text x="2330" y="3217" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+</g>
+<g><rect x="1850" y="3307" width="490" height="152" rx="8" fill="white" stroke="#087f7c" stroke-width="1.5"/><rect x="1850" y="3307" width="490" height="38" rx="8" fill="#087f7c"/><text x="1862" y="3332" font-size="17" font-weight="bold" fill="white">SchedulingCreateReceipts</text>
+<rect x="1851" y="3350" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="3365" font-size="12" fill="#0f172a">BusinessId [PK,FK]</text><text x="2330" y="3365" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="3388" font-size="12" fill="#0f172a">ClientRequestId [PK]</text><text x="2330" y="3388" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="1851" y="3396" width="488" height="23" fill="#f1f5f9"/>
+<text x="1860" y="3411" font-size="12" fill="#0f172a">AppointmentId [FK]</text><text x="2330" y="3411" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="1860" y="3434" font-size="12" fill="#0f172a">ResultJson</text><text x="2330" y="3434" text-anchor="end" font-size="11" fill="#526478">jsonb</text>
+</g>
+<g><rect x="2455" y="155" width="490" height="267" rx="8" fill="white" stroke="#7d4f70" stroke-width="1.5"/><rect x="2455" y="155" width="490" height="38" rx="8" fill="#7d4f70"/><text x="2467" y="180" font-size="17" font-weight="bold" fill="white">WorkOrders</text>
+<rect x="2456" y="198" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="213" font-size="12" fill="#0f172a">Id [PK]</text><text x="2935" y="213" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="2465" y="236" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="2935" y="236" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="2456" y="244" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="259" font-size="12" fill="#0f172a">AppointmentId [FK]</text><text x="2935" y="259" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="2465" y="282" font-size="12" fill="#0f172a">CreationHash</text><text x="2935" y="282" text-anchor="end" font-size="11" fill="#526478">varchar(64)</text>
+<rect x="2456" y="290" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="305" font-size="12" fill="#0f172a">CreatedAt</text><text x="2935" y="305" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="2465" y="328" font-size="12" fill="#0f172a">UpdatedAt</text><text x="2935" y="328" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="2456" y="336" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="351" font-size="12" fill="#0f172a">CompletedAtUtc</text><text x="2935" y="351" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<text x="2465" y="374" font-size="12" fill="#0f172a">CancelledAtUtc</text><text x="2935" y="374" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<rect x="2456" y="382" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="397" font-size="12" fill="#0f172a">PlannedStartUtc</text><text x="2935" y="397" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+</g>
+<g><rect x="2455" y="487" width="490" height="382" rx="8" fill="white" stroke="#7d4f70" stroke-width="1.5"/><rect x="2455" y="487" width="490" height="38" rx="8" fill="#7d4f70"/><text x="2467" y="512" font-size="17" font-weight="bold" fill="white">WorkOrderStages</text>
+<rect x="2456" y="530" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="545" font-size="12" fill="#0f172a">Id [PK]</text><text x="2935" y="545" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="2465" y="568" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="2935" y="568" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="2456" y="576" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="591" font-size="12" fill="#0f172a">WorkOrderId [FK]</text><text x="2935" y="591" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="2465" y="614" font-size="12" fill="#0f172a">Sequence</text><text x="2935" y="614" text-anchor="end" font-size="11" fill="#526478">int</text>
+<rect x="2456" y="622" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="637" font-size="12" fill="#0f172a">Name</text><text x="2935" y="637" text-anchor="end" font-size="11" fill="#526478">varchar(100)</text>
+<text x="2465" y="660" font-size="12" fill="#0f172a">EstimatedMinutes</text><text x="2935" y="660" text-anchor="end" font-size="11" fill="#526478">int</text>
+<rect x="2456" y="668" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="683" font-size="12" fill="#0f172a">Status</text><text x="2935" y="683" text-anchor="end" font-size="11" fill="#526478">int</text>
+<text x="2465" y="706" font-size="12" fill="#0f172a">StartedAtUtc</text><text x="2935" y="706" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<rect x="2456" y="714" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="729" font-size="12" fill="#0f172a">CompletedAtUtc</text><text x="2935" y="729" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<text x="2465" y="752" font-size="12" fill="#0f172a">PausedAtUtc</text><text x="2935" y="752" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<rect x="2456" y="760" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="775" font-size="12" fill="#0f172a">PausedMilliseconds</text><text x="2935" y="775" text-anchor="end" font-size="11" fill="#526478">bigint</text>
+<text x="2465" y="798" font-size="12" fill="#0f172a">CreatedAt</text><text x="2935" y="798" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="2456" y="806" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="821" font-size="12" fill="#0f172a">UpdatedAt</text><text x="2935" y="821" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="2465" y="844" font-size="12" fill="#0f172a">WorkAreaId [FK]</text><text x="2935" y="844" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+</g>
+<g><rect x="2455" y="934" width="490" height="152" rx="8" fill="white" stroke="#7d4f70" stroke-width="1.5"/><rect x="2455" y="934" width="490" height="38" rx="8" fill="#7d4f70"/><text x="2467" y="959" font-size="17" font-weight="bold" fill="white">WorkStageAssignments</text>
+<rect x="2456" y="977" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="992" font-size="12" fill="#0f172a">BusinessId [PK,FK]</text><text x="2935" y="992" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="2465" y="1015" font-size="12" fill="#0f172a">StageId [PK,FK]</text><text x="2935" y="1015" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="2456" y="1023" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="1038" font-size="12" fill="#0f172a">EmployeeMembershipId [PK,FK]</text><text x="2935" y="1038" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="2465" y="1061" font-size="12" fill="#0f172a">AssignedAtUtc</text><text x="2935" y="1061" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+</g>
+<g><rect x="2455" y="1151" width="490" height="244" rx="8" fill="white" stroke="#7d4f70" stroke-width="1.5"/><rect x="2455" y="1151" width="490" height="38" rx="8" fill="#7d4f70"/><text x="2467" y="1176" font-size="17" font-weight="bold" fill="white">WorkOrderEvents</text>
+<rect x="2456" y="1194" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="1209" font-size="12" fill="#0f172a">Id [PK]</text><text x="2935" y="1209" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="2465" y="1232" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="2935" y="1232" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="2456" y="1240" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="1255" font-size="12" fill="#0f172a">WorkOrderId [FK]</text><text x="2935" y="1255" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="2465" y="1278" font-size="12" fill="#0f172a">StageId [FK]</text><text x="2935" y="1278" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+<rect x="2456" y="1286" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="1301" font-size="12" fill="#0f172a">ActorUserId [FK]</text><text x="2935" y="1301" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="2465" y="1324" font-size="12" fill="#0f172a">RequestId</text><text x="2935" y="1324" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="2456" y="1332" width="488" height="23" fill="#f1f5f9"/>
+<text x="2465" y="1347" font-size="12" fill="#0f172a">Action</text><text x="2935" y="1347" text-anchor="end" font-size="11" fill="#526478">varchar(20)</text>
+<text x="2465" y="1370" font-size="12" fill="#0f172a">AtUtc</text><text x="2935" y="1370" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+</g>
+<g><rect x="3060" y="155" width="490" height="221" rx="8" fill="white" stroke="#805517" stroke-width="1.5"/><rect x="3060" y="155" width="490" height="38" rx="8" fill="#805517"/><text x="3072" y="180" font-size="17" font-weight="bold" fill="white">PaymentMethods</text>
+<rect x="3061" y="198" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="213" font-size="12" fill="#0f172a">Id [PK]</text><text x="3540" y="213" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="3070" y="236" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="3540" y="236" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="3061" y="244" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="259" font-size="12" fill="#0f172a">Name</text><text x="3540" y="259" text-anchor="end" font-size="11" fill="#526478">varchar(100)</text>
+<text x="3070" y="282" font-size="12" fill="#0f172a">CreatedAt</text><text x="3540" y="282" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="3061" y="290" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="305" font-size="12" fill="#0f172a">UpdatedAt</text><text x="3540" y="305" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="3070" y="328" font-size="12" fill="#0f172a">ArchivedAtUtc</text><text x="3540" y="328" text-anchor="end" font-size="11" fill="#526478">timestamptz ?</text>
+<rect x="3061" y="336" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="351" font-size="12" fill="#0f172a">ActorUserId [FK]</text><text x="3540" y="351" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+</g>
+<g><rect x="3060" y="441" width="490" height="474" rx="8" fill="white" stroke="#805517" stroke-width="1.5"/><rect x="3060" y="441" width="490" height="38" rx="8" fill="#805517"/><text x="3072" y="466" font-size="17" font-weight="bold" fill="white">Payments</text>
+<rect x="3061" y="484" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="499" font-size="12" fill="#0f172a">Id [PK]</text><text x="3540" y="499" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="3070" y="522" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="3540" y="522" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="3061" y="530" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="545" font-size="12" fill="#0f172a">RequestId</text><text x="3540" y="545" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="3070" y="568" font-size="12" fill="#0f172a">RequestHash</text><text x="3540" y="568" text-anchor="end" font-size="11" fill="#526478">varchar(64)</text>
+<rect x="3061" y="576" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="591" font-size="12" fill="#0f172a">Amount</text><text x="3540" y="591" text-anchor="end" font-size="11" fill="#526478">numeric(9,2)</text>
+<text x="3070" y="614" font-size="12" fill="#0f172a">Currency</text><text x="3540" y="614" text-anchor="end" font-size="11" fill="#526478">varchar(3)</text>
+<rect x="3061" y="622" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="637" font-size="12" fill="#0f172a">OccurredAtUtc</text><text x="3540" y="637" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="3070" y="660" font-size="12" fill="#0f172a">CreatedAt</text><text x="3540" y="660" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="3061" y="668" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="683" font-size="12" fill="#0f172a">UpdatedAt</text><text x="3540" y="683" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="3070" y="706" font-size="12" fill="#0f172a">ActorUserId [FK]</text><text x="3540" y="706" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="3061" y="714" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="729" font-size="12" fill="#0f172a">Description</text><text x="3540" y="729" text-anchor="end" font-size="11" fill="#526478">varchar(1000) ?</text>
+<text x="3070" y="752" font-size="12" fill="#0f172a">Reference</text><text x="3540" y="752" text-anchor="end" font-size="11" fill="#526478">varchar(200) ?</text>
+<rect x="3061" y="760" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="775" font-size="12" fill="#0f172a">CorrectsId [FK]</text><text x="3540" y="775" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+<text x="3070" y="798" font-size="12" fill="#0f172a">ReversesId [FK]</text><text x="3540" y="798" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+<rect x="3061" y="806" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="821" font-size="12" fill="#0f172a">CorrectionReason</text><text x="3540" y="821" text-anchor="end" font-size="11" fill="#526478">varchar(500) ?</text>
+<text x="3070" y="844" font-size="12" fill="#0f172a">WorkOrderId [FK]</text><text x="3540" y="844" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="3061" y="852" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="867" font-size="12" fill="#0f172a">PaymentMethodId [FK]</text><text x="3540" y="867" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="3070" y="890" font-size="12" fill="#0f172a">PaymentMethodName</text><text x="3540" y="890" text-anchor="end" font-size="11" fill="#526478">varchar(100)</text>
+</g>
+<g><rect x="3060" y="980" width="490" height="474" rx="8" fill="white" stroke="#805517" stroke-width="1.5"/><rect x="3060" y="980" width="490" height="38" rx="8" fill="#805517"/><text x="3072" y="1005" font-size="17" font-weight="bold" fill="white">ManualIncomes</text>
+<rect x="3061" y="1023" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1038" font-size="12" fill="#0f172a">Id [PK]</text><text x="3540" y="1038" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="3070" y="1061" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="3540" y="1061" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="3061" y="1069" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1084" font-size="12" fill="#0f172a">RequestId</text><text x="3540" y="1084" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="3070" y="1107" font-size="12" fill="#0f172a">RequestHash</text><text x="3540" y="1107" text-anchor="end" font-size="11" fill="#526478">varchar(64)</text>
+<rect x="3061" y="1115" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1130" font-size="12" fill="#0f172a">Amount</text><text x="3540" y="1130" text-anchor="end" font-size="11" fill="#526478">numeric(9,2)</text>
+<text x="3070" y="1153" font-size="12" fill="#0f172a">Currency</text><text x="3540" y="1153" text-anchor="end" font-size="11" fill="#526478">varchar(3)</text>
+<rect x="3061" y="1161" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1176" font-size="12" fill="#0f172a">OccurredAtUtc</text><text x="3540" y="1176" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="3070" y="1199" font-size="12" fill="#0f172a">CreatedAt</text><text x="3540" y="1199" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="3061" y="1207" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1222" font-size="12" fill="#0f172a">UpdatedAt</text><text x="3540" y="1222" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="3070" y="1245" font-size="12" fill="#0f172a">ActorUserId [FK]</text><text x="3540" y="1245" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="3061" y="1253" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1268" font-size="12" fill="#0f172a">Description</text><text x="3540" y="1268" text-anchor="end" font-size="11" fill="#526478">varchar(1000) ?</text>
+<text x="3070" y="1291" font-size="12" fill="#0f172a">Reference</text><text x="3540" y="1291" text-anchor="end" font-size="11" fill="#526478">varchar(200) ?</text>
+<rect x="3061" y="1299" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1314" font-size="12" fill="#0f172a">CorrectsId [FK]</text><text x="3540" y="1314" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+<text x="3070" y="1337" font-size="12" fill="#0f172a">ReversesId [FK]</text><text x="3540" y="1337" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+<rect x="3061" y="1345" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1360" font-size="12" fill="#0f172a">CorrectionReason</text><text x="3540" y="1360" text-anchor="end" font-size="11" fill="#526478">varchar(500) ?</text>
+<text x="3070" y="1383" font-size="12" fill="#0f172a">Category</text><text x="3540" y="1383" text-anchor="end" font-size="11" fill="#526478">varchar(100)</text>
+<rect x="3061" y="1391" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1406" font-size="12" fill="#0f172a">PaymentMethodId [FK]</text><text x="3540" y="1406" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="3070" y="1429" font-size="12" fill="#0f172a">PaymentMethodName</text><text x="3540" y="1429" text-anchor="end" font-size="11" fill="#526478">varchar(100)</text>
+</g>
+<g><rect x="3060" y="1519" width="490" height="451" rx="8" fill="white" stroke="#805517" stroke-width="1.5"/><rect x="3060" y="1519" width="490" height="38" rx="8" fill="#805517"/><text x="3072" y="1544" font-size="17" font-weight="bold" fill="white">Expenses</text>
+<rect x="3061" y="1562" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1577" font-size="12" fill="#0f172a">Id [PK]</text><text x="3540" y="1577" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="3070" y="1600" font-size="12" fill="#0f172a">BusinessId [FK]</text><text x="3540" y="1600" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="3061" y="1608" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1623" font-size="12" fill="#0f172a">RequestId</text><text x="3540" y="1623" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<text x="3070" y="1646" font-size="12" fill="#0f172a">RequestHash</text><text x="3540" y="1646" text-anchor="end" font-size="11" fill="#526478">varchar(64)</text>
+<rect x="3061" y="1654" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1669" font-size="12" fill="#0f172a">Amount</text><text x="3540" y="1669" text-anchor="end" font-size="11" fill="#526478">numeric(9,2)</text>
+<text x="3070" y="1692" font-size="12" fill="#0f172a">Currency</text><text x="3540" y="1692" text-anchor="end" font-size="11" fill="#526478">varchar(3)</text>
+<rect x="3061" y="1700" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1715" font-size="12" fill="#0f172a">OccurredAtUtc</text><text x="3540" y="1715" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="3070" y="1738" font-size="12" fill="#0f172a">CreatedAt</text><text x="3540" y="1738" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<rect x="3061" y="1746" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1761" font-size="12" fill="#0f172a">UpdatedAt</text><text x="3540" y="1761" text-anchor="end" font-size="11" fill="#526478">timestamptz</text>
+<text x="3070" y="1784" font-size="12" fill="#0f172a">ActorUserId [FK]</text><text x="3540" y="1784" text-anchor="end" font-size="11" fill="#526478">uuid</text>
+<rect x="3061" y="1792" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1807" font-size="12" fill="#0f172a">Description</text><text x="3540" y="1807" text-anchor="end" font-size="11" fill="#526478">varchar(1000) ?</text>
+<text x="3070" y="1830" font-size="12" fill="#0f172a">Reference</text><text x="3540" y="1830" text-anchor="end" font-size="11" fill="#526478">varchar(200) ?</text>
+<rect x="3061" y="1838" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1853" font-size="12" fill="#0f172a">CorrectsId [FK]</text><text x="3540" y="1853" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+<text x="3070" y="1876" font-size="12" fill="#0f172a">ReversesId [FK]</text><text x="3540" y="1876" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+<rect x="3061" y="1884" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1899" font-size="12" fill="#0f172a">CorrectionReason</text><text x="3540" y="1899" text-anchor="end" font-size="11" fill="#526478">varchar(500) ?</text>
+<text x="3070" y="1922" font-size="12" fill="#0f172a">Category</text><text x="3540" y="1922" text-anchor="end" font-size="11" fill="#526478">varchar(100)</text>
+<rect x="3061" y="1930" width="488" height="23" fill="#f1f5f9"/>
+<text x="3070" y="1945" font-size="12" fill="#0f172a">EmployeeMembershipId [FK]</text><text x="3540" y="1945" text-anchor="end" font-size="11" fill="#526478">uuid ?</text>
+</g>
+</g></svg>

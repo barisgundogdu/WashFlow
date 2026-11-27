@@ -41,3 +41,8 @@ Review each image for visible personal data, passwords, invitation or verificati
 ## Before submission
 
 The Undertaking reproduces the two paragraphs in the original template, with `WashFlow` substituted for `Project Title`. Before submission, the student must confirm that the declaration applies and follow any separate institutional requirements for a signature or date.
+
+
+## Final sprint evidence (25 November 2026)
+
+The dated midterm figures above remain historical. The final source now includes employee stage execution, customer self-service and an audited owner financial ledger. [Final delivery status](../final-sprint/FINAL_STATUS.md), [native rehearsal](../final-sprint/LIVE_REHEARSAL.md), [test matrix](../final-sprint/TEST_MATRIX.md) and [isolated source-schema evidence](../final-sprint/SCHEMA_EVIDENCE.md) provide actual results for the final report. Verified results: 445 backend tests, 370 Flutter tests and one complete native real-HTTP/PostgreSQL scenario passed. Four new native screenshots are under `docs/final-sprint/screenshots/`; they are not replacements for the historical figures. The new schema has 33 application tables/71 FKs/11 migrations on a new disposable target. The preserved demo was not migrated. Integrating these results into the final thesis PDF and reviewing the presentation remains a separate academic editing step; this source update does not claim a rebuilt final thesis.

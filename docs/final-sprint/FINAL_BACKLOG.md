@@ -2,21 +2,21 @@
 
 25 November 2026. Reuse existing issues; no equivalent duplicate issue created. Local status is independent of remote board status. No feature is DONE merely because a design exists.
 
-| Priority / issue | Deliverable and acceptance | Dependencies / tests | Local status |
+| Priority / issue | Deliverable and acceptance | Verification | Local status |
 | --- | --- | --- | --- |
-| P0 #4 | Reject conflicting hours/timezone edits before writes; preserve original confirmed appointments; compatible edits succeed | Hours boundary, cancellation, reschedule rollback, staff-vs-area independence, PostgreSQL concurrent booking/configuration tests A–L | P0 increment verified (415 backend / 343 Flutter); broad #4 remains DOING locally |
-| P1 #6, #8 | Tenant-scoped ordered work stages; employee assigned-only start/complete; actor audit, duplicate-safe requests, owner read-only progress; server timestamps and overdue countdown in Turkish Flutter UI | #4; lifecycle, privacy, HTTP, restart/resume countdown widget tests; architectural approval received; core execution increment under final validation | DOING |
-| P1 #11, #10, #4 | Database business directory/search/detail, published offerings/hours; owned vehicle selection; authoritative slots and same engine booking; own agenda/history; 2-hour cancel/reschedule default | #2/#3/#4, approved schema design; cross-source race, cross-customer, cutoff exact-boundary and rollback tests | TODO |
-| P1 #7 | Owner-only payment, manual income and expense entry; explicit TRY decimals; cash/card/transfer, partial payment only with validated balance; date-range cash collection vs earned revenue summaries | Completed execution, additive ledger design; double-counting, tenant/role, totals and negative-input tests | TODO |
-| P2 #6, #8 | Owner live execution/workload/occupancy and overdue conflicts; factual elapsed-versus-estimated durations | Work stages; independent roles/tenants and demo verification | TODO |
-| P2 #6, #11 | Supported in-app operational events; inspect SMTP configuration before delivery claims | Execution/booking events; idempotence, production mailbox exclusion | TODO |
-| P2 #9 (already closed; preserve), relevant feature issues | Polish each implemented vertical slice: Turkish errors/loading/empty states, responsive forms, accessible controls | Flutter analysis/widget tests and live simulator screenshots | TODO |
-| P1 #12 | Verify full local suites and hosted CI for each pushed increment | Dedicated PostgreSQL; no skipped database verification | Existing CI implemented; final sprint checks TODO |
-| P1 #1, #14 | Update requirements decisions/evidence, ERD after approved migrations, thesis actual-results section | Verified schema and demos; no false completion claims | TODO |
-| P1 #1 | Rehearse final presentation using DEMO_CHECKLIST.md, collect runtime evidence | P0/P1 vertical slices; do not present placeholders as implemented | TODO |
-| P3 #7/#8 | Additional reports/analytics beyond demonstration needs | All P0/P1 acceptance and tests first | Deferred |
+| P0 #4 | Confirmed booking protection during hours/timezone/staff edits; capacity and concurrency safety | PostgreSQL A–L regressions; native incompatible-hours rejection | Verified; broad walk-in/lateness scope open |
+| P1 #6, #8 | Assigned ordered employee work, actual timestamps, countdown/overdue, owner monitoring and audit | API/widget tests + real iOS two-stage execution/overdue/reopen | Implemented and rehearsed; PR review pending |
+| P1 #11, #10, #4 | Real discovery, own vehicle, common-calendar booking/history/change policy | 436 backend/358 Flutter at customer commit; real iOS booking/history | Implemented and rehearsed; PR #20 review pending |
+| P1 #7 | Payments, partial balance, manual income, expenses and reliable reports | 444 backend/370 Flutter final suites; native payment/expense/report | Implemented and rehearsed; PR #21 review pending |
+| P2 #6, #8 | Owner execution and alerts; broader workload/performance analysis | Owner native warning/progress verified | Core monitoring done; advanced metrics deferred |
+| P2 #6, #11 | Supported operational notifications; truthful provider claims | Local verification/invitation dispatch used in live setup | External operational delivery deferred/unverified |
+| P2 #9 (closed; preserve) | Consistent Turkish loading/errors/forms and native layout | Analysis clean; 370 Flutter tests; four native screenshots reviewed | Core vertical slices verified; no wholesale redesign |
+| P1 #12 | Push/PR CI with PostgreSQL and Flutter | All exact heads #17–#21 successful; runner-local credentials | DONE; CI issue closed completed |
+| P1 #1, #14 | Requirements, source-schema ERD, thesis evidence | New isolated inventory: 33 tables/71 FKs/11 migrations; historical demo kept | Updated; final thesis integration/review remains |
+| P1 #1 | Real end-to-end final rehearsal | One iOS real socket/backend/database test passed in 2m25s | Essential demonstration verified; preserved-demo deployment needs approval |
+| P3 #7/#8 | Additional analytics/reports/integrations | P0/P1 first | Deferred |
 
-## Concrete pending Kanban updates
+## Initial pending Kanban checkpoint (historical)
 
 Existing project: https://github.com/users/barisgundogdu/projects/1 . Read-only public browser; Projects mutation unavailable.
 
@@ -50,3 +50,8 @@ Customer self-service is implemented on `codex/customer-self-service`; see CUSTO
 ## Essential module delivery checkpoint
 
 Customer PR [#20](https://github.com/barisgundogdu/WashFlow/pull/20), commit `945848e`: 436 backend/358 Flutter passed; hosted push and PR CI successful. Finance now implemented and verified on `codex/owner-finance`: 444 backend/370 Flutter passed, analysis clean; see FINANCE_INCREMENT.md. Employee/stage/customer/finance modules all have connected APIs and Turkish Flutter screens. Remaining essential verification is the integrated live rehearsal and deployment review; no demo migration or merge. Optional advanced employee analytics and external operational delivery remain deferred. Keep broad Issues open until their full acceptance/rehearsal is satisfied. Exact current board intentions: #4/#6/#11/#10/#7 reflect implementation/rehearsal progress; resolve three-card WIP via existing umbrella card review rather than raising the limit. Projects write still unavailable.
+
+
+## Final board actions
+
+See FINAL_STATUS.md for the current exact pending board updates and WIP constraint. Issue/PR synchronization succeeded; direct Projects writes remain unavailable. CI #12 is completed/closed, while #4/#6/#7/#10/#11 remain open with verified implementation and review/scope notes. Do not mistake historical TODO checkpoint text above for the current source implementation.

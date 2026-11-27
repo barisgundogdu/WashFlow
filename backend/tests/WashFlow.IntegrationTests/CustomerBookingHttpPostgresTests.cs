@@ -170,4 +170,20 @@ public sealed class CustomerBookingHttpPostgresTests(PostgresModelFixture fixtur
         finally{await isolated.DisposeAsync();}
     }
 
+    [PostgresFact]
+    public async Task SameCustomerBooksOwnedVehicleAcrossBusinessesWithoutLeakingEitherHistory()
+    {
+        var clock=new Clock();using var root=new ApiFactory();using var api=Api(root,clock);var first=await Seed(clock);var second=await Seed(clock);
+        using var customer=Client(api,first.Customer);using var otherCustomer=Client(api,second.Customer);using var firstOwner=Client(api,first.Owner);using var secondOwner=Client(api,second.Owner);
+        var a=await Book(customer,first,clock.Now.AddHours(3));
+        var b=await Json<CustomerBookingView>(await customer.PostAsJsonAsync(second.Root+"/appointments",second.Input(clock.Now.AddHours(4)) with{OwnedVehicleId=first.Vehicle,ExpectedVehicleVersion=first.VehicleVersion}),HttpStatusCode.Created);
+        var mine=await Json<CustomerBookingView[]>(await customer.GetAsync("/api/v1/customer/appointments"));Assert.Equal(2,mine.Length);Assert.Contains(mine,x=>x.BusinessId==first.Business);Assert.Contains(mine,x=>x.BusinessId==second.Business);
+        Assert.Empty(await Json<CustomerBookingView[]>(await otherCustomer.GetAsync("/api/v1/customer/appointments")));
+        await Fault(await otherCustomer.GetAsync($"/api/v1/customer/appointments/{b.Id}"),HttpStatusCode.NotFound);
+        await Fault(await firstOwner.GetAsync($"/api/v1/businesses/{second.Business}/appointments/{b.Id}"),HttpStatusCode.Forbidden);
+        await Fault(await secondOwner.GetAsync($"/api/v1/businesses/{first.Business}/appointments/{a.Id}"),HttpStatusCode.Forbidden);
+        await Json<AppointmentView>(await firstOwner.GetAsync($"/api/v1/businesses/{first.Business}/appointments/{a.Id}"));await Json<AppointmentView>(await secondOwner.GetAsync($"/api/v1/businesses/{second.Business}/appointments/{b.Id}"));
+        await using var db=Db();var rows=await db.Appointments.Where(x=>x.CustomerProfileId==first.Profile).ToListAsync();Assert.Equal(2,rows.Count);Assert.All(rows,x=>{Assert.Equal(first.Vehicle,x.OwnedVehicleId);Assert.Null(x.LocalCustomerId);Assert.Null(x.LocalVehicleId);});
+    }
+
 }

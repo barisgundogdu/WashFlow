@@ -16,23 +16,23 @@
 
 ## Demonstration sequence and current readiness
 
-| Step | Demonstration | Readiness |
+| Step | Demonstration | Readiness / actual evidence |
 | --- | --- | --- |
-| 1 | Owner login, verification/session/context | Existing implementation; rehearse |
-| 2 | Owner dashboard and navigation | Existing operational links; analytics pending |
-| 3 | Service and category pricing | Existing; rehearse with configured service |
-| 4 | Working area capacity | Existing; rehearse |
-| 5 | Employee invitation and dated availability | Existing; execution pending |
-| 6 | Customer discovers business and books own vehicle | Backend/Flutter implemented and automatically verified; live rehearsal pending |
-| 7 | Same-employee and full-area booking conflicts rejected | Existing engine; P0 regression tests passed; live demo rehearsal pending |
-| 8 | Employee starts assigned work, denied access to other's work | Implemented/tested in employee increment; live rehearsal pending approved demo migration |
-| 9 | Countdown survives navigation; overdue visible; no auto-completion | Implemented with server timestamps; widget/API verified; live rehearsal pending |
-| 10 | Complete stages and wash, owner sees progress | Implemented with ordered stages and actual timestamps; live rehearsal pending |
-| 11 | Record partial/full payment and expense | API and Flutter implemented/tested; live rehearsal pending |
-| 12 | Financial dashboard separates earned/collected money | API and Flutter implemented/tested; local-date reports and breakdowns verified |
-| 13 | Customer own vehicle and appointment history | Own vehicles and appointment history implemented/tested; live rehearsal pending |
-| 14 | Incompatible hours/shift edits rejected; explicitly resolve appointment | P0 fix and automated tests passed; live rehearsal pending |
+| 1 | Owner login, verification/session/context | Real auth/API setup and native context passed; credential forms retain existing tests |
+| 2 | Owner dashboard and navigation | Native owner work-order/finance navigation passed; optional advanced analytics deferred |
+| 3 | Service and category pricing | Real published-service API + customer UI rehearsed; owner editor covered by existing suites |
+| 4 | Working area capacity | Two real configured areas used in native ordered execution; full-capacity races covered by PostgreSQL regressions |
+| 5 | Employee invitation and dated availability | Real invitation acceptance and availability API used in native setup |
+| 6 | Customer discovers business and books own vehicle | Real native UI/API passed; confirmation screenshot captured |
+| 7 | Same-employee/full-area conflict rejection | Full PostgreSQL regressions passed, including owner/customer concurrency |
+| 8 | Employee starts assigned work; other work is denied | Real native assigned-stage start/complete passed; cross-assignment API denial tests passed |
+| 9 | Countdown survives navigation; overdue; no auto-completion | Real native reopen and 62-second overrun passed; foreground/resume also covered by widgets |
+| 10 | Complete stages and wash; owner progress | Both real ordered stages and backend Completed statuses passed |
+| 11 | Record partial/full payment and expense | Native partial payment/expense passed; full payment/reversal/correction in integration/widget suites |
+| 12 | Financial dashboard separates earned/collected | Native report captured: earned450, collected150, expense100, cash50, unpaid300 TRY |
+| 13 | Customer own vehicle and appointment history | Real native customer history showed completed work |
+| 14 | Incompatible hours/shift changes require resolution | Real hours edit rejected without moving bookings; shift/configuration races covered by PostgreSQL tests |
 
 ## Evidence and limitations
 
-Capture app/API/database evidence for each completed step and its issue/commit/CI run. Existing thesis screenshots are historical evidence, not proof of newly implemented flows. Record known limitations candidly. No mocked screen qualifies as completed backend functionality. Employee execution now has backend/Flutter automated evidence; live deployment to the preserved demo is pending explicit migration approval. Customer booking now has backend/Flutter automated evidence. Finance now has backend/Flutter automated evidence. Integrated live rehearsal and delivered operational notifications remain unverified.
+[LIVE_REHEARSAL.md](LIVE_REHEARSAL.md) records the passing real iOS test, reviewed captures, setup and limits. [FINAL_STATUS.md](FINAL_STATUS.md) records readiness and remaining actions. Existing historical thesis screenshots remain intact; new screenshots contain synthetic rehearsal records only. The essential scenario is ready in the isolated environment. Deployment to the preserved demo still requires explicit migration approval and a verified backup. External SMTP/push delivery, physical-device/Android validation and optional advanced analytics are not claimed.
