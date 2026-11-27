@@ -59,3 +59,12 @@ Backend has 17 additional test cases over the 398-test baseline; Flutter has two
 25 November 2026: `dotnet test backend/WashFlow.sln --no-restore -m:1 -nr:false` with dedicated PostgreSQL 17: **422 passed, 0 failed/skipped** (254 unit + 168 integration). Integration 1m41s, unit 3s. `flutter test --no-pub --reporter compact`: **348 passed**, 0 failures, 1m57s. `flutter analyze --no-pub`: no issues (5.3s). `git diff --check`: passed. Migration `20261125082321_WorkOrderExecution` applied only inside dedicated disposable test schemas. No demo migration or live simulator rehearsal.
 
 Intermediate test-only failures were corrected: test-clock initialization now captures one UTC instant before truncation; synthetic verified-user timestamps respect existing identity constraints; HTTP mock JSON uses UTF-8; overdue display rounds elapsed seconds down while positive remaining seconds round up. Existing validation was retained. Final suites contain all prior tests.
+
+
+## Ordered resource-stage increment — final verification
+
+25 November 2026: backend complete solution **429 passed, 0 failed/skipped** (254 unit + 175 integration, integration 1m50s, unit 4s) with disposable PostgreSQL 17. Flutter complete suite **351 passed**, zero failures (1m52s). Flutter analysis: no issues. Whitespace check passed. Commands use the same --no-restore/-m:1/-nr:false and --no-pub options recorded above. Logs: /tmp/washflow-staged-backend-final2.log, /tmp/washflow-staged-flutter-final2.log, /tmp/washflow-staged-analyze-final.log.
+
+Seven additional PostgreSQL scenarios cover ordered resource scheduling and immutable cancelled-order planned-time history; three Flutter cases cover stage configuration and feedback. A regression specifically makes the first-sorted worker unavailable until stage two, proving selection follows actual availability rather than identifier order. The editor test revealed offscreen feedback on long forms; messages now scroll into view. No test or domain constraint was removed.
+
+Idempotent upgrade scripts generated offline for review: /tmp/washflow-work-order-upgrade.sql (migration 7→8), /tmp/washflow-ordered-stage-upgrade.sql (8→9). Both migrations were exercised only in disposable test schemas; no demo migration or live simulator rehearsal.

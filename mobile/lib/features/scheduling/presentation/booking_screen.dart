@@ -185,12 +185,21 @@ class _BookingScreenState extends State<BookingScreen> {
 
   ScheduleInput? _input() {
     final count = widget.appointment?.employees ?? offering?.employees;
+    final staged = rescheduling
+        ? widget.appointment!.stages.isNotEmpty
+        : requirement?.stagePlanEnabled == true;
     if (count == null ||
-        selectedEmployees.length != count ||
+        (staged
+            ? selectedEmployees.length < count || selectedEmployees.length > 100
+            : selectedEmployees.length != count) ||
         selectedEmployees.any(
           (id) => !employees.any((e) => e.membershipId == id),
         )) {
-      c.show('Tam olarak ${count ?? 'gerekli sayıda'} etkin çalışan seçin.');
+      c.show(
+        staged
+            ? 'Aşamalar için en az ${count ?? 1} etkin çalışan seçin. Sunucu her aşamaya uygun çalışanları ayırır.'
+            : 'Tam olarak ${count ?? 'gerekli sayıda'} etkin çalışan seçin.',
+      );
       return null;
     }
     if (!rescheduling &&
@@ -198,7 +207,7 @@ class _BookingScreenState extends State<BookingScreen> {
             vehicle == null ||
             service == null ||
             offering == null ||
-            requirement?.singleStageConfirmed != true ||
+            requirement?.configured != true ||
             !areas.any(
               (a) => a.id == requirement!.workAreaId && a.archivedAt == null,
             ))) {
@@ -403,9 +412,9 @@ class _BookingScreenState extends State<BookingScreen> {
                 Text(
                   'Çalışma alanı: ${areas.where((a) => a.id == requirement?.workAreaId).firstOrNull?.name ?? 'Yapılandırılmamış'}\nAlan hizmet gereksinimiyle belirlenir.',
                 ),
-                if (requirement?.singleStageConfirmed != true)
+                if (requirement?.configured != true)
                   const Text(
-                    'Bu araç türü için tek etkin aşama onayı yok. Hizmet gereksinimlerini yapılandırın.',
+                    'Bu araç türü için onaylı kaynak planı yok. Hizmet gereksinimlerini yapılandırın.',
                   ),
               ],
             ] else

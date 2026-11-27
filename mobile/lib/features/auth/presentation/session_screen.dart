@@ -412,6 +412,7 @@ class _SessionScreenState extends State<SessionScreen>
                     return WorkOrderScreen(
                       service: widget.workOrderService!,
                       scheduling: owner ? widget.schedulingService : null,
+                      catalog: owner ? widget.catalogService : null,
                       business: selected.business!.businessId,
                       owner: owner,
                       isCurrent: () => currentScope(

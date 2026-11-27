@@ -19,10 +19,11 @@ public sealed class PersistenceModelTests(PostgresModelFixture fixture) : IClass
     {
         await using var context = NewContext();
         await context.Database.MigrateAsync();
-        Assert.Equal(8, (await context.Database.GetAppliedMigrationsAsync()).Count());
+        Assert.Equal(9, (await context.Database.GetAppliedMigrationsAsync()).Count());
         Assert.Empty(await context.Database.GetPendingMigrationsAsync());
         Assert.False(context.Database.HasPendingModelChanges());
         // Queries prove existing and additive work-order tables exist after migration.
+        await context.ServiceStageTemplates.CountAsync(); await context.AppointmentStages.CountAsync();
         await context.WorkOrders.CountAsync(); await context.WorkOrderStages.CountAsync();
         await context.WorkStageAssignments.CountAsync(); await context.WorkOrderEvents.CountAsync();
         await context.Users.CountAsync();

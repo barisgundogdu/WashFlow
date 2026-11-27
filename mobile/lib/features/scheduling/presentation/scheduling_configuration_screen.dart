@@ -341,9 +341,9 @@ class _SchedulingConfigurationScreenState
                             requirements
                                         .where((r) => r.category == o.category)
                                         .firstOrNull
-                                        ?.singleStageConfirmed ==
+                                        ?.configured ==
                                     true
-                                ? 'Tek etkin aşama onaylı'
+                                ? 'Kaynak planı onaylı'
                                 : 'Planlamaya kapalı',
                           ),
                           Text(
@@ -372,7 +372,7 @@ class _SchedulingConfigurationScreenState
                 ],
                 // Retained requirements remain disableable even after offering removal.
                 for (final r in requirements)
-                  if (r.singleStageConfirmed)
+                  if (r.configured)
                     OutlinedButton(
                       onPressed: c.busy
                           ? null
@@ -380,7 +380,7 @@ class _SchedulingConfigurationScreenState
                               if (!await schedulingConfirm(
                                     context,
                                     'Planlama devre dışı bırakılsın mı?',
-                                    '${vehicleCategories[r.category]} için tek etkin aşama onayı geri çekilecek.',
+                                    '${vehicleCategories[r.category]} için kaynak planı onayı geri çekilecek.',
                                     action: 'Devre dışı bırak',
                                   ) ||
                                   !mounted ||

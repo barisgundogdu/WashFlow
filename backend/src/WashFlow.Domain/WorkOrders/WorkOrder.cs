@@ -2,6 +2,7 @@ using WashFlow.Domain.Common;
 
 namespace WashFlow.Domain.WorkOrders;
 
+public sealed record WorkStageResources(Guid WorkAreaId, Guid[] Employees);
 public enum WorkStageStatus { Waiting = 1, Ready = 2, InProgress = 3, Paused = 4, Completed = 5, Cancelled = 6 }
 public sealed class WorkOrder : IEntity
 {
@@ -11,6 +12,7 @@ public sealed class WorkOrder : IEntity
     public string CreationHash { get; private set; } = null!;
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; set; }
+    public DateTimeOffset? PlannedStartUtc { get; private set; }
     public DateTimeOffset? CompletedAtUtc { get; private set; }
     public DateTimeOffset? CancelledAtUtc { get; private set; }
     private readonly List<WorkOrderStage> stages = [];
@@ -19,14 +21,17 @@ public sealed class WorkOrder : IEntity
     public IReadOnlyList<WorkOrderEvent> Events => events.AsReadOnly();
     private WorkOrder() { }
     public static WorkOrder Create(Guid business, Guid appointment, IReadOnlyList<(string Name, int Minutes)> plans, IReadOnlyList<Guid> employees,
-        Guid actor, Guid request, DateTimeOffset now, string creationHash)
+        Guid actor, Guid request, DateTimeOffset now, string creationHash, IReadOnlyList<WorkStageResources>? resources = null, DateTimeOffset? plannedStart = null)
     {
         if (creationHash?.Length != 64 || !creationHash.All(char.IsAsciiHexDigit) || business == Guid.Empty || appointment == Guid.Empty || actor == Guid.Empty || request == Guid.Empty ||
             plans.Count is < 1 or > 20 || plans.Any(x => string.IsNullOrWhiteSpace(x.Name) || x.Name.Trim().Length > 100 || x.Name.Any(char.IsControl) || x.Minutes is < 1 or > 10080) ||
             employees.Count is < 1 or > 100 || employees.Any(x => x == Guid.Empty) || employees.Distinct().Count() != employees.Count)
             throw new ArgumentException("İş emri aşamalarını ve çalışanlarını kontrol edin.");
-        var order = new WorkOrder { BusinessId = business, AppointmentId = appointment, CreationHash = creationHash, CreatedAt = now, UpdatedAt = now };
-        for (var i = 0; i < plans.Count; i++) order.stages.Add(WorkOrderStage.Create(order, i + 1, plans[i].Name.Trim(), plans[i].Minutes, employees, now));
+        var order = new WorkOrder { BusinessId = business, AppointmentId = appointment, CreationHash = creationHash, PlannedStartUtc = plannedStart?.ToUniversalTime(), CreatedAt = now, UpdatedAt = now };
+        if (resources != null && (resources.Count != plans.Count || resources.Any(x => x.WorkAreaId == Guid.Empty || x.Employees.Length == 0 || x.Employees.Distinct().Count() != x.Employees.Length || x.Employees.Any(e => !employees.Contains(e)))))
+            throw new ArgumentException("Aşama kaynaklarını kontrol edin.");
+        for (var i = 0; i < plans.Count; i++) order.stages.Add(WorkOrderStage.Create(order, i + 1, plans[i].Name.Trim(), plans[i].Minutes,
+            resources == null ? employees : resources[i].Employees, now, resources?[i].WorkAreaId));
         order.events.Add(WorkOrderEvent.Create(order, null, actor, request, "create", now));
         return order;
     }
@@ -63,6 +68,7 @@ public sealed class WorkOrderStage : IEntity
     public int Sequence { get; private set; }
     public string Name { get; private set; } = null!;
     public int EstimatedMinutes { get; private set; }
+    public Guid? WorkAreaId { get; private set; }
     public WorkStageStatus Status { get; private set; }
     public DateTimeOffset? StartedAtUtc { get; private set; }
     public DateTimeOffset? CompletedAtUtc { get; private set; }
@@ -73,9 +79,9 @@ public sealed class WorkOrderStage : IEntity
     private readonly List<WorkStageAssignment> assignments = [];
     public IReadOnlyList<WorkStageAssignment> Assignments => assignments.AsReadOnly();
     private WorkOrderStage() { }
-    internal static WorkOrderStage Create(WorkOrder order, int sequence, string name, int minutes, IReadOnlyList<Guid> employees, DateTimeOffset now)
+    internal static WorkOrderStage Create(WorkOrder order, int sequence, string name, int minutes, IReadOnlyList<Guid> employees, DateTimeOffset now, Guid? workArea = null)
     {
-        var stage = new WorkOrderStage { BusinessId = order.BusinessId, WorkOrderId = order.Id, Sequence = sequence, Name = name, EstimatedMinutes = minutes,
+        var stage = new WorkOrderStage { BusinessId = order.BusinessId, WorkOrderId = order.Id, Sequence = sequence, Name = name, EstimatedMinutes = minutes, WorkAreaId = workArea,
             Status = sequence == 1 ? WorkStageStatus.Ready : WorkStageStatus.Waiting, CreatedAt = now, UpdatedAt = now };
         foreach (var employee in employees) stage.assignments.Add(new WorkStageAssignment(stage, employee, now));
         return stage;

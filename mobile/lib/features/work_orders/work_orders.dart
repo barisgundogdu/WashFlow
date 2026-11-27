@@ -16,7 +16,8 @@ class WorkStage {
       started = _time(j['startedAtUtc']),
       completed = _time(j['completedAtUtc']),
       paused = _time(j['pausedAtUtc']),
-      pausedMs = j['pausedMilliseconds'] as int {
+      pausedMs = j['pausedMilliseconds'] as int,
+      areaName = j['workAreaName'] as String? {
     if (sequence < 1 ||
         minutes < 1 ||
         pausedMs < 0 ||
@@ -25,6 +26,7 @@ class WorkStage {
     }
   }
   final String id, name, status;
+  final String? areaName;
   final int sequence, minutes, pausedMs;
   final DateTime? started, completed, paused;
   static DateTime? _time(dynamic value) =>
@@ -98,7 +100,7 @@ abstract interface class WorkOrderService {
   );
 }
 
-class ApiWorkOrderService implements WorkOrderService {
+class ApiWorkOrderService implements WorkOrderService, StageTemplateService {
   ApiWorkOrderService({required this.apiClient, required this.session});
   final ApiClient apiClient;
   final AccessTokenProvider session;
@@ -232,6 +234,82 @@ class ApiWorkOrderService implements WorkOrderService {
       order.id,
     );
   });
+  ServiceStageConfig _stageConfig(
+    dynamic json,
+    String business,
+    String service,
+    String category,
+  ) {
+    final j = json as Map<String, dynamic>;
+    final r = j['requirement'];
+    int? version;
+    if (r != null) {
+      final requirement = SchedulingRequirement.fromJson(
+        r as Map<String, dynamic>,
+      );
+      if (requirement.businessId != business ||
+          requirement.serviceId != service ||
+          requirement.category != category) {
+        throw const FormatException();
+      }
+      version = requirement.version;
+    }
+    final rows = <ServiceStagePlan>[];
+    for (final raw in j['stages'] as List) {
+      final row = raw as Map<String, dynamic>;
+      if (row['businessId'] != business || row['sequence'] != rows.length + 1) {
+        throw const FormatException();
+      }
+      rows.add(
+        ServiceStagePlan(
+          row['name'] as String,
+          row['minutes'] as int,
+          invitationId(row['workAreaId']),
+          row['employees'] as int,
+        ),
+      );
+    }
+    return ServiceStageConfig(version, List.unmodifiable(rows));
+  }
+
+  String _stagePath(String b, String s, String c) {
+    if (!{'Car', 'Suv', 'Van', 'Pickup', 'Motorcycle', 'Other'}.contains(c)) {
+      throw const FormatException();
+    }
+    return '${_root(b)}/services/${invitationId(s)}/offerings/$c/stages';
+  }
+
+  @override
+  Future<AuthResult<ServiceStageConfig>> stagePlan(
+    String business,
+    String service,
+    String category,
+  ) => _run(
+    (t) async => _stageConfig(
+      await apiClient.get(_stagePath(business, service, category), access: t),
+      business,
+      service,
+      category,
+    ),
+  );
+  @override
+  Future<AuthResult<ServiceStageConfig>> saveStagePlan(
+    String business,
+    String service,
+    String category,
+    int? version,
+    List<ServiceStagePlan> plans,
+  ) => _run(
+    (t) async => _stageConfig(
+      await apiClient.put(_stagePath(business, service, category), {
+        'version': version,
+        'stages': plans.map((p) => p.toJson()).toList(),
+      }, access: t),
+      business,
+      service,
+      category,
+    ),
+  );
 }
 
 /// Reanchors to server time on every fetch; elapsed Stopwatch ignores device clock changes.
@@ -252,4 +330,37 @@ String workRemaining(WorkStage stage, DateTime now) {
       : (duration.inMilliseconds / 1000).ceil();
   final clock = '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
   return duration.isNegative ? '$clock gecikti' : '$clock kaldı';
+}
+
+class ServiceStagePlan {
+  const ServiceStagePlan(this.name, this.minutes, this.area, this.employees);
+  final String name, area;
+  final int minutes, employees;
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'minutes': minutes,
+    'workAreaId': area,
+    'employees': employees,
+  };
+}
+
+class ServiceStageConfig {
+  const ServiceStageConfig(this.version, this.stages);
+  final int? version;
+  final List<ServiceStagePlan> stages;
+}
+
+abstract interface class StageTemplateService {
+  Future<AuthResult<ServiceStageConfig>> stagePlan(
+    String business,
+    String service,
+    String category,
+  );
+  Future<AuthResult<ServiceStageConfig>> saveStagePlan(
+    String business,
+    String service,
+    String category,
+    int? version,
+    List<ServiceStagePlan> plans,
+  );
 }

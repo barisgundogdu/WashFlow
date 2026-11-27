@@ -333,3 +333,8 @@ Explicit user decisions supersede conflicting open questions about booking confi
 - Employee overlap checks remain mandatory even when business hours and area capacity permit parallel work.
 
 The final sprint request explicitly includes employee operational metrics and supported operational notifications after core scheduling, employee execution, customer booking and finance. Optional analytics must not delay the working demonstration. This is approved scope, not a claim of implementation. See `docs/final-sprint/IMPLEMENTATION_AUDIT.md`, `FINAL_BACKLOG.md` and `TEST_MATRIX.md` for actual evidence and remaining gaps.
+
+
+### Final sprint implementation evidence — employee execution and ordered resources
+
+25 November 2026: owner-created work orders from a booked catalog service now contain ordered stages, actual start/completion/pause timestamps, actor history and assigned-only employee operations. Configurable stage plans reserve distinct areas and eligible employee sets for consecutive intervals. Existing booking snapshots, cancellation and failed-reschedule rollback are preserved. Flutter displays authoritative remaining/overdue estimates without automatic completion or movement of later appointments. One combined catalog service may contain multiple stages; an arbitrary cart of unrelated services is not introduced by the approved increment. Full verification: 429 backend tests and 351 Flutter tests passed; see final-sprint evidence documents. These are source/test results; the preserved demo database has not received the new migrations and a live final demo is not yet claimed.

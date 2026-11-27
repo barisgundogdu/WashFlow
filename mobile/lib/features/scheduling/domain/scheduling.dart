@@ -126,12 +126,14 @@ class SchedulingRequirement {
       category = _s(j, 'category'),
       workAreaId = invitationId(j['workAreaId']),
       version = _n(j, 'version'),
-      singleStageConfirmed = j['singleStageConfirmed'] as bool {
+      singleStageConfirmed = j['singleStageConfirmed'] as bool,
+      stagePlanEnabled = j['stagePlanEnabled'] as bool? ?? false {
     if (!vehicleCategories.containsKey(category)) throw const FormatException();
   }
   final String id, businessId, serviceId, category, workAreaId;
   final int version;
-  final bool singleStageConfirmed;
+  final bool singleStageConfirmed, stagePlanEnabled;
+  bool get configured => singleStageConfirmed || stagePlanEnabled;
 }
 
 class EmployeeAvailability {
@@ -201,6 +203,21 @@ class AppointmentEvent {
   final DateTime newStart, newEnd, occurredAt;
 }
 
+class AppointmentStagePlan {
+  AppointmentStagePlan.fromJson(Map<String, dynamic> j)
+    : id = invitationId(j['id']),
+      sequence = _n(j, 'sequence'),
+      name = _s(j, 'name'),
+      offset = j['offsetMinutes'] as int,
+      minutes = _n(j, 'minutes'),
+      area = invitationId(j['workAreaId']),
+      employees = _n(j, 'employees') {
+    if (offset < 0) throw const FormatException();
+  }
+  final String id, name, area;
+  final int sequence, offset, minutes, employees;
+}
+
 class Appointment {
   Appointment.fromJson(Map<String, dynamic> j)
     : id = invitationId(j['id']),
@@ -227,6 +244,11 @@ class Appointment {
       reservations = List.unmodifiable(
         (j['reservations'] as List).map(
           (v) => AppointmentReservation.fromJson(v as Map<String, dynamic>),
+        ),
+      ),
+      stages = List.unmodifiable(
+        ((j['stages'] as List?) ?? []).map(
+          (s) => AppointmentStagePlan.fromJson(s as Map<String, dynamic>),
         ),
       ),
       events = List.unmodifiable(
@@ -260,6 +282,7 @@ class Appointment {
   final int? waitingMinutes;
   final Lira price;
   final DateTime startsAtUtc, activeEndsAtUtc;
+  final List<AppointmentStagePlan> stages;
   final List<AppointmentReservation> reservations;
   final List<AppointmentEvent> events;
   bool get cancelled => status == 'Cancelled';
@@ -457,7 +480,7 @@ String schedulingError(AuthError e) {
     'requirementInUse' ||
     'areaInUse' ||
     'capacityInUse' => 'Mevcut randevular bu değişikliğe izin vermiyor.',
-    'unsupportedStages' => 'Hizmet için tek etkin aşama onayı gereklidir.',
+    'unsupportedStages' => 'Hizmetin aşama planını, toplam süresini ve çalışan sayısını kontrol edin.',
     'invalidStatus' =>
       'Randevunun durumu bu işleme izin vermiyor. Güncel kaydı yükleyin.',
     _ => managementError(e),

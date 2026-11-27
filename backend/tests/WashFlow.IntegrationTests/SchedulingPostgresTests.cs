@@ -16,7 +16,7 @@ using WashFlow.Infrastructure.Scheduling;
 namespace WashFlow.IntegrationTests;
 
 [Trait("Category", "PostgreSQL")]
-public sealed class SchedulingPostgresTests(PostgresModelFixture fixture) : IClassFixture<PostgresModelFixture>
+public sealed partial class SchedulingPostgresTests(PostgresModelFixture fixture) : IClassFixture<PostgresModelFixture>
 {
     private static readonly DateTimeOffset Now = new(2030, 1, 1, 0, 0, 0, TimeSpan.Zero);
     private sealed class Clock : TimeProvider { public override DateTimeOffset GetUtcNow() => Now; }

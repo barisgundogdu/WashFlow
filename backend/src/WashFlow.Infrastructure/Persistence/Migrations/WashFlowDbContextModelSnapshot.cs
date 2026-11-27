@@ -1250,6 +1250,10 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("ReleasedAt");
 
+                    b.Property<Guid?>("StageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("StageId");
+
                     b.Property<DateTimeOffset>("StartsAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("StartsAtUtc");
@@ -1274,11 +1278,20 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("BusinessId", "AppointmentId", "EmployeeMembershipId")
                         .IsUnique()
-                        .HasFilter("\"ReleasedAt\" IS NULL AND \"EmployeeMembershipId\" IS NOT NULL");
+                        .HasFilter("\"ReleasedAt\" IS NULL AND \"EmployeeMembershipId\" IS NOT NULL AND \"StageId\" IS NULL");
 
                     b.HasIndex("BusinessId", "AppointmentId", "WorkAreaId")
                         .IsUnique()
-                        .HasFilter("\"ReleasedAt\" IS NULL AND \"WorkAreaId\" IS NOT NULL");
+                        .HasFilter("\"ReleasedAt\" IS NULL AND \"WorkAreaId\" IS NOT NULL AND \"StageId\" IS NULL");
+
+                    b.HasIndex("BusinessId", "AppointmentId", "StageId", "EmployeeMembershipId")
+                        .IsUnique()
+                        .HasFilter("\"ReleasedAt\" IS NULL AND \"EmployeeMembershipId\" IS NOT NULL AND \"StageId\" IS NOT NULL");
+
+                    b.HasIndex("BusinessId", "AppointmentId", "StageId", "WorkAreaId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_AppointmentResourceReservations_BusinessId_AppointmentId_S~1")
+                        .HasFilter("\"ReleasedAt\" IS NULL AND \"WorkAreaId\" IS NOT NULL AND \"StageId\" IS NOT NULL");
 
                     b.HasIndex("BusinessId", "EmployeeMembershipId", "StartsAtUtc", "EndsAtUtc")
                         .HasFilter("\"ReleasedAt\" IS NULL AND \"EmployeeMembershipId\" IS NOT NULL");
@@ -1297,6 +1310,66 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                             t.HasCheckConstraint("CK_AppointmentResourceReservations_Resource", "(\"WorkAreaId\" IS NULL) <> (\"EmployeeMembershipId\" IS NULL)");
 
                             t.HasCheckConstraint("CK_AppointmentResourceReservations_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.AppointmentStage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Employees")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Minutes")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("OffsetMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("WorkAreaId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId", "WorkAreaId");
+
+                    b.HasIndex("BusinessId", "AppointmentId", "Sequence")
+                        .IsUnique();
+
+                    b.ToTable("AppointmentStages", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_AppointmentStages_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_AppointmentStages_Plan", "\"Sequence\" BETWEEN 1 AND 20 AND \"OffsetMinutes\" >= 0 AND length(btrim(\"Name\")) BETWEEN 1 AND 100 AND \"Minutes\" BETWEEN 1 AND 10080 AND \"Employees\" BETWEEN 1 AND 100");
+
+                            t.HasCheckConstraint("CK_AppointmentStages_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
                         });
                 });
 
@@ -1387,6 +1460,10 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("SingleStageConfirmed");
 
+                    b.Property<bool>("StagePlanEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("StagePlanEnabled");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("UpdatedAt");
@@ -1417,6 +1494,74 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                             t.HasCheckConstraint("CK_ServiceSchedulingRequirements_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
 
                             t.HasCheckConstraint("CK_ServiceSchedulingRequirements_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
+                        });
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.ServiceStageTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Employees")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Minutes")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("WorkAreaId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("BusinessId", "Id");
+
+                    b.HasIndex("BusinessId", "WorkAreaId");
+
+                    b.HasIndex("BusinessId", "ServiceId", "Category", "Sequence")
+                        .IsUnique()
+                        .HasFilter("\"ArchivedAt\" IS NULL");
+
+                    b.ToTable("ServiceStageTemplates", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ServiceStageTemplates_Id", "\"Id\" <> '00000000-0000-0000-0000-000000000000'::uuid");
+
+                            t.HasCheckConstraint("CK_ServiceStageTemplates_Plan", "\"Sequence\" BETWEEN 1 AND 20 AND length(btrim(\"Name\")) BETWEEN 1 AND 100 AND \"Minutes\" BETWEEN 1 AND 10080 AND \"Employees\" BETWEEN 1 AND 100 AND (\"ArchivedAt\" IS NULL OR \"ArchivedAt\" >= \"CreatedAt\") AND \"Category\" IN ('Car','Suv','Van','Pickup','Motorcycle','Other')");
+
+                            t.HasCheckConstraint("CK_ServiceStageTemplates_Timestamps", "\"UpdatedAt\" >= \"CreatedAt\"");
                         });
                 });
 
@@ -1501,6 +1646,8 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<DateTimeOffset?>("PlannedStartUtc").HasColumnType("timestamp with time zone");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1562,9 +1709,9 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                     b.HasIndex("BusinessId", "RequestId")
                         .IsUnique();
 
-                    b.HasIndex("BusinessId", "WorkOrderId", "StageId");
-
                     b.HasIndex("BusinessId", "WorkOrderId");
+
+                    b.HasIndex("BusinessId", "WorkOrderId", "StageId");
 
                     b.ToTable("WorkOrderEvents", null, t =>
                         {
@@ -1618,10 +1765,17 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
+                    b.Property<Guid?>("WorkAreaId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("WorkOrderId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BusinessId", "WorkAreaId");
+
+                    b.HasIndex("BusinessId", "WorkOrderId").IsUnique().HasFilter("\"Status\" IN (3,4)");
 
                     b.HasIndex("BusinessId", "WorkOrderId", "Sequence")
                         .IsUnique();
@@ -1922,6 +2076,29 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .HasForeignKey("BusinessId", "WorkAreaId")
                         .HasPrincipalKey("BusinessId", "Id")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WashFlow.Domain.Scheduling.AppointmentStage", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "AppointmentId", "StageId")
+                        .HasPrincipalKey("BusinessId", "AppointmentId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.AppointmentStage", b =>
+                {
+                    b.HasOne("WashFlow.Domain.Scheduling.Appointment", null)
+                        .WithMany("Stages")
+                        .HasForeignKey("BusinessId", "AppointmentId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Scheduling.WorkArea", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "WorkAreaId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("WashFlow.Domain.Scheduling.EmployeeAvailability", b =>
@@ -1948,6 +2125,23 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("WashFlow.Domain.Catalog.BusinessService", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "ServiceId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.Scheduling.WorkArea", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "WorkAreaId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WashFlow.Domain.Scheduling.ServiceStageTemplate", b =>
+                {
                     b.HasOne("WashFlow.Domain.Catalog.BusinessService", null)
                         .WithMany()
                         .HasForeignKey("BusinessId", "ServiceId")
@@ -1990,22 +2184,28 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("WashFlow.Domain.WorkOrders.WorkOrderStage", null)
-                        .WithMany()
-                        .HasForeignKey("BusinessId", "WorkOrderId", "StageId")
-                        .HasPrincipalKey("BusinessId", "WorkOrderId", "Id")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("WashFlow.Domain.WorkOrders.WorkOrder", null)
                         .WithMany("Events")
                         .HasForeignKey("BusinessId", "WorkOrderId")
                         .HasPrincipalKey("BusinessId", "Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("WashFlow.Domain.WorkOrders.WorkOrderStage", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "WorkOrderId", "StageId")
+                        .HasPrincipalKey("BusinessId", "WorkOrderId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("WashFlow.Domain.WorkOrders.WorkOrderStage", b =>
                 {
+                    b.HasOne("WashFlow.Domain.Scheduling.WorkArea", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId", "WorkAreaId")
+                        .HasPrincipalKey("BusinessId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("WashFlow.Domain.WorkOrders.WorkOrder", null)
                         .WithMany("Stages")
                         .HasForeignKey("BusinessId", "WorkOrderId")
@@ -2046,6 +2246,8 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                     b.Navigation("Events");
 
                     b.Navigation("Reservations");
+
+                    b.Navigation("Stages");
                 });
 
             modelBuilder.Entity("WashFlow.Domain.WorkOrders.WorkOrder", b =>

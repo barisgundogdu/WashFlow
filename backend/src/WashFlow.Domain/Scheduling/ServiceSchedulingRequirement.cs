@@ -11,6 +11,7 @@ public sealed class ServiceSchedulingRequirement : IEntity
     public string Category { get; private init; } = null!;
     public Guid WorkAreaId { get; private set; }
     public bool SingleStageConfirmed { get; private set; }
+    public bool StagePlanEnabled { get; private set; }
     private ServiceSchedulingRequirement() { }
     public static ServiceSchedulingRequirement Create(Guid businessId, Guid serviceId, string category,
         Guid workAreaId, bool singleStageConfirmed, DateTimeOffset now)
@@ -22,6 +23,11 @@ public sealed class ServiceSchedulingRequirement : IEntity
     public void Update(Guid workAreaId, bool singleStageConfirmed, DateTimeOffset now)
     {
         SchedulingInvariant.Id(workAreaId); now = SchedulingInvariant.ChangeTime(now, UpdatedAt);
-        WorkAreaId = workAreaId; SingleStageConfirmed = singleStageConfirmed; UpdatedAt = now;
+        WorkAreaId = workAreaId; SingleStageConfirmed = singleStageConfirmed; StagePlanEnabled = false; UpdatedAt = now;
     }
+    public void EnableStagePlan(Guid workArea, DateTimeOffset now)
+    {
+        Update(workArea, false, now); StagePlanEnabled = true;
+    }
+
 }

@@ -80,3 +80,9 @@ P0 final verification: **415 backend tests passed (252 unit, 163 integration), 0
 ## Approved P1 continuation
 
 The user approved all three architecture increments on 25 November 2026 and explicitly prohibited applying migrations to the demo without further approval. Employee execution is now implemented in a focused working increment; see WORK_ORDER_INCREMENT.md. Customer booking, finance and distinct-resource ordered-stage allocation remain outstanding. P0 local commit: `40389ba`; no push/PR. Work-order changes are not yet represented by a delivered commit while final validation runs.
+
+
+The ordered-stage continuation adds independently configured areas/staff and immutable stage snapshots, plus eligible per-stage selection from an owner-selected staff pool. See ORDERED_STAGE_INCREMENT.md. The Chrome browser connection was additionally checked and is also signed out; public cards remain disabled. Projects writes are still unavailable, so exact pending changes remain documented rather than claimed as applied. Employee core local commit `40d4c9c` is verified; the staged increment remains under final verification at this checkpoint.
+
+
+Ordered-stage final evidence: 429 backend and 351 Flutter passed, no failures/skips; Flutter analysis and whitespace check clean. Migration 9 preserves existing rows and stage histories, with downgrade guards. Employee-stage functionality is ready for the next customer-booking increment; demo deployment is still explicitly unapproved.

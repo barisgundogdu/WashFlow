@@ -29,10 +29,10 @@ public sealed record WorkAreaView(Guid Id, Guid BusinessId, string Name, int Cap
 public sealed record AvailabilityView(Guid Id, Guid BusinessId, Guid MembershipId, DateTimeOffset StartsAtUtc,
     DateTimeOffset EndsAtUtc, DateTimeOffset? ArchivedAt, uint Version);
 public sealed record RequirementView(Guid Id, Guid BusinessId, Guid ServiceId, string Category, Guid WorkAreaId,
-    bool SingleStageConfirmed, uint Version);
+    bool SingleStageConfirmed, uint Version, bool StagePlanEnabled = false);
 public sealed record EmployeeView(Guid MembershipId, Guid BusinessId, string Name);
 public sealed record ReservationView(Guid Id, Guid? WorkAreaId, Guid? EmployeeMembershipId,
-    DateTimeOffset StartsAtUtc, DateTimeOffset EndsAtUtc, DateTimeOffset? ReleasedAt);
+    DateTimeOffset StartsAtUtc, DateTimeOffset EndsAtUtc, DateTimeOffset? ReleasedAt, Guid? StageId = null);
 public sealed record EventView(int Sequence,
     [property: JsonConverter(typeof(JsonStringEnumConverter<AppointmentEventKind>))] AppointmentEventKind Kind,
     [property: JsonConverter(typeof(JsonStringEnumConverter<AppointmentStatus>))] AppointmentStatus Status,
@@ -45,5 +45,5 @@ public sealed record AppointmentView(Guid Id, Guid BusinessId, uint Version,
     string ServiceName, string CustomerName, string VehiclePlate, string Category, string Price, string Currency,
     int ActiveMinutes, int? WaitingMinutes, int Employees, string TimeZoneId,
     DateTimeOffset StartsAtUtc, DateTimeOffset ActiveEndsAtUtc,
-    IReadOnlyList<ReservationView> Reservations, IReadOnlyList<EventView> Events);
+    IReadOnlyList<ReservationView> Reservations, IReadOnlyList<EventView> Events, IReadOnlyList<AppointmentStageView>? Stages = null);
 public sealed record AvailabilityCheckView(bool Available, DateTimeOffset StartsAtUtc, DateTimeOffset ActiveEndsAtUtc);

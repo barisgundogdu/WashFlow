@@ -1,3 +1,6 @@
+import '../service_catalog/domain/service_catalog.dart';
+import 'stage_template_screen.dart';
+
 import 'dart:async';
 import 'dart:math';
 
@@ -25,9 +28,11 @@ class WorkOrderScreen extends StatefulWidget {
     required this.isCurrent,
     required this.onAuthorizationFailure,
     this.scheduling,
+    this.catalog,
   });
   final WorkOrderService service;
   final SchedulingService? scheduling;
+  final CatalogService? catalog;
   final String business;
   final bool owner;
   final bool Function() isCurrent;
@@ -152,6 +157,33 @@ class _WorkOrderScreenState extends State<WorkOrderScreen>
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
               children: [
+                if (widget.owner &&
+                    widget.catalog != null &&
+                    widget.scheduling != null &&
+                    widget.service is StageTemplateService)
+                  TextButton.icon(
+                    icon: const Icon(Icons.account_tree),
+                    label: const Text('Hizmet aşamalarını yapılandır'),
+                    onPressed: busy
+                        ? null
+                        : () async {
+                            await Navigator.of(context).push<void>(
+                              MaterialPageRoute(
+                                builder: (_) => StageTemplateScreen(
+                                  service:
+                                      widget.service as StageTemplateService,
+                                  catalog: widget.catalog!,
+                                  scheduling: widget.scheduling!,
+                                  business: widget.business,
+                                  isCurrent: widget.isCurrent,
+                                  onAuthorizationFailure:
+                                      widget.onAuthorizationFailure,
+                                ),
+                              ),
+                            );
+                            if (mounted && widget.isCurrent()) await load();
+                          },
+                  ),
                 if (busy) const LinearProgressIndicator(),
                 if (error != null)
                   Text(
@@ -442,6 +474,8 @@ class _WorkOrderDetailState extends State<WorkOrderDetailScreen>
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             Text(workStatus[stage.status]!),
+                            if (stage.areaName != null)
+                              Text('Çalışma alanı: ${stage.areaName}'),
                             Text('Tahmini süre: ${stage.minutes} dakika'),
                             if (stage.status == 'InProgress' ||
                                 stage.status == 'Paused')
@@ -660,7 +694,7 @@ class _CreateOrderState extends State<_CreateOrder> {
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               const Text(
-                'Randevunun ayrılmış çalışma alanı ve çalışanları korunur. Aşamalar bu kaynaklarla sırayla yürütülür.',
+                'Randevunun ayrılmış aşama, alan ve çalışan planı korunur. Eski tek alanlı randevuların süresini aşamalara bölebilirsiniz.',
               ),
               OutlinedButton(
                 onPressed: busy
@@ -708,9 +742,22 @@ class _CreateOrderState extends State<_CreateOrder> {
                         setState(() {
                           selected = appointments.firstWhere((a) => a.id == id);
                           requestId = null;
-                          stages.first.minutes.text =
-                              '${selected!.activeMinutes}';
-                          stages.first.name.text = selected!.serviceName;
+                          for (final draft in stages) {
+                            draft.dispose();
+                          }
+                          stages = selected!.stages.isEmpty
+                              ? [
+                                  _StageDraft()
+                                    ..minutes.text =
+                                        '${selected!.activeMinutes}'
+                                    ..name.text = selected!.serviceName,
+                                ]
+                              : [
+                                  for (final plan in selected!.stages)
+                                    _StageDraft()
+                                      ..name.text = plan.name
+                                      ..minutes.text = '${plan.minutes}',
+                                ];
                         });
                       },
               ),
@@ -743,7 +790,7 @@ class _CreateOrderState extends State<_CreateOrder> {
                     children: [
                       TextField(
                         controller: stages[i].name,
-                        enabled: !busy,
+                        enabled: !busy && (selected?.stages.isEmpty ?? true),
                         maxLength: 100,
                         decoration: InputDecoration(
                           labelText: '${i + 1}. aşama adı',
@@ -752,7 +799,7 @@ class _CreateOrderState extends State<_CreateOrder> {
                       ),
                       TextField(
                         controller: stages[i].minutes,
-                        enabled: !busy,
+                        enabled: !busy && (selected?.stages.isEmpty ?? true),
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
                           labelText: 'Tahmini süre (dakika)',
@@ -763,7 +810,10 @@ class _CreateOrderState extends State<_CreateOrder> {
                   ),
                 ),
               TextButton(
-                onPressed: busy || stages.length >= 20
+                onPressed:
+                    busy ||
+                        stages.length >= 20 ||
+                        (selected?.stages.isNotEmpty ?? false)
                     ? null
                     : () {
                         setState(() {
@@ -775,7 +825,7 @@ class _CreateOrderState extends State<_CreateOrder> {
               ),
               if (stages.length > 1)
                 TextButton(
-                  onPressed: busy
+                  onPressed: busy || (selected?.stages.isNotEmpty ?? false)
                       ? null
                       : () {
                           setState(() {

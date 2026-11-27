@@ -77,6 +77,8 @@ public sealed class SchedulingConfiguration : IEntityTypeConfiguration<WorkArea>
         b.HasOne<WorkArea>().WithMany().HasForeignKey(x => new { x.BusinessId, x.WorkAreaId })
             .HasPrincipalKey(x => new { x.BusinessId, x.Id }).OnDelete(DeleteBehavior.Restrict);
         b.HasOne<User>().WithMany().HasForeignKey(x => x.CreatedByUserId).OnDelete(DeleteBehavior.Restrict);
+        b.HasMany(x => x.Stages).WithOne().HasForeignKey(x => new { x.BusinessId, x.AppointmentId }).HasPrincipalKey(x => new { x.BusinessId,x.Id }).OnDelete(DeleteBehavior.Restrict);
+        b.Navigation(x => x.Stages).HasField("stages").UsePropertyAccessMode(PropertyAccessMode.Field);
         b.HasMany(x => x.Events).WithOne().HasForeignKey(x => new { x.BusinessId, x.AppointmentId })
             .HasPrincipalKey(x => new { x.BusinessId, x.Id }).OnDelete(DeleteBehavior.Restrict);
         b.HasMany(x => x.Reservations).WithOne().HasForeignKey(x => new { x.BusinessId, x.AppointmentId })
@@ -104,14 +106,17 @@ public sealed class SchedulingConfiguration : IEntityTypeConfiguration<WorkArea>
             .HasPrincipalKey(x => new { x.BusinessId, x.Id }).OnDelete(DeleteBehavior.Restrict);
         b.HasOne<BusinessMembership>().WithMany().HasForeignKey(x => new { x.BusinessId, x.EmployeeMembershipId })
             .HasPrincipalKey(x => new { x.BusinessId, x.Id }).OnDelete(DeleteBehavior.Restrict);
+        b.HasOne<AppointmentStage>().WithMany().HasForeignKey(x=>new{x.BusinessId,x.AppointmentId,x.StageId}).HasPrincipalKey(x=>new{x.BusinessId,x.AppointmentId,x.Id}).OnDelete(DeleteBehavior.Restrict);
         b.ToTable("AppointmentResourceReservations", t => {
             t.HasCheckConstraint("CK_AppointmentResourceReservations_Resource", "(\"WorkAreaId\" IS NULL) <> (\"EmployeeMembershipId\" IS NULL)");
             t.HasCheckConstraint("CK_AppointmentResourceReservations_Release", "\"ReleasedAt\" IS NULL OR \"ReleasedAt\" >= \"CreatedAt\"");
         });
         b.HasIndex(x => new { x.BusinessId, x.WorkAreaId, x.StartsAtUtc, x.EndsAtUtc }).HasFilter("\"ReleasedAt\" IS NULL AND \"WorkAreaId\" IS NOT NULL");
         b.HasIndex(x => new { x.BusinessId, x.EmployeeMembershipId, x.StartsAtUtc, x.EndsAtUtc }).HasFilter("\"ReleasedAt\" IS NULL AND \"EmployeeMembershipId\" IS NOT NULL");
-        b.HasIndex(x => new { x.BusinessId, x.AppointmentId, x.EmployeeMembershipId }).IsUnique().HasFilter("\"ReleasedAt\" IS NULL AND \"EmployeeMembershipId\" IS NOT NULL");
-        b.HasIndex(x => new { x.BusinessId, x.AppointmentId, x.WorkAreaId }).IsUnique().HasFilter("\"ReleasedAt\" IS NULL AND \"WorkAreaId\" IS NOT NULL");
+        b.HasIndex(x => new { x.BusinessId, x.AppointmentId, x.EmployeeMembershipId }).IsUnique().HasFilter("\"ReleasedAt\" IS NULL AND \"EmployeeMembershipId\" IS NOT NULL AND \"StageId\" IS NULL");
+        b.HasIndex(x => new { x.BusinessId, x.AppointmentId, x.WorkAreaId }).IsUnique().HasFilter("\"ReleasedAt\" IS NULL AND \"WorkAreaId\" IS NOT NULL AND \"StageId\" IS NULL");
+        b.HasIndex(x=>new{x.BusinessId,x.AppointmentId,x.StageId,x.EmployeeMembershipId}).IsUnique().HasFilter("\"ReleasedAt\" IS NULL AND \"EmployeeMembershipId\" IS NOT NULL AND \"StageId\" IS NOT NULL");
+        b.HasIndex(x=>new{x.BusinessId,x.AppointmentId,x.StageId,x.WorkAreaId}).IsUnique().HasFilter("\"ReleasedAt\" IS NULL AND \"WorkAreaId\" IS NOT NULL AND \"StageId\" IS NOT NULL");
     }
     public void Configure(EntityTypeBuilder<SchedulingCreateReceipt> b)
     {
