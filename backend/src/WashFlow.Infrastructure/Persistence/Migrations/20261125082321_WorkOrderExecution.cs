@@ -176,7 +176,7 @@ namespace WashFlow.Infrastructure.Persistence.Migrations
                 name: "IX_WorkStageAssignments_BusinessId_EmployeeMembershipId_StageId",
                 table: "WorkStageAssignments",
                 columns: new[] { "BusinessId", "EmployeeMembershipId", "StageId" });
-            migrationBuilder.Sql("CREATE TRIGGER work_order_event_immutable BEFORE UPDATE OR DELETE ON \"WorkOrderEvents\" FOR EACH ROW EXECUTE FUNCTION washflow_scheduling_immutable()");
+            migrationBuilder.Sql("CREATE TRIGGER work_order_event_immutable BEFORE UPDATE OR DELETE ON \"WorkOrderEvents\" FOR EACH ROW EXECUTE FUNCTION washflow_scheduling_immutable();");
         }
 
         /// <inheritdoc />
